@@ -1,15 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="720" height="220" viewBox="0 0 720 220" role="img" aria-labelledby="title desc">
   <title id="title">Logo CFVV41</title>
-  <desc id="desc">Logo du Club des fous du Volant Vendomois avec volant dynamique.</desc>
+  <desc id="desc">Logo du Club des fous du Volant Vendomois avec raquette et volant de badminton.</desc>
   <rect width="720" height="220" rx="32" fill="#F7F9F7"/>
-  <circle cx="116" cy="110" r="72" fill="#10201B"/>
-  <path d="M143 54c27 10 40 34 34 62-8 39-42 70-91 90l-11-18c40-17 69-42 77-72 6-23-4-38-27-45l18-17Z" fill="#12B76A"/>
-  <path d="M47 84c30-18 70-14 100 8-27 6-48 24-64 53L47 84Z" fill="#FACC15"/>
-  <path d="M60 93l31 50M80 78l26 44M103 74l20 32" stroke="#10201B" stroke-width="8" stroke-linecap="round"/>
-  <path d="M43 175c27-16 58-26 91-30" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
-  <path d="M124 148l48 48" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
-  <path d="M124 148l48 48" stroke="#12B76A" stroke-width="8" stroke-linecap="round"/>
-  <text x="220" y="105" fill="#10201B" font-family="Inter, Arial, sans-serif" font-size="58" font-weight="900" letter-spacing="1">CFVV41</text>
-  <text x="222" y="146" fill="#3F4D48" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Club des fous du Volant Vendomois</text>
-  <path d="M224 167h352" stroke="#12B76A" stroke-width="8" stroke-linecap="round"/>
+  <rect x="40" y="34" width="152" height="152" rx="36" fill="#10201B"/>
+  <svg x="52" y="46" width="128" height="128" viewBox="0 0 64 64">
+    <g transform="rotate(-28 34 33)">
+      <ellipse cx="39" cy="23" rx="11" ry="15" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+      <path d="M30 22h18M32 15c4 3 9 3 14 0M32 30c4-3 9-3 14 0M39 9v28" stroke="#B8F7D4" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M31 36L18 53" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
+      <path d="M31 36L18 53" stroke="#12B76A" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
+    <g transform="rotate(14 24 25)">
+      <path d="M12 11h26l-8 25H20L12 11Z" fill="#F8FAFC"/>
+      <path d="M13 12l8 23M21 12l3 23M29 12l-3 23M37 12l-8 23" stroke="#10201B" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M19 35h12l3 8-6 5H22l-6-5 3-8Z" fill="#FACC15"/>
+      <path d="M19 35h12" stroke="#10201B" stroke-width="1.8" stroke-linecap="round"/>
+    </g>
+  </svg>
+  <text x="228" y="105" fill="#10201B" font-family="Inter, Arial, sans-serif" font-size="58" font-weight="900" letter-spacing="1">CFVV41</text>
+  <text x="230" y="146" fill="#3F4D48" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Club des fous du Volant Vendomois</text>
+  <path d="M232 168h300" stroke="#12B76A" stroke-width="8" stroke-linecap="round"/>
 </svg>

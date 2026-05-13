@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Medal, Sparkles, Trophy, UsersRound } from "lucide-react";
-import { ClubLogo } from "@/components/brand/club-logo";
 import { SlotCard } from "@/components/planning/slot-card";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -17,7 +16,6 @@ export default function HomePage() {
       <section className="border-b border-court-200 bg-white">
         <div className="mx-auto grid min-h-[560px] max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <div>
-            <ClubLogo className="mb-8" />
             <h1 className="max-w-3xl text-4xl font-black leading-tight text-court-900 sm:text-6xl">
               Club des fous du Volant Vendômois
             </h1>
