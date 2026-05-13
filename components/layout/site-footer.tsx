@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MapPin } from "lucide-react";
+import { ClubLogo } from "@/components/brand/club-logo";
 import { siteNavigation, utilityNavigation } from "@/lib/navigation";
 
 export function SiteFooter() {
@@ -8,16 +9,13 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr_1fr] lg:px-8">
         <div>
           <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-court-900 text-sm font-black text-shuttle">
-              41
-            </span>
-            <div>
-              <p className="font-black uppercase text-court-900">CFVV41</p>
-              <p className="text-sm text-ink-500">Club des fous du Volant Vendômois.</p>
-            </div>
+            <ClubLogo />
           </div>
           <p className="mt-5 max-w-md text-sm leading-6 text-ink-500">
             Planning, réservations, volants, classements, espace adhérent et administration du club.
+          </p>
+          <p className="mt-4 text-xs font-semibold text-ink-500">
+            © 2026 Club des fous du Volant Vendômois. Tous droits réservés.
           </p>
         </div>
         <div>

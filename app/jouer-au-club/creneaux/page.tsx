@@ -1,4 +1,5 @@
 import { PlanningExperience } from "@/components/planning/planning-experience";
+import { Card } from "@/components/ui/card";
 import { getUpcomingSlots } from "@/services/club.service";
 
 export default function CreneauxPage() {
@@ -11,6 +12,26 @@ export default function CreneauxPage() {
           Tous les créneaux du club, avec filtres, recherche, statut et réservation.
         </p>
       </div>
+
+      <Card className="mb-8 p-6">
+        <div className="grid gap-6 lg:grid-cols-[180px_1fr]">
+          <div>
+            <p className="text-lg font-black text-court-900">Octobre</p>
+            <p className="mt-1 text-sm font-semibold text-ink-500">Créneaux réguliers</p>
+          </div>
+          <div>
+            <h2 className="text-lg font-black text-danger">Créneaux d'entraînements</h2>
+            <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-7 text-ink-700">
+              <li>Mardi : 19h30 à 22h30</li>
+              <li>Mercredi : 18h30 à 20h30</li>
+              <li>Jeudi : 19h30 à 22h30</li>
+              <li>Vendredi : sur réservation selon le nombre de participants</li>
+            </ul>
+            <p className="mt-5 text-base text-ink-600">Le CFVV41</p>
+          </div>
+        </div>
+      </Card>
+
       <PlanningExperience slots={getUpcomingSlots()} />
     </div>
   );

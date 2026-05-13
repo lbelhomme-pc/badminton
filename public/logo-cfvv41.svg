@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="220" viewBox="0 0 720 220" role="img" aria-labelledby="title desc">
+  <title id="title">Logo CFVV41</title>
+  <desc id="desc">Logo du Club des fous du Volant Vendomois avec volant dynamique.</desc>
+  <rect width="720" height="220" rx="32" fill="#F7F9F7"/>
+  <circle cx="116" cy="110" r="72" fill="#10201B"/>
+  <path d="M143 54c27 10 40 34 34 62-8 39-42 70-91 90l-11-18c40-17 69-42 77-72 6-23-4-38-27-45l18-17Z" fill="#12B76A"/>
+  <path d="M47 84c30-18 70-14 100 8-27 6-48 24-64 53L47 84Z" fill="#FACC15"/>
+  <path d="M60 93l31 50M80 78l26 44M103 74l20 32" stroke="#10201B" stroke-width="8" stroke-linecap="round"/>
+  <path d="M43 175c27-16 58-26 91-30" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M124 148l48 48" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round"/>
+  <path d="M124 148l48 48" stroke="#12B76A" stroke-width="8" stroke-linecap="round"/>
+  <text x="220" y="105" fill="#10201B" font-family="Inter, Arial, sans-serif" font-size="58" font-weight="900" letter-spacing="1">CFVV41</text>
+  <text x="222" y="146" fill="#3F4D48" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="700">Club des fous du Volant Vendomois</text>
+  <path d="M224 167h352" stroke="#12B76A" stroke-width="8" stroke-linecap="round"/>
+</svg>

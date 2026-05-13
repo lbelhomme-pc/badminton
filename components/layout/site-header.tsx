@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { UserMenu } from "@/components/auth/user-menu";
+import { ClubLogo } from "@/components/brand/club-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -38,13 +39,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-court-200 bg-white/92 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3" aria-label="Accueil du CFVV41">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-court-900 text-sm font-black text-shuttle">
-            41
-          </span>
-          <span className="hidden sm:block">
-            <span className="block text-sm font-black uppercase tracking-wide text-court-900">CFVV41</span>
-            <span className="block text-xs font-medium text-ink-500">Club des fous du Volant Vendômois</span>
-          </span>
+          <ClubLogo />
         </Link>
 
         <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigation principale">
