@@ -18,7 +18,7 @@ function isStandalone() {
 export function PwaInstallPrompt() {
   const [installEvent, setInstallEvent] = useState<BeforeInstallPromptEvent | null>(null);
   const [visible, setVisible] = useState(false);
-  const [showIosHint, setShowIosHint] = useState(false);
+  const [showHint, setShowHint] = useState(false);
 
   const isIos = useMemo(() => {
     if (typeof navigator === "undefined") return false;
@@ -30,7 +30,7 @@ export function PwaInstallPrompt() {
       navigator.serviceWorker.register("/sw.js").catch(() => undefined);
     }
 
-    if (isStandalone() || window.localStorage.getItem("cfvv41-pwa-dismissed") === "true") {
+    if (isStandalone()) {
       return;
     }
 
@@ -43,8 +43,8 @@ export function PwaInstallPrompt() {
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
 
     const fallbackTimer = window.setTimeout(() => {
-      if (isIos && !isStandalone()) {
-        setShowIosHint(true);
+      if (!isStandalone()) {
+        setShowHint(true);
         setVisible(true);
       }
     }, 1400);
@@ -64,11 +64,10 @@ export function PwaInstallPrompt() {
       return;
     }
 
-    setShowIosHint(true);
+    setShowHint(true);
   }
 
   function dismiss() {
-    window.localStorage.setItem("cfvv41-pwa-dismissed", "true");
     setVisible(false);
   }
 
@@ -86,9 +85,11 @@ export function PwaInstallPrompt() {
             <p className="mt-1 text-sm leading-5 text-ink-500">
               Accès rapide aux créneaux, réservations et infos du club.
             </p>
-            {showIosHint && !installEvent ? (
+            {showHint && !installEvent ? (
               <p className="mt-2 rounded-lg bg-court-50 px-3 py-2 text-xs font-semibold leading-5 text-ink-600">
-                Sur iPhone : bouton Partager, puis Ajouter à l'écran d'accueil.
+                {isIos
+                  ? "Sur iPhone : bouton Partager, puis Ajouter à l'écran d'accueil."
+                  : "Sur Android : menu du navigateur, puis Installer l'application."}
               </p>
             ) : null}
             <div className="mt-3 flex gap-2">
