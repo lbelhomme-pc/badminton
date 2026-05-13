@@ -53,6 +53,21 @@ export interface ProfileRow {
   categorie: string | null;
 }
 
+export interface RankingRow {
+  id: number;
+  display_name: string;
+  categorie: string | null;
+  classement_simple: string | null;
+  classement_double: string | null;
+  classement_mixte: string | null;
+  points_simple: number | null;
+  points_double: number | null;
+  points_mixte: number | null;
+  progression: string | null;
+  equipe: string | null;
+  synced_at: string | null;
+}
+
 export async function fetchCreneaux() {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { data: [] as CreneauRow[], error: "Configuration Supabase manquante." };
@@ -201,4 +216,20 @@ export async function fetchProfiles() {
 
   const { data, error } = await supabase.from("profiles").select("id, prenom, nom, email, telephone, role, categorie").order("nom");
   return { data: (data ?? []) as ProfileRow[], error: error?.message ?? null };
+}
+
+export async function fetchPublicRankings() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as RankingRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase
+    .from("rankings")
+    .select(
+      "id, display_name, categorie, classement_simple, classement_double, classement_mixte, points_simple, points_double, points_mixte, progression, equipe, synced_at"
+    )
+    .eq("active", true)
+    .eq("visibility", "public")
+    .order("display_name", { ascending: true });
+
+  return { data: (data ?? []) as RankingRow[], error: error?.message ?? null };
 }

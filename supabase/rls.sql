@@ -57,6 +57,7 @@ alter table public.reservations enable row level security;
 alter table public.actualites enable row level security;
 alter table public.volants enable row level security;
 alter table public.commandes_volants enable row level security;
+alter table public.rankings enable row level security;
 
 -- Nettoyage pour permettre de reexecuter le fichier.
 drop policy if exists "profiles_select_own_or_admin" on public.profiles;
@@ -82,6 +83,9 @@ drop policy if exists "volants_admin_all" on public.volants;
 drop policy if exists "commandes_volants_insert_own" on public.commandes_volants;
 drop policy if exists "commandes_volants_select_own_or_admin" on public.commandes_volants;
 drop policy if exists "commandes_volants_admin_update" on public.commandes_volants;
+
+drop policy if exists "rankings_public_select_active" on public.rankings;
+drop policy if exists "rankings_admin_all" on public.rankings;
 
 -- profiles
 create policy "profiles_select_own_or_admin"
@@ -187,5 +191,17 @@ using (auth.uid() = user_id or public.is_admin());
 create policy "commandes_volants_admin_update"
 on public.commandes_volants
 for update
+using (public.is_admin())
+with check (public.is_admin());
+
+-- rankings
+create policy "rankings_public_select_active"
+on public.rankings
+for select
+using (active = true and visibility = 'public');
+
+create policy "rankings_admin_all"
+on public.rankings
+for all
 using (public.is_admin())
 with check (public.is_admin());
