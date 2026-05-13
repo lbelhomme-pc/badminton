@@ -1,0 +1,162 @@
+import Link from "next/link";
+import { ArrowRight, CalendarDays, MapPin, Medal, Sparkles, Trophy, UsersRound } from "lucide-react";
+import { SlotCard } from "@/components/planning/slot-card";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { clubStats, news } from "@/lib/mock-data";
+import { formatDate } from "@/lib/utils";
+import { getEvents, getOpenSlots } from "@/services/club.service";
+
+export default function HomePage() {
+  const openSlots = getOpenSlots().slice(0, 3);
+  const events = getEvents();
+
+  return (
+    <div>
+      <section className="relative min-h-[620px] overflow-hidden">
+        <div className="hero-court" aria-hidden="true">
+          <div className="court-net" />
+          <div className="court-line-h" />
+          <div className="court-shuttle right-[12%] top-[18%]" />
+          <div className="court-shuttle bottom-[18%] left-[9%] scale-75 opacity-70" />
+        </div>
+        <div className="absolute inset-0 bg-court-900/72" />
+        <div className="relative mx-auto flex min-h-[620px] max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8">
+          <div className="max-w-3xl">
+            <Badge className="border-white/20 bg-white/10 text-white backdrop-blur">Club sportif moderne</Badge>
+            <h1 className="mt-6 max-w-3xl text-5xl font-black leading-tight text-white sm:text-6xl">
+              CFVV41, le planning simple du Club des fous du Volant Vendômois.
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/82">
+              Retrouvez les créneaux, réservez votre place, commandez des volants et suivez la vie du club depuis une interface rapide et claire.
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/inscription"
+                className="inline-flex h-12 items-center justify-center rounded-lg bg-court-500 px-5 font-semibold text-white shadow-soft transition hover:bg-court-600"
+              >
+                Rejoindre le club
+                <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+              </Link>
+              <Link
+                href="/creneaux"
+                className="inline-flex h-12 items-center justify-center rounded-lg border border-white/24 bg-white/10 px-5 font-semibold text-white backdrop-blur transition hover:bg-white/18"
+              >
+                Voir les créneaux
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto -mt-12 grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+        {[
+          { href: "/creneaux", label: "Créneaux", text: "Voir les prochains créneaux", icon: CalendarDays },
+          { href: "/reservation-creneau", label: "Réserver", text: "Choisir une place ouverte", icon: UsersRound },
+          { href: "/commande-volants", label: "Volants", text: "Réserver un tube", icon: Sparkles },
+          { href: "/inscription", label: "Inscriptions", text: "Accéder au lien FFBaD", icon: Trophy }
+        ].map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link key={item.href} href={item.href} className="group rounded-lg border border-court-200 bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift">
+              <Icon className="h-6 w-6 text-court-500" aria-hidden="true" />
+              <p className="mt-4 text-lg font-black text-court-900">{item.label}</p>
+              <p className="mt-1 text-sm text-ink-500">{item.text}</p>
+            </Link>
+          );
+        })}
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Réserver vite</p>
+            <h2 className="mt-2 text-3xl font-black text-court-900">Prochains créneaux ouverts</h2>
+          </div>
+          <Link className="text-sm font-bold text-court-600 hover:text-court-900" href="/creneaux">
+            Voir tout le planning
+          </Link>
+        </div>
+        <div className="mt-6 grid gap-4 md:grid-cols-3">
+          {openSlots.map((slot) => (
+            <SlotCard key={slot.id} slot={slot} compact />
+          ))}
+        </div>
+      </section>
+
+      <section className="bg-white py-14">
+        <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+          {clubStats.map((stat) => (
+            <div key={stat.label} className="rounded-lg border border-court-200 bg-court-50 p-5">
+              <p className="text-4xl font-black text-court-900">{stat.value}</p>
+              <p className="mt-1 text-sm font-semibold text-ink-500">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Pour chaque joueur</p>
+            <h2 className="mt-2 text-3xl font-black text-court-900">Loisirs, jeunes, adultes et compétiteurs.</h2>
+            <p className="mt-4 leading-7 text-ink-500">
+              Les créneaux sont pensés pour que chacun trouve sa place : découvrir, progresser, préparer les interclubs ou simplement jouer avec plaisir.
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {[
+              ["Débutants", "Un cadre simple pour apprendre les bases sans pression."],
+              ["Jeunes", "École de badminton, motricité, technique et matchs."],
+              ["Adultes", "Entraînements structurés et jeu libre convivial."],
+              ["Compétiteurs", "Préparation interclubs, doubles et intensité maîtrisée."]
+            ].map(([title, text]) => (
+              <Card key={title} className="p-5">
+                <Medal className="h-6 w-6 text-court-500" aria-hidden="true" />
+                <h3 className="mt-4 text-xl font-black text-court-900">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-ink-500">{text}</p>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-court-100 py-16">
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Vie du club</p>
+            <h2 className="mt-2 text-3xl font-black text-court-900">Événements à venir</h2>
+            <div className="mt-6 grid gap-4">
+              {events.map((event) => (
+                <Card key={event.id} className="p-5">
+                  <Badge className="border-blue-200 bg-blue-50 text-blue-700">{event.type}</Badge>
+                  <h3 className="mt-3 text-xl font-black text-court-900">{event.title}</h3>
+                  <p className="mt-1 text-sm font-semibold text-court-600">{formatDate(event.date)}</p>
+                  <p className="mt-3 text-sm leading-6 text-ink-500">{event.description}</p>
+                </Card>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Actualités</p>
+            <h2 className="mt-2 text-3xl font-black text-court-900">Infos utiles</h2>
+            <div className="mt-6 grid gap-4">
+              {news.map((post) => (
+                <Card key={post.id} className="p-5">
+                  <div className="flex items-start gap-3">
+                    <MapPin className="mt-1 h-5 w-5 text-warning" aria-hidden="true" />
+                    <div>
+                      <p className="text-xs font-bold uppercase text-warning">{post.category}</p>
+                      <h3 className="mt-1 text-xl font-black text-court-900">{post.title}</h3>
+                      <p className="mt-2 text-sm leading-6 text-ink-500">{post.excerpt}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}

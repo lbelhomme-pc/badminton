@@ -1,0 +1,46 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { CalendarDays, Home, MapPin, Package, UserRound } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const items = [
+  { href: "/", label: "Accueil", icon: Home },
+  { href: "/creneaux", label: "Créneaux", icon: CalendarDays },
+  { href: "/reservation-creneau", label: "Réserver", icon: MapPin },
+  { href: "/commande-volants", label: "Volants", icon: Package },
+  { href: "/espace-adherent", label: "Compte", icon: UserRound }
+];
+
+export function MobileBottomNav() {
+  const pathname = usePathname();
+
+  return (
+    <nav
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-court-200 bg-white/95 px-2 pb-2 pt-1 shadow-soft backdrop-blur md:hidden"
+      aria-label="Navigation mobile"
+    >
+      <div className="grid grid-cols-5">
+        {items.map((item) => {
+          const Icon = item.icon;
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn(
+                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-semibold transition",
+                active ? "bg-court-100 text-court-900" : "text-ink-500 hover:bg-court-100 hover:text-court-900"
+              )}
+            >
+              <Icon className="h-4 w-4" aria-hidden="true" />
+              {item.label}
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}
