@@ -20,17 +20,26 @@ function CommandeVolantsContent() {
   const [volants, setVolants] = useState<VolantRow[]>([]);
   const [message, setMessage] = useState<string | null>(null);
 
+  async function load() {
+    const result = await fetchVolants();
+    setVolants(result.data.filter((volant) => volant.actif));
+    if (result.error) setMessage(result.error);
+  }
+
   useEffect(() => {
-    fetchVolants().then((result) => {
-      setVolants(result.data.filter((volant) => volant.actif));
-      if (result.error) setMessage(result.error);
-    });
+    load();
   }, []);
 
   async function order(volant: VolantRow) {
     if (!user) return;
+    if (volant.stock <= 0) {
+      setMessage("Ce modèle est momentanément en rupture de stock.");
+      return;
+    }
+
     const result = await createCommandeVolants(user.id, volant, 1);
     setMessage(result.message);
+    if (result.ok) await load();
   }
 
   return (
@@ -45,8 +54,8 @@ function CommandeVolantsContent() {
             <h2 className="mt-2 text-xl font-black text-court-900">{volant.marque} {volant.modele}</h2>
             <p className="mt-2 text-sm text-ink-500">Stock : {volant.stock}</p>
             <p className="mt-3 text-2xl font-black text-court-900">{Number(volant.prix).toFixed(2)} €</p>
-            <Button className="mt-5 w-full" onClick={() => order(volant)}>
-              Commander un tube
+            <Button className="mt-5 w-full" disabled={volant.stock <= 0} onClick={() => order(volant)}>
+              {volant.stock <= 0 ? "Stock épuisé" : "Commander un tube"}
             </Button>
           </Card>
         ))}

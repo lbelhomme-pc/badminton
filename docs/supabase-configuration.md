@@ -29,6 +29,14 @@ Dans l'éditeur SQL Supabase, exécute dans cet ordre :
 
 Le premier fichier crée les tables, contraintes, index, triggers `updated_at`, le profil automatique à l'inscription et quelques données de démonstration. Le second active les règles Row Level Security.
 
+Si la base existe déjà et que tu veux seulement ajouter l'automatisation du stock des volants, exécute aussi :
+
+```sql
+-- contenu du fichier supabase/volants-stock.sql
+```
+
+Cette migration retire automatiquement un tube du stock quand un adhérent commande, et remet le stock si la commande passe au statut `annulee`.
+
 ## 4. Authentification
 
 Dans `Authentication > Providers`, active l'inscription email/mot de passe.

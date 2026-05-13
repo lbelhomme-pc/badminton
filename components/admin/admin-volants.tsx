@@ -17,6 +17,7 @@ export function AdminVolants() {
 function AdminVolantsContent() {
   const [volants, setVolants] = useState<VolantRow[]>([]);
   const [form, setForm] = useState({ marque: "", modele: "", type: "plume", prix: "22", stock: "12" });
+  const [restockById, setRestockById] = useState<Record<number, string>>({});
   const [message, setMessage] = useState<string | null>(null);
 
   async function load() {
@@ -52,10 +53,29 @@ function AdminVolantsContent() {
     if (result.ok) await load();
   }
 
+  async function restockVolant(volant: VolantRow) {
+    const quantity = Math.floor(Number(restockById[volant.id] ?? 0));
+
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      setMessage("Indique un nombre de tubes a ajouter au stock.");
+      return;
+    }
+
+    const result = await updateVolant(volant.id, { stock: volant.stock + quantity });
+    setMessage(result.ok ? `${quantity} tube(s) ajoute(s) au stock ${volant.marque}.` : result.message);
+
+    if (result.ok) {
+      setRestockById((current) => ({ ...current, [volant.id]: "" }));
+      await load();
+    }
+  }
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-black text-court-900">Gestion des volants</h1>
-      <p className="mt-3 max-w-2xl text-ink-500">Ajouter un modèle et ajuster rapidement le stock disponible.</p>
+      <p className="mt-3 max-w-2xl text-ink-500">
+        Ajouter un modèle, corriger un écart ou saisir un réassort quand le club achète des tubes.
+      </p>
 
       <Card className="mt-8 p-5">
         <h2 className="text-xl font-black text-court-900">Nouveau volant</h2>
@@ -96,12 +116,32 @@ function AdminVolantsContent() {
             </div>
             <p className="mt-4 text-3xl font-black text-court-900">{volant.stock}</p>
             <p className="text-sm text-ink-500">{Number(volant.prix).toFixed(2)} € le tube</p>
+            <div className="mt-5 rounded-2xl border border-court-100 bg-court-50 p-3">
+              <label className="text-sm font-bold text-court-900" htmlFor={`restock-${volant.id}`}>
+                Réassort club
+              </label>
+              <div className="mt-2 flex gap-2">
+                <input
+                  id={`restock-${volant.id}`}
+                  min="1"
+                  type="number"
+                  inputMode="numeric"
+                  value={restockById[volant.id] ?? ""}
+                  onChange={(event) => setRestockById((current) => ({ ...current, [volant.id]: event.target.value }))}
+                  placeholder="Nombre de tubes"
+                  className="h-11 min-w-0 flex-1 rounded-lg border border-court-200 bg-white px-3 text-sm"
+                />
+                <Button type="button" onClick={() => restockVolant(volant)}>
+                  Ajouter
+                </Button>
+              </div>
+            </div>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => patchVolant(volant.id, { stock: Math.max(0, volant.stock - 1) })}>
-                -1
+                Correction -1
               </Button>
               <Button variant="outline" onClick={() => patchVolant(volant.id, { stock: volant.stock + 1 })}>
-                +1
+                Correction +1
               </Button>
               <Button variant="outline" onClick={() => patchVolant(volant.id, { actif: !volant.actif })}>
                 {volant.actif ? "Masquer" : "Afficher"}

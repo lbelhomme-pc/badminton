@@ -36,7 +36,10 @@
 - Créer une actualité dans `/admin/actualites`.
 - Vérifier la liste des adhérents dans `/admin/adherents`.
 - Ajouter un modèle de volant dans `/admin/volants`.
-- Ajuster le stock avec `+1` et `-1`.
+- Ajouter un réassort club dans `/admin/volants`.
+- Corriger ponctuellement le stock avec `Correction +1` et `Correction -1`.
+- Commander un tube depuis `/commande-volants` avec un compte adhérent : le stock doit diminuer automatiquement.
+- Passer la commande au statut `annulee` dans Supabase : le stock doit revenir.
 
 ## Sécurité RLS
 

@@ -207,7 +207,15 @@ export async function createCommandeVolants(userId: string, volant: VolantRow, q
     total: Number(volant.prix) * quantite
   });
 
-  return { ok: !error, message: error?.message ?? "Commande envoyée." };
+  if (error?.message.includes("Stock insuffisant")) {
+    return { ok: false, message: "Stock insuffisant pour cette commande." };
+  }
+
+  if (error?.message.includes("Volant indisponible")) {
+    return { ok: false, message: "Ce modèle de volant n'est plus disponible." };
+  }
+
+  return { ok: !error, message: error?.message ?? "Commande envoyée. Le stock a été mis à jour." };
 }
 
 export async function fetchProfiles() {
