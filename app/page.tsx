@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, MapPin, Medal, Sparkles, Trophy, UsersRound } from "lucide-react";
+import { ClubLogo } from "@/components/brand/club-logo";
 import { SlotCard } from "@/components/planning/slot-card";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -13,22 +14,15 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="relative min-h-[620px] overflow-hidden">
-        <div className="hero-court" aria-hidden="true">
-          <div className="court-net" />
-          <div className="court-line-h" />
-          <div className="court-shuttle right-[12%] top-[18%]" />
-          <div className="court-shuttle bottom-[18%] left-[9%] scale-75 opacity-70" />
-        </div>
-        <div className="absolute inset-0 bg-court-900/72" />
-        <div className="relative mx-auto flex min-h-[620px] max-w-7xl items-center px-4 py-16 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <Badge className="border-white/20 bg-white/10 text-white backdrop-blur">Club sportif moderne</Badge>
-            <h1 className="mt-6 max-w-3xl text-5xl font-black leading-tight text-white sm:text-6xl">
-              CFVV41, le planning simple du Club des fous du Volant Vendômois.
+      <section className="border-b border-court-200 bg-white">
+        <div className="mx-auto grid min-h-[560px] max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+          <div>
+            <ClubLogo className="mb-8" />
+            <h1 className="max-w-3xl text-4xl font-black leading-tight text-court-900 sm:text-6xl">
+              Club des fous du Volant Vendômois
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/82">
-              Retrouvez les créneaux, réservez votre place, commandez des volants et suivez la vie du club depuis une interface rapide et claire.
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-ink-600">
+              Créneaux, réservations, volants et informations du club dans une interface simple, lisible et pensée pour les adhérents.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link
@@ -40,16 +34,33 @@ export default function HomePage() {
               </Link>
               <Link
                 href="/creneaux"
-                className="inline-flex h-12 items-center justify-center rounded-lg border border-white/24 bg-white/10 px-5 font-semibold text-white backdrop-blur transition hover:bg-white/18"
+                className="inline-flex h-12 items-center justify-center rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-100"
               >
                 Voir les créneaux
               </Link>
             </div>
           </div>
+          <div className="grid gap-4">
+            <Card className="p-5">
+              <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Prochain réflexe</p>
+              <h2 className="mt-2 text-2xl font-black text-court-900">Réserver rapidement depuis le téléphone</h2>
+              <p className="mt-3 text-sm leading-6 text-ink-500">
+                Le site peut être installé comme une application mobile pour retrouver les créneaux et l'espace adhérent plus vite.
+              </p>
+            </Card>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {clubStats.slice(0, 2).map((stat) => (
+                <div key={stat.label} className="rounded-lg border border-court-200 bg-court-50 p-5">
+                  <p className="text-3xl font-black text-court-900">{stat.value}</p>
+                  <p className="mt-1 text-sm font-semibold text-ink-500">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto -mt-12 grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
+      <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-10 sm:px-6 md:grid-cols-4 lg:px-8">
         {[
           { href: "/creneaux", label: "Créneaux", text: "Voir les prochains créneaux", icon: CalendarDays },
           { href: "/reservation-creneau", label: "Réserver", text: "Choisir une place ouverte", icon: UsersRound },

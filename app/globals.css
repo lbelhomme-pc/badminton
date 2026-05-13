@@ -33,68 +33,6 @@ textarea {
   background: rgba(18, 183, 106, 0.22);
 }
 
-.hero-court {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: #12352b;
-}
-
-.hero-court::before {
-  content: "";
-  position: absolute;
-  inset: 42px 26px;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  opacity: 0.8;
-}
-
-.hero-court::after {
-  content: "";
-  position: absolute;
-  inset: 78px 70px;
-  border: 1px solid rgba(255, 255, 255, 0.42);
-}
-
-.court-net {
-  position: absolute;
-  left: 50%;
-  top: 34px;
-  bottom: 34px;
-  width: 2px;
-  background: rgba(250, 204, 21, 0.85);
-}
-
-.court-line-h {
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  top: 50%;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.45);
-}
-
-.court-shuttle {
-  position: absolute;
-  width: 96px;
-  height: 96px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px);
-}
-
-.court-shuttle::after {
-  content: "";
-  position: absolute;
-  left: 34px;
-  top: 20px;
-  width: 28px;
-  height: 48px;
-  border-radius: 999px 999px 8px 8px;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  border-bottom-color: #facc15;
-}
-
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
