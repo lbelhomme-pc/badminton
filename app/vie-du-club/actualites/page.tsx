@@ -1,5 +1,5 @@
 import { InfoPage } from "@/components/public/info-page";
-import { news } from "@/lib/mock-data";
+import { ActualitesList } from "@/components/public/actualites-list";
 
 export default function ActualitesPage() {
   return (
@@ -7,10 +7,9 @@ export default function ActualitesPage() {
       eyebrow="Vie du club"
       title="Actualités"
       intro="Les dernières informations utiles du club : planning, bénévoles, événements et annonces."
-      cards={news.map((post) => ({
-        title: post.title,
-        text: post.excerpt
-      }))}
-    />
+      cards={[]}
+    >
+      <ActualitesList />
+    </InfoPage>
   );
 }

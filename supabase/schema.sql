@@ -134,6 +134,27 @@ create trigger volants_set_updated_at
 before update on public.volants
 for each row execute function public.set_updated_at();
 
+create table if not exists public.tarifs (
+  id bigint generated always as identity primary key,
+  titre text not null,
+  description text,
+  montant numeric(10,2) not null default 0,
+  public text,
+  ordre integer not null default 10,
+  actif boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint tarifs_montant_check check (montant >= 0)
+);
+
+create index if not exists tarifs_actif_idx on public.tarifs(actif);
+create index if not exists tarifs_ordre_idx on public.tarifs(ordre);
+
+drop trigger if exists tarifs_set_updated_at on public.tarifs;
+create trigger tarifs_set_updated_at
+before update on public.tarifs
+for each row execute function public.set_updated_at();
+
 create table if not exists public.commandes_volants (
   id bigint generated always as identity primary key,
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -338,3 +359,14 @@ from (
     ('RSL', 'Training A9', 'plume', 15.00::numeric, 8, true)
 ) as seed(marque, modele, type, prix, stock, actif)
 where not exists (select 1 from public.volants);
+
+insert into public.tarifs (titre, description, montant, public, ordre, actif)
+select *
+from (
+  values
+    ('Jeunes', 'Ecole de badminton, creneaux encadres et licence.', 0.00::numeric, 'Jeunes', 1, true),
+    ('Adultes loisirs', 'Acces aux creneaux de jeu libre adultes.', 0.00::numeric, 'Adultes', 2, true),
+    ('Competition', 'Licence adaptee aux tournois et interclubs.', 0.00::numeric, 'Competiteurs', 3, true),
+    ('Essai', 'Jusqu''a 3 seances gratuites pour decouvrir.', 0.00::numeric, 'Decouverte', 4, true)
+) as seed(titre, description, montant, public, ordre, actif)
+where not exists (select 1 from public.tarifs);

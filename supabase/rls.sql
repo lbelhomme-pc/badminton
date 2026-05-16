@@ -58,6 +58,7 @@ alter table public.actualites enable row level security;
 alter table public.volants enable row level security;
 alter table public.commandes_volants enable row level security;
 alter table public.rankings enable row level security;
+alter table public.tarifs enable row level security;
 
 -- Nettoyage pour permettre de reexecuter le fichier.
 drop policy if exists "profiles_select_own_or_admin" on public.profiles;
@@ -79,6 +80,9 @@ drop policy if exists "actualites_admin_all" on public.actualites;
 
 drop policy if exists "volants_select_active" on public.volants;
 drop policy if exists "volants_admin_all" on public.volants;
+
+drop policy if exists "tarifs_public_select_active" on public.tarifs;
+drop policy if exists "tarifs_admin_all" on public.tarifs;
 
 drop policy if exists "commandes_volants_insert_own" on public.commandes_volants;
 drop policy if exists "commandes_volants_select_own_or_admin" on public.commandes_volants;
@@ -172,6 +176,18 @@ using (actif = true or public.is_admin());
 
 create policy "volants_admin_all"
 on public.volants
+for all
+using (public.is_admin())
+with check (public.is_admin());
+
+-- tarifs
+create policy "tarifs_public_select_active"
+on public.tarifs
+for select
+using (actif = true or public.is_admin());
+
+create policy "tarifs_admin_all"
+on public.tarifs
 for all
 using (public.is_admin())
 with check (public.is_admin());

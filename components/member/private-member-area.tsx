@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
+import { PasswordUpdateForm } from "@/components/auth/password-update-form";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -67,6 +68,11 @@ function MemberContent() {
               <p>Rôle : {profile?.role ?? "adherent"}</p>
             </div>
           </Card>
+          <PasswordUpdateForm
+            compact
+            title="Sécurité du compte"
+            intro="Modifie ton mot de passe sans repasser par le lien de mot de passe oublié."
+          />
           <Card className="p-5">
             <h2 className="text-xl font-black text-court-900">Actualités internes</h2>
             {actualites.length === 0 ? (

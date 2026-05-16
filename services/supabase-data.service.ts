@@ -43,6 +43,16 @@ export interface VolantRow {
   actif: boolean;
 }
 
+export interface TarifRow {
+  id: number;
+  titre: string;
+  description: string | null;
+  montant: number;
+  public: string | null;
+  ordre: number;
+  actif: boolean;
+}
+
 export interface ProfileRow {
   id: string;
   prenom: string | null;
@@ -163,6 +173,14 @@ export async function createActualite(input: { titre: string; contenu: string; v
   return { ok: !error, message: error?.message ?? "Actualité créée." };
 }
 
+export async function updateActualite(id: number, input: Partial<Pick<ActualiteRow, "titre" | "contenu" | "visible_public">>) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.from("actualites").update(input).eq("id", id);
+  return { ok: !error, message: error?.message ?? "Actualité mise à jour." };
+}
+
 export async function deleteActualite(id: number) {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
@@ -177,6 +195,43 @@ export async function fetchVolants() {
 
   const { data, error } = await supabase.from("volants").select("*").order("id", { ascending: true });
   return { data: (data ?? []) as VolantRow[], error: error?.message ?? null };
+}
+
+export async function fetchTarifs(includeInactive = false) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as TarifRow[], error: "Configuration Supabase manquante." };
+
+  let query = supabase.from("tarifs").select("*").order("ordre", { ascending: true });
+  if (!includeInactive) {
+    query = query.eq("actif", true);
+  }
+
+  const { data, error } = await query;
+  return { data: (data ?? []) as TarifRow[], error: error?.message ?? null };
+}
+
+export async function createTarif(input: Omit<TarifRow, "id">) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.from("tarifs").insert(input);
+  return { ok: !error, message: error?.message ?? "Tarif créé." };
+}
+
+export async function updateTarif(id: number, input: Partial<TarifRow>) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.from("tarifs").update(input).eq("id", id);
+  return { ok: !error, message: error?.message ?? "Tarif mis à jour." };
+}
+
+export async function deleteTarif(id: number) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.from("tarifs").delete().eq("id", id);
+  return { ok: !error, message: error?.message ?? "Tarif supprimé." };
 }
 
 export async function createVolant(input: Omit<VolantRow, "id">) {
@@ -224,6 +279,14 @@ export async function fetchProfiles() {
 
   const { data, error } = await supabase.from("profiles").select("id, prenom, nom, email, telephone, role, categorie").order("nom");
   return { data: (data ?? []) as ProfileRow[], error: error?.message ?? null };
+}
+
+export async function updateProfileRole(id: string, role: ProfileRow["role"]) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.from("profiles").update({ role }).eq("id", id);
+  return { ok: !error, message: error?.message ?? "Rôle mis à jour." };
 }
 
 export async function fetchPublicRankings() {

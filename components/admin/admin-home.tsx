@@ -9,6 +9,7 @@ import {
   fetchAllReservations,
   fetchCreneaux,
   fetchProfiles,
+  fetchTarifs,
   fetchVolants
 } from "@/services/supabase-data.service";
 
@@ -16,6 +17,7 @@ const adminLinks = [
   { href: "/admin/creneaux", label: "Gérer les créneaux", text: "Créer, activer ou désactiver les séances." },
   { href: "/admin/reservations", label: "Voir les réservations", text: "Suivre les demandes et modifier les statuts." },
   { href: "/admin/actualites", label: "Publier une actualité", text: "Informer les adhérents et les visiteurs." },
+  { href: "/admin/tarifs", label: "Modifier les tarifs", text: "Mettre à jour les prix affichés sur le site." },
   { href: "/admin/adherents", label: "Adhérents", text: "Consulter les profils utiles au club." },
   { href: "/admin/volants", label: "Volants", text: "Suivre le stock et les demandes simples." }
 ];
@@ -34,17 +36,19 @@ function AdminHomeContent() {
     reservations: 0,
     creneaux: 0,
     actualites: 0,
+    tarifs: 0,
     volants: 0
   });
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function load() {
-      const [profiles, reservations, creneaux, actualites, volants] = await Promise.all([
+      const [profiles, reservations, creneaux, actualites, tarifs, volants] = await Promise.all([
         fetchProfiles(),
         fetchAllReservations(),
         fetchCreneaux(),
         fetchActualites(true),
+        fetchTarifs(true),
         fetchVolants()
       ]);
 
@@ -53,10 +57,11 @@ function AdminHomeContent() {
         reservations: reservations.data.length,
         creneaux: creneaux.data.length,
         actualites: actualites.data.length,
+        tarifs: tarifs.data.length,
         volants: volants.data.length
       });
 
-      setMessage(profiles.error || reservations.error || creneaux.error || actualites.error || volants.error);
+      setMessage(profiles.error || reservations.error || creneaux.error || actualites.error || tarifs.error || volants.error);
     }
 
     load();
@@ -74,12 +79,13 @@ function AdminHomeContent() {
 
       {message ? <p className="mb-6 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">{message}</p> : null}
 
-      <section className="grid gap-4 md:grid-cols-5">
+      <section className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         {[
           ["Adhérents", stats.adherents],
           ["Réservations", stats.reservations],
           ["Créneaux", stats.creneaux],
           ["Actualités", stats.actualites],
+          ["Tarifs", stats.tarifs],
           ["Volants", stats.volants]
         ].map(([label, value]) => (
           <Card key={label} className="p-5">

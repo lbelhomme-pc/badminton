@@ -33,9 +33,12 @@ interface AuthContextValue {
   profile: ClubProfile | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  isPasswordRecovery: boolean;
   login: (email: string, password: string) => Promise<{ ok: boolean; message: string }>;
   signup: (input: SignupInput) => Promise<{ ok: boolean; message: string }>;
   resetPassword: (email: string) => Promise<{ ok: boolean; message: string }>;
+  updatePassword: (password: string) => Promise<{ ok: boolean; message: string }>;
+  clearPasswordRecovery: () => void;
   logout: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -57,6 +60,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<ClubProfile | null>(null);
   const [loading, setLoading] = useState(isSupabaseConfigured);
+  const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+
+  const clearPasswordRecovery = useCallback(() => {
+    setIsPasswordRecovery(false);
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem("cfvv41:password-recovery");
+    }
+  }, []);
 
   const fetchProfile = useCallback(
     async (userId: string) => {
@@ -91,6 +102,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let mounted = true;
 
+    if (typeof window !== "undefined") {
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const isRecoveryUrl = hashParams.get("type") === "recovery" || window.sessionStorage.getItem("cfvv41:password-recovery") === "1";
+
+      if (isRecoveryUrl) {
+        setIsPasswordRecovery(true);
+        window.sessionStorage.setItem("cfvv41:password-recovery", "1");
+      }
+    }
+
     supabase.auth.getUser().then(async ({ data }) => {
       if (!mounted) return;
       setUser(data.user);
@@ -100,12 +121,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setIsPasswordRecovery(true);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.setItem("cfvv41:password-recovery", "1");
+          window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+        }
+      }
+
       setUser(session?.user ?? null);
       if (session?.user) {
         await fetchProfile(session.user.id);
       } else {
         setProfile(null);
+        setIsPasswordRecovery(false);
+        if (typeof window !== "undefined") {
+          window.sessionStorage.removeItem("cfvv41:password-recovery");
+        }
       }
       setLoading(false);
     });
@@ -170,7 +203,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: typeof window !== "undefined" ? `${window.location.origin}/connexion` : undefined
+        redirectTo: typeof window !== "undefined" ? `${window.location.origin}/connexion?mode=recovery` : undefined
       });
 
       if (error) {
@@ -182,13 +215,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [supabase]
   );
 
+  const updatePassword = useCallback(
+    async (password: string) => {
+      if (!supabase) {
+        return { ok: false, message: "Configuration Supabase manquante." };
+      }
+
+      const { error } = await supabase.auth.updateUser({ password });
+
+      if (error) {
+        return { ok: false, message: friendlyAuthError(error.message) };
+      }
+
+      clearPasswordRecovery();
+      return { ok: true, message: "Mot de passe mis à jour." };
+    },
+    [clearPasswordRecovery, supabase]
+  );
+
   const logout = useCallback(async () => {
     if (supabase) {
       await supabase.auth.signOut();
     }
     setUser(null);
     setProfile(null);
-  }, [supabase]);
+    clearPasswordRecovery();
+  }, [clearPasswordRecovery, supabase]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -198,13 +250,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       profile,
       isAuthenticated: Boolean(user),
       isAdmin: profile?.role === "admin" || profile?.role === "bureau",
+      isPasswordRecovery,
       login,
       signup,
       resetPassword,
+      updatePassword,
+      clearPasswordRecovery,
       logout,
       refreshProfile
     }),
-    [loading, login, logout, profile, refreshProfile, resetPassword, signup, user]
+    [clearPasswordRecovery, isPasswordRecovery, loading, login, logout, profile, refreshProfile, resetPassword, signup, updatePassword, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

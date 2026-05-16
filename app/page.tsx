@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { ArrowRight, CalendarDays, MapPin, Medal, Sparkles, Trophy, UsersRound } from "lucide-react";
+import { ArrowRight, CalendarDays, Medal, Sparkles, Trophy, UsersRound } from "lucide-react";
 import { SlotCard } from "@/components/planning/slot-card";
+import { ActualitesList } from "@/components/public/actualites-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
-import { clubStats, news } from "@/lib/mock-data";
+import { clubStats } from "@/lib/mock-data";
 import { formatDate } from "@/lib/utils";
 import { getEvents, getOpenSlots } from "@/services/club.service";
 
@@ -86,19 +87,8 @@ export default function HomePage() {
             Voir toutes les actualités
           </Link>
         </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-2">
-          {news.map((post) => (
-            <Card key={post.id} className="p-5">
-              <div className="flex items-start gap-3">
-                <MapPin className="mt-1 h-5 w-5 text-warning" aria-hidden="true" />
-                <div>
-                  <p className="text-xs font-bold uppercase text-warning">{post.category}</p>
-                  <h3 className="mt-1 text-xl font-black text-court-900">{post.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-ink-500">{post.excerpt}</p>
-                </div>
-              </div>
-            </Card>
-          ))}
+        <div className="mt-6">
+          <ActualitesList limit={2} />
         </div>
       </section>
 

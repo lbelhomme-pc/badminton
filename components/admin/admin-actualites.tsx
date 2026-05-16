@@ -9,6 +9,7 @@ import {
   createActualite,
   deleteActualite,
   fetchActualites,
+  updateActualite,
   type ActualiteRow
 } from "@/services/supabase-data.service";
 
@@ -24,6 +25,7 @@ function AdminActualitesContent() {
   const { user } = useAuth();
   const [actualites, setActualites] = useState<ActualiteRow[]>([]);
   const [form, setForm] = useState({ titre: "", contenu: "", visible_public: true });
+  const [editing, setEditing] = useState<Record<number, { titre: string; contenu: string; visible_public: boolean }>>({});
   const [message, setMessage] = useState<string | null>(null);
 
   async function load() {
@@ -55,6 +57,42 @@ function AdminActualitesContent() {
     const result = await deleteActualite(id);
     setMessage(result.message);
     if (result.ok) await load();
+  }
+
+  function editValue(actualite: ActualiteRow) {
+    return editing[actualite.id] ?? {
+      titre: actualite.titre,
+      contenu: actualite.contenu,
+      visible_public: actualite.visible_public
+    };
+  }
+
+  function updateEdit(id: number, field: "titre" | "contenu" | "visible_public", value: string | boolean) {
+    const actualite = actualites.find((item) => item.id === id);
+    if (!actualite) return;
+
+    setEditing((current) => ({
+      ...current,
+      [id]: {
+        ...editValue(actualite),
+        [field]: value
+      }
+    }));
+  }
+
+  async function save(actualite: ActualiteRow) {
+    const current = editValue(actualite);
+    const result = await updateActualite(actualite.id, current);
+    setMessage(result.message);
+
+    if (result.ok) {
+      setEditing((state) => {
+        const next = { ...state };
+        delete next[actualite.id];
+        return next;
+      });
+      await load();
+    }
   }
 
   return (
@@ -100,22 +138,80 @@ function AdminActualitesContent() {
 
       <section className="mt-8 grid gap-4 md:grid-cols-2">
         {actualites.map((actualite) => (
-          <Card key={actualite.id} className="p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-black text-court-900">{actualite.titre}</h2>
-                <p className="mt-2 text-sm leading-6 text-ink-500">{actualite.contenu}</p>
-              </div>
-              <span className="rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-600">
-                {actualite.visible_public ? "Public" : "Interne"}
-              </span>
-            </div>
-            <Button variant="danger" className="mt-5" onClick={() => remove(actualite.id)}>
-              Supprimer
-            </Button>
-          </Card>
+          <ActualiteEditor
+            key={actualite.id}
+            actualite={actualite}
+            value={editValue(actualite)}
+            onChange={updateEdit}
+            onSave={save}
+            onRemove={remove}
+          />
         ))}
       </section>
     </div>
+  );
+}
+
+function ActualiteEditor({
+  actualite,
+  value,
+  onChange,
+  onSave,
+  onRemove
+}: {
+  actualite: ActualiteRow;
+  value: { titre: string; contenu: string; visible_public: boolean };
+  onChange: (id: number, field: "titre" | "contenu" | "visible_public", value: string | boolean) => void;
+  onSave: (actualite: ActualiteRow) => void;
+  onRemove: (id: number) => void;
+}) {
+  return (
+    <Card className="p-5">
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="text-xl font-black text-court-900">Modifier l’actualité</h2>
+        <span className="rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-600">
+          {value.visible_public ? "Public" : "Interne"}
+        </span>
+      </div>
+
+      <div className="mt-5 grid gap-4">
+        <label className="grid gap-2 text-sm font-semibold text-court-900">
+          Titre
+          <input
+            required
+            value={value.titre}
+            onChange={(event) => onChange(actualite.id, "titre", event.target.value)}
+            className="h-11 rounded-lg border border-court-200 bg-court-50 px-3"
+          />
+        </label>
+        <label className="grid gap-2 text-sm font-semibold text-court-900">
+          Contenu
+          <textarea
+            required
+            value={value.contenu}
+            onChange={(event) => onChange(actualite.id, "contenu", event.target.value)}
+            className="min-h-32 rounded-lg border border-court-200 bg-court-50 px-3 py-3"
+          />
+        </label>
+        <label className="flex items-center gap-3 text-sm font-semibold text-court-900">
+          <input
+            type="checkbox"
+            checked={value.visible_public}
+            onChange={(event) => onChange(actualite.id, "visible_public", event.target.checked)}
+            className="h-4 w-4"
+          />
+          Visible publiquement
+        </label>
+      </div>
+
+      <div className="mt-5 flex flex-wrap gap-2">
+        <Button type="button" onClick={() => onSave(actualite)}>
+          Enregistrer
+        </Button>
+        <Button variant="danger" type="button" onClick={() => onRemove(actualite.id)}>
+          Supprimer
+        </Button>
+      </div>
+    </Card>
   );
 }
