@@ -3,6 +3,13 @@
 
 create extension if not exists "pgcrypto";
 
+do $$
+begin
+  create type public.app_role as enum ('member', 'manager', 'admin', 'super_admin');
+exception
+  when duplicate_object then null;
+end;
+$$;
 create or replace function public.set_updated_at()
 returns trigger
 language plpgsql
@@ -20,6 +27,7 @@ create table if not exists public.profiles (
   email text,
   telephone text,
   role text not null default 'adherent',
+  statut text not null default 'actif',
   categorie text,
   date_naissance date,
   licence_ffbad text,
@@ -28,13 +36,120 @@ create table if not exists public.profiles (
   constraint profiles_role_check check (role in ('adherent', 'entraineur', 'bureau', 'admin'))
 );
 
+do $$
+begin
+  alter table public.profiles
+  add constraint profiles_statut_check check (statut in ('en_attente', 'actif', 'inactif', 'ancien'));
+exception
+  when duplicate_object then null;
+end;
+$$;
+
 create index if not exists profiles_role_idx on public.profiles(role);
+create index if not exists profiles_statut_idx on public.profiles(statut);
 create index if not exists profiles_email_idx on public.profiles(email);
 
 drop trigger if exists profiles_set_updated_at on public.profiles;
 create trigger profiles_set_updated_at
 before update on public.profiles
 for each row execute function public.set_updated_at();
+
+create table if not exists public.user_roles (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  role public.app_role not null default 'member',
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  primary key (user_id, role)
+);
+
+create index if not exists user_roles_role_idx on public.user_roles(role);
+create index if not exists user_roles_user_idx on public.user_roles(user_id);
+
+create or replace function public.sync_user_roles_from_profile()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  insert into public.user_roles (user_id, role, created_by)
+  values (new.id, 'member', null)
+  on conflict (user_id, role) do nothing;
+
+  if tg_op = 'UPDATE' and old.role is distinct from new.role then
+    delete from public.user_roles
+    where user_id = new.id
+      and role in ('manager', 'admin');
+  end if;
+
+  if new.role in ('entraineur', 'bureau', 'admin') then
+    insert into public.user_roles (user_id, role, created_by)
+    values (new.id, 'manager', null)
+    on conflict (user_id, role) do nothing;
+  end if;
+
+  if new.role in ('bureau', 'admin') then
+    insert into public.user_roles (user_id, role, created_by)
+    values (new.id, 'admin', null)
+    on conflict (user_id, role) do nothing;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists profiles_sync_user_roles on public.profiles;
+create trigger profiles_sync_user_roles
+after insert or update of role on public.profiles
+for each row execute function public.sync_user_roles_from_profile();
+
+insert into public.user_roles (user_id, role)
+select id, 'member'::public.app_role
+from public.profiles
+on conflict (user_id, role) do nothing;
+
+insert into public.user_roles (user_id, role)
+select id, 'manager'::public.app_role
+from public.profiles
+where role in ('entraineur', 'bureau', 'admin')
+on conflict (user_id, role) do nothing;
+
+insert into public.user_roles (user_id, role)
+select id, 'admin'::public.app_role
+from public.profiles
+where role in ('bureau', 'admin')
+on conflict (user_id, role) do nothing;
+
+create table if not exists public.settings_site (
+  key text primary key,
+  value jsonb not null default '{}'::jsonb,
+  visibility text not null default 'public',
+  updated_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint settings_site_visibility_check check (visibility in ('public', 'internal', 'admin'))
+);
+
+create index if not exists settings_site_visibility_idx on public.settings_site(visibility);
+
+drop trigger if exists settings_site_set_updated_at on public.settings_site;
+create trigger settings_site_set_updated_at
+before update on public.settings_site
+for each row execute function public.set_updated_at();
+
+create table if not exists public.audit_logs (
+  id bigint generated always as identity primary key,
+  actor_id uuid references auth.users(id) on delete set null,
+  action text not null,
+  table_name text,
+  row_id text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists audit_logs_actor_idx on public.audit_logs(actor_id);
+create index if not exists audit_logs_table_row_idx on public.audit_logs(table_name, row_id);
+create index if not exists audit_logs_created_at_idx on public.audit_logs(created_at desc);
 
 create table if not exists public.creneaux (
   id bigint generated always as identity primary key,
@@ -177,6 +292,23 @@ create trigger commandes_volants_set_updated_at
 before update on public.commandes_volants
 for each row execute function public.set_updated_at();
 
+create table if not exists public.stock_movements (
+  id bigint generated always as identity primary key,
+  volant_id bigint not null references public.volants(id) on delete cascade,
+  commande_id bigint references public.commandes_volants(id) on delete set null,
+  delta integer not null,
+  stock_after integer,
+  reason text not null default 'manual_adjustment',
+  created_by uuid references auth.users(id) on delete set null,
+  created_at timestamptz not null default now(),
+  constraint stock_movements_delta_check check (delta <> 0),
+  constraint stock_movements_reason_check check (reason in ('order_created', 'order_cancelled', 'order_quantity_changed', 'manual_adjustment', 'initial_stock'))
+);
+
+create index if not exists stock_movements_volant_idx on public.stock_movements(volant_id);
+create index if not exists stock_movements_commande_idx on public.stock_movements(commande_id);
+create index if not exists stock_movements_created_at_idx on public.stock_movements(created_at desc);
+
 -- Stock automatique des volants :
 -- - une commande non annulee retire la quantite du stock ;
 -- - le passage en annulee remet la quantite en stock ;
@@ -212,7 +344,11 @@ begin
 
       update public.volants
       set stock = stock - new.quantite
-      where id = new.volant_id;
+      where id = new.volant_id
+      returning stock into current_stock;
+
+      insert into public.stock_movements (volant_id, commande_id, delta, stock_after, reason, created_by)
+      values (new.volant_id, new.id, -new.quantite, current_stock, 'order_created', coalesce(auth.uid(), new.user_id));
 
       if new.total is null then
         new.total := current_price * new.quantite;
@@ -250,7 +386,21 @@ begin
     if delta <> 0 then
       update public.volants
       set stock = stock + delta
-      where id = new.volant_id;
+      where id = new.volant_id
+      returning stock into current_stock;
+
+      insert into public.stock_movements (volant_id, commande_id, delta, stock_after, reason, created_by)
+      values (
+        new.volant_id,
+        new.id,
+        delta,
+        current_stock,
+        case
+          when old_active and not new_active then 'order_cancelled'
+          else 'order_quantity_changed'
+        end,
+        coalesce(auth.uid(), new.user_id)
+      );
     end if;
 
     return new;
@@ -320,6 +470,11 @@ begin
     coalesce(new.raw_user_meta_data ->> 'telephone', '')
   )
   on conflict (id) do nothing;
+
+  insert into public.user_roles (user_id, role)
+  values (new.id, 'member')
+  on conflict (user_id, role) do nothing;
+
   return new;
 end;
 $$;
@@ -328,6 +483,30 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
 after insert on auth.users
 for each row execute function public.handle_new_user();
+
+insert into public.settings_site (key, value, visibility)
+values
+  (
+    'club',
+    jsonb_build_object(
+      'name', 'CFVV41',
+      'full_name', 'Club des fous du Volant Vendomois',
+      'city', 'Vendome',
+      'ffbad_url', ''
+    ),
+    'public'
+  ),
+  (
+    'contact',
+    jsonb_build_object(
+      'email', '',
+      'phone', '',
+      'facebook_url', '',
+      'instagram_url', ''
+    ),
+    'public'
+  )
+on conflict (key) do nothing;
 
 -- Donnees de demonstration publiques. Elles ne sont inserees que si la table est vide.
 insert into public.creneaux (jour, heure_debut, heure_fin, gymnase, adresse, type, public, niveau, places_max, responsable)
