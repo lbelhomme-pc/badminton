@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { hasAppRole, legacyClubRoleToAppRoles, normalizeAppRoles, type AppRole, type LegacyClubRole } from "@/lib/roles";
@@ -49,6 +49,7 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const AUTH_CACHE_KEY = "cfvv41:auth-profile-cache";
 
 interface RecoveryUrlState {
   isRecoveryUrl: boolean;
@@ -59,6 +60,13 @@ interface RecoveryUrlState {
     access_token: string;
     refresh_token: string;
   } | null;
+}
+
+interface CachedAuthState {
+  userId: string;
+  profile: ClubProfile | null;
+  roles: AppRole[];
+  cachedAt: number;
 }
 
 function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number) {
@@ -125,12 +133,64 @@ function cleanRecoveryUrl() {
   window.history.replaceState(null, "", `${url.pathname}${url.search}`);
 }
 
+function readAuthCache(userId: string) {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(AUTH_CACHE_KEY);
+    if (!raw) return null;
+
+    const cached = JSON.parse(raw) as CachedAuthState;
+    const maxAgeMs = 1000 * 60 * 60 * 24 * 7;
+    if (cached.userId !== userId || Date.now() - cached.cachedAt > maxAgeMs) {
+      return null;
+    }
+
+    return {
+      ...cached,
+      roles: normalizeAppRoles(cached.roles)
+    };
+  } catch {
+    return null;
+  }
+}
+
+function writeAuthCache(userId: string, profile: ClubProfile | null, roles: AppRole[]) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const cached: CachedAuthState = {
+      userId,
+      profile,
+      roles: normalizeAppRoles(roles),
+      cachedAt: Date.now()
+    };
+    window.localStorage.setItem(AUTH_CACHE_KEY, JSON.stringify(cached));
+  } catch {
+    // The cache is only a UX helper. Supabase RLS remains the source of truth.
+  }
+}
+
+function clearAuthCache() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.localStorage.removeItem(AUTH_CACHE_KEY);
+  window.sessionStorage.removeItem(AUTH_CACHE_KEY);
+}
+
 function clearSupabaseAuthStorage() {
   if (typeof window === "undefined") {
     return;
   }
 
   window.sessionStorage.removeItem("cfvv41:password-recovery");
+  clearAuthCache();
 
   [window.localStorage, window.sessionStorage].forEach((storage) => {
     for (let index = storage.length - 1; index >= 0; index -= 1) {
@@ -182,6 +242,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
   const [isCheckingPasswordRecovery, setIsCheckingPasswordRecovery] = useState(false);
   const [passwordRecoveryError, setPasswordRecoveryError] = useState<string | null>(null);
+  const userRef = useRef<User | null>(null);
+  const profileRef = useRef<ClubProfile | null>(null);
+  const rolesRef = useRef<AppRole[]>([]);
+
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
+
+  useEffect(() => {
+    profileRef.current = profile;
+  }, [profile]);
+
+  useEffect(() => {
+    rolesRef.current = roles;
+  }, [roles]);
 
   const clearPasswordRecovery = useCallback(() => {
     setIsPasswordRecovery(false);
@@ -194,23 +269,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserRoles = useCallback(
     async (userId: string, legacyRole?: string | null) => {
+      const cached = readAuthCache(userId);
+      const fallbackRoles = () => {
+        if (legacyRole) {
+          return legacyClubRoleToAppRoles(legacyRole);
+        }
+
+        if (userRef.current?.id === userId && rolesRef.current.length > 0) {
+          return normalizeAppRoles(rolesRef.current);
+        }
+
+        if (cached?.roles.length) {
+          return normalizeAppRoles(cached.roles);
+        }
+
+        return legacyClubRoleToAppRoles(null);
+      };
+
       if (!supabase) {
-        setRoles([]);
-        return;
+        const nextRoles = fallbackRoles();
+        setRoles(nextRoles);
+        return nextRoles;
       }
 
       try {
-        const { data, error } = await withTimeout(supabase.from("user_roles").select("role").eq("user_id", userId), 5000);
+        const { data, error } = await withTimeout(supabase.from("user_roles").select("role").eq("user_id", userId), 10000);
 
         if (error) {
-          setRoles(legacyClubRoleToAppRoles(legacyRole));
-          return;
+          const nextRoles = fallbackRoles();
+          setRoles(nextRoles);
+          return nextRoles;
         }
 
         const nextRoles = (data ?? []).map((row) => row.role);
-        setRoles(nextRoles.length > 0 ? normalizeAppRoles(nextRoles) : legacyClubRoleToAppRoles(legacyRole));
+        const normalizedRoles = nextRoles.length > 0 ? normalizeAppRoles(nextRoles) : fallbackRoles();
+        setRoles(normalizedRoles);
+        writeAuthCache(userId, profileRef.current?.id === userId ? profileRef.current : cached?.profile ?? null, normalizedRoles);
+        return normalizedRoles;
       } catch {
-        setRoles(legacyClubRoleToAppRoles(legacyRole));
+        const nextRoles = fallbackRoles();
+        setRoles(nextRoles);
+        return nextRoles;
       }
     },
     [supabase]
@@ -224,21 +323,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      const cached = readAuthCache(userId);
+      const fallbackProfile = profileRef.current?.id === userId ? profileRef.current : cached?.profile ?? null;
+
+      if (fallbackProfile) {
+        setProfile(fallbackProfile);
+      }
+
+      if (cached?.roles.length) {
+        setRoles(normalizeAppRoles(cached.roles));
+      }
+
       try {
-        const { data, error } = await withTimeout(supabase.from("profiles").select("*").eq("id", userId).single(), 5000);
+        const { data, error } = await withTimeout(supabase.from("profiles").select("*").eq("id", userId).single(), 10000);
 
         if (error) {
-          setProfile(null);
-          await fetchUserRoles(userId);
+          setProfile(fallbackProfile);
+          const nextRoles = await fetchUserRoles(userId, fallbackProfile?.role);
+          writeAuthCache(userId, fallbackProfile, nextRoles);
           return;
         }
 
         const nextProfile = data as ClubProfile;
         setProfile(nextProfile);
-        await fetchUserRoles(userId, nextProfile.role);
+        const nextRoles = await fetchUserRoles(userId, nextProfile.role);
+        writeAuthCache(userId, nextProfile, nextRoles);
       } catch {
-        setProfile(null);
-        await fetchUserRoles(userId);
+        setProfile(fallbackProfile);
+        const nextRoles = await fetchUserRoles(userId, fallbackProfile?.role);
+        writeAuthCache(userId, fallbackProfile, nextRoles);
       }
     },
     [fetchUserRoles, supabase]
@@ -275,6 +388,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     void (async () => {
+      let optimisticUser: User | null = null;
+
       try {
         let recoverySessionReady = false;
 
@@ -298,7 +413,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           cleanRecoveryUrl();
         }
 
-        const { data } = await withTimeout(supabase.auth.getUser(), 5000);
+        try {
+          const { data: sessionData } = await withTimeout(supabase.auth.getSession(), 2500);
+          const sessionUser = sessionData.session?.user ?? null;
+          if (mounted && sessionUser) {
+            const cached = readAuthCache(sessionUser.id);
+            optimisticUser = sessionUser;
+            setUser(sessionUser);
+            if (cached) {
+              setProfile(cached.profile);
+              setRoles(normalizeAppRoles(cached.roles));
+            }
+          }
+        } catch {
+          // getUser below remains the authoritative check.
+        }
+
+        const { data } = await withTimeout(supabase.auth.getUser(), 10000);
         if (!mounted) return;
 
         setUser(data.user);
@@ -325,6 +456,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         if (!mounted) return;
+        const cachedUser = optimisticUser ?? userRef.current;
+        if (cachedUser && !shouldHandlePasswordRecovery) {
+          const cached = readAuthCache(cachedUser.id);
+          setUser(cachedUser);
+          if (cached) {
+            setProfile(cached.profile);
+            setRoles(normalizeAppRoles(cached.roles));
+          }
+          return;
+        }
         setUser(null);
         setProfile(null);
         setRoles([]);
@@ -363,6 +504,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (session?.user) {
           await fetchProfile(session.user.id);
         } else {
+          if (event === "INITIAL_SESSION" && userRef.current) {
+            return;
+          }
           setProfile(null);
           setRoles([]);
           setIsPasswordRecovery(false);
@@ -408,22 +552,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const { error } = await withTimeout(
+        setLoading(true);
+        const { data, error } = await withTimeout(
           supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password }),
           10000
         );
 
         if (error) {
+          setLoading(false);
           return { ok: false, message: friendlyAuthError(error.message) };
         }
 
+        if (data.user) {
+          setUser(data.user);
+          await fetchProfile(data.user.id);
+        }
+
+        setLoading(false);
         return { ok: true, message: "Connexion réussie." };
       } catch (error) {
+        setLoading(false);
         const message = error instanceof Error ? error.message : "Une erreur est survenue.";
         return { ok: false, message: friendlyAuthError(message) };
       }
     },
-    [supabase]
+    [fetchProfile, supabase]
   );
 
   const signup = useCallback(
