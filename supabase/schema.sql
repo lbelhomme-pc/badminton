@@ -385,6 +385,8 @@ create table if not exists public.actualites (
   titre text not null,
   contenu text not null,
   image_url text,
+  lien_url text,
+  lien_label text,
   visible_public boolean not null default true,
   auteur_id uuid references auth.users(id) on delete set null,
   published_at timestamptz not null default now(),
@@ -393,6 +395,8 @@ create table if not exists public.actualites (
 );
 
 alter table public.actualites add column if not exists image_url text;
+alter table public.actualites add column if not exists lien_url text;
+alter table public.actualites add column if not exists lien_label text;
 alter table public.actualites add column if not exists titre text;
 alter table public.actualites add column if not exists contenu text;
 alter table public.actualites add column if not exists visible_public boolean;

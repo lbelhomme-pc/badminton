@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { LogOut, Shield, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -25,7 +27,17 @@ function GuestMenu() {
 }
 
 export function UserMenu() {
+  const router = useRouter();
   const { loading, isAuthenticated, profile, user, isAdmin, logout } = useAuth();
+  const [pendingLogout, setPendingLogout] = useState(false);
+
+  async function onLogout() {
+    setPendingLogout(true);
+    await logout();
+    router.push("/connexion");
+    router.refresh();
+    setPendingLogout(false);
+  }
 
   if (loading || !isAuthenticated) {
     return <GuestMenu />;
@@ -49,7 +61,7 @@ export function UserMenu() {
         <UserRound className="h-4 w-4" aria-hidden="true" />
         <span className="hidden sm:inline">{profile?.prenom || user?.email}</span>
       </Link>
-      <Button variant="ghost" size="icon" onClick={logout} aria-label="Se déconnecter">
+      <Button variant="ghost" size="icon" onClick={onLogout} disabled={pendingLogout} aria-label="Se déconnecter" title="Se déconnecter">
         <LogOut className="h-4 w-4" aria-hidden="true" />
       </Button>
     </div>

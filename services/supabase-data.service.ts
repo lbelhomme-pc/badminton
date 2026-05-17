@@ -30,6 +30,9 @@ export interface ActualiteRow {
   id: number;
   titre: string;
   contenu: string;
+  image_url: string | null;
+  lien_url: string | null;
+  lien_label: string | null;
   visible_public: boolean;
   published_at: string;
 }
@@ -180,7 +183,12 @@ export async function fetchActualites(includeInternal = false) {
   return { data: (data ?? []) as ActualiteRow[], error: error?.message ?? null };
 }
 
-export async function createActualite(input: { titre: string; contenu: string; visible_public: boolean; auteur_id?: string }) {
+export type ActualiteInput = Pick<ActualiteRow, "titre" | "contenu" | "visible_public"> &
+  Partial<Pick<ActualiteRow, "image_url" | "lien_url" | "lien_label">> & {
+    auteur_id?: string;
+  };
+
+export async function createActualite(input: ActualiteInput) {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
@@ -188,7 +196,7 @@ export async function createActualite(input: { titre: string; contenu: string; v
   return { ok: !error, message: error?.message ?? "Actualité créée." };
 }
 
-export async function updateActualite(id: number, input: Partial<Pick<ActualiteRow, "titre" | "contenu" | "visible_public">>) {
+export async function updateActualite(id: number, input: Partial<ActualiteInput>) {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 

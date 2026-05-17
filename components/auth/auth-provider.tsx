@@ -125,6 +125,23 @@ function cleanRecoveryUrl() {
   window.history.replaceState(null, "", `${url.pathname}${url.search}`);
 }
 
+function clearSupabaseAuthStorage() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  window.sessionStorage.removeItem("cfvv41:password-recovery");
+
+  [window.localStorage, window.sessionStorage].forEach((storage) => {
+    for (let index = storage.length - 1; index >= 0; index -= 1) {
+      const key = storage.key(index);
+      if (key?.startsWith("sb-") && key.includes("auth-token")) {
+        storage.removeItem(key);
+      }
+    }
+  });
+}
+
 function friendlyAuthError(message: string) {
   if (message.toLowerCase().includes("invalid login")) {
     return "Email ou mot de passe incorrect.";
@@ -476,8 +493,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     if (supabase) {
-      await supabase.auth.signOut();
+      try {
+        await supabase.auth.signOut({ scope: "global" });
+      } catch {
+        // The local state is still cleared below so the UI never stays stuck.
+      }
     }
+    clearSupabaseAuthStorage();
     setUser(null);
     setProfile(null);
     setRoles([]);
