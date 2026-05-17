@@ -45,6 +45,20 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
+  let timeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  const timeout = new Promise<T>((_, reject) => {
+    timeoutId = setTimeout(() => reject(new Error("Auth request timed out")), timeoutMs);
+  });
+
+  return Promise.race([promise, timeout]).finally(() => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  });
+}
+
 function friendlyAuthError(message: string) {
   if (message.toLowerCase().includes("invalid login")) {
     return "Email ou mot de passe incorrect.";
@@ -76,14 +90,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
+      try {
+        const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
 
-      if (error) {
+        if (error) {
+          setProfile(null);
+          return;
+        }
+
+        setProfile(data as ClubProfile);
+      } catch {
         setProfile(null);
-        return;
       }
-
-      setProfile(data as ClubProfile);
     },
     [supabase]
   );
@@ -112,35 +130,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!mounted) return;
-      setUser(data.user);
-      if (data.user) {
-        await fetchProfile(data.user.id);
+    void (async () => {
+      try {
+        const { data } = await withTimeout(supabase.auth.getUser(), 5000);
+        if (!mounted) return;
+
+        setUser(data.user);
+        if (data.user) {
+          await fetchProfile(data.user.id);
+        } else {
+          setProfile(null);
+        }
+      } catch {
+        if (!mounted) return;
+        setProfile(null);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
-      setLoading(false);
-    });
+    })();
 
     const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "PASSWORD_RECOVERY") {
-        setIsPasswordRecovery(true);
-        if (typeof window !== "undefined") {
-          window.sessionStorage.setItem("cfvv41:password-recovery", "1");
-          window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+      try {
+        if (event === "PASSWORD_RECOVERY") {
+          setIsPasswordRecovery(true);
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem("cfvv41:password-recovery", "1");
+            window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+          }
         }
-      }
 
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      } else {
-        setProfile(null);
-        setIsPasswordRecovery(false);
-        if (typeof window !== "undefined") {
-          window.sessionStorage.removeItem("cfvv41:password-recovery");
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          await fetchProfile(session.user.id);
+        } else {
+          setProfile(null);
+          setIsPasswordRecovery(false);
+          if (typeof window !== "undefined") {
+            window.sessionStorage.removeItem("cfvv41:password-recovery");
+          }
         }
+      } catch {
+        setUser(session?.user ?? null);
+        setProfile(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => {

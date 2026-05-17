@@ -5,30 +5,30 @@ import { LogOut, Shield, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 
+function GuestMenu() {
+  return (
+    <div className="flex items-center gap-2">
+      <Link
+        href="/connexion"
+        className="inline-flex h-10 items-center rounded-lg border border-court-200 bg-white px-3 text-sm font-semibold text-court-900 transition hover:bg-court-100"
+      >
+        Connexion
+      </Link>
+      <Link
+        href="/inscription"
+        className="inline-flex h-10 items-center rounded-lg bg-court-500 px-4 text-sm font-semibold text-white shadow-soft transition hover:bg-court-600"
+      >
+        S'inscrire
+      </Link>
+    </div>
+  );
+}
+
 export function UserMenu() {
   const { loading, isAuthenticated, profile, user, isAdmin, logout } = useAuth();
 
-  if (loading) {
-    return <div className="h-10 w-28 animate-pulse rounded-lg bg-court-100" />;
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <div className="flex items-center gap-2">
-        <Link
-          href="/connexion"
-          className="inline-flex h-10 items-center rounded-lg border border-court-200 bg-white px-3 text-sm font-semibold text-court-900 transition hover:bg-court-100"
-        >
-          Connexion
-        </Link>
-        <Link
-          href="/inscription"
-          className="inline-flex h-10 items-center rounded-lg bg-court-500 px-4 text-sm font-semibold text-white shadow-soft transition hover:bg-court-600"
-        >
-          S’inscrire
-        </Link>
-      </div>
-    );
+  if (loading || !isAuthenticated) {
+    return <GuestMenu />;
   }
 
   return (
