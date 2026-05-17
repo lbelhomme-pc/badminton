@@ -36,6 +36,39 @@ create table if not exists public.profiles (
   constraint profiles_role_check check (role in ('adherent', 'entraineur', 'bureau', 'admin'))
 );
 
+alter table public.profiles add column if not exists prenom text;
+alter table public.profiles add column if not exists nom text;
+alter table public.profiles add column if not exists email text;
+alter table public.profiles add column if not exists telephone text;
+alter table public.profiles add column if not exists role text;
+alter table public.profiles add column if not exists statut text;
+alter table public.profiles add column if not exists categorie text;
+alter table public.profiles add column if not exists date_naissance date;
+alter table public.profiles add column if not exists licence_ffbad text;
+alter table public.profiles add column if not exists created_at timestamptz;
+alter table public.profiles add column if not exists updated_at timestamptz;
+update public.profiles set role = 'adherent' where role is null;
+update public.profiles set statut = 'actif' where statut is null;
+update public.profiles set created_at = now() where created_at is null;
+update public.profiles set updated_at = now() where updated_at is null;
+alter table public.profiles alter column role set default 'adherent';
+alter table public.profiles alter column statut set default 'actif';
+alter table public.profiles alter column created_at set default now();
+alter table public.profiles alter column updated_at set default now();
+alter table public.profiles alter column role set not null;
+alter table public.profiles alter column statut set not null;
+alter table public.profiles alter column created_at set not null;
+alter table public.profiles alter column updated_at set not null;
+
+do $$
+begin
+  alter table public.profiles
+  add constraint profiles_role_check check (role in ('adherent', 'entraineur', 'bureau', 'admin'));
+exception
+  when duplicate_object then null;
+end;
+$$;
+
 do $$
 begin
   alter table public.profiles
@@ -270,6 +303,34 @@ create table if not exists public.creneaux (
   constraint creneaux_heures_check check (heure_fin > heure_debut)
 );
 
+alter table public.creneaux add column if not exists adresse text;
+alter table public.creneaux add column if not exists jour text;
+alter table public.creneaux add column if not exists heure_debut time;
+alter table public.creneaux add column if not exists heure_fin time;
+alter table public.creneaux add column if not exists gymnase text;
+alter table public.creneaux add column if not exists type text;
+alter table public.creneaux add column if not exists public text;
+alter table public.creneaux add column if not exists niveau text;
+alter table public.creneaux add column if not exists places_max integer;
+alter table public.creneaux add column if not exists responsable text;
+alter table public.creneaux add column if not exists actif boolean;
+alter table public.creneaux add column if not exists created_at timestamptz;
+alter table public.creneaux add column if not exists updated_at timestamptz;
+update public.creneaux set actif = true where actif is null;
+update public.creneaux set type = 'jeu_libre' where type is null;
+update public.creneaux set public = 'tous' where public is null;
+update public.creneaux set jour = 'A renseigner' where jour is null;
+update public.creneaux set heure_debut = '18:00'::time where heure_debut is null;
+update public.creneaux set heure_fin = '20:00'::time where heure_fin is null;
+update public.creneaux set gymnase = 'A renseigner' where gymnase is null;
+update public.creneaux set created_at = now() where created_at is null;
+update public.creneaux set updated_at = now() where updated_at is null;
+alter table public.creneaux alter column actif set default true;
+alter table public.creneaux alter column type set default 'jeu_libre';
+alter table public.creneaux alter column public set default 'tous';
+alter table public.creneaux alter column created_at set default now();
+alter table public.creneaux alter column updated_at set default now();
+
 create index if not exists creneaux_actif_idx on public.creneaux(actif);
 create index if not exists creneaux_jour_idx on public.creneaux(jour);
 create index if not exists creneaux_type_idx on public.creneaux(type);
@@ -290,6 +351,21 @@ create table if not exists public.reservations (
   updated_at timestamptz not null default now(),
   constraint reservations_statut_check check (statut in ('en_attente', 'confirmee', 'annulee', 'refusee'))
 );
+
+alter table public.reservations add column if not exists statut text;
+alter table public.reservations add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.reservations add column if not exists creneau_id bigint references public.creneaux(id) on delete cascade;
+alter table public.reservations add column if not exists date_reservation date;
+alter table public.reservations add column if not exists commentaire text;
+alter table public.reservations add column if not exists created_at timestamptz;
+alter table public.reservations add column if not exists updated_at timestamptz;
+update public.reservations set statut = 'confirmee' where statut is null;
+update public.reservations set date_reservation = current_date where date_reservation is null;
+update public.reservations set created_at = now() where created_at is null;
+update public.reservations set updated_at = now() where updated_at is null;
+alter table public.reservations alter column statut set default 'confirmee';
+alter table public.reservations alter column created_at set default now();
+alter table public.reservations alter column updated_at set default now();
 
 create unique index if not exists reservations_unique_user_creneau_date_idx
 on public.reservations(user_id, creneau_id, date_reservation);
@@ -316,6 +392,25 @@ create table if not exists public.actualites (
   updated_at timestamptz not null default now()
 );
 
+alter table public.actualites add column if not exists image_url text;
+alter table public.actualites add column if not exists titre text;
+alter table public.actualites add column if not exists contenu text;
+alter table public.actualites add column if not exists visible_public boolean;
+alter table public.actualites add column if not exists auteur_id uuid references auth.users(id) on delete set null;
+alter table public.actualites add column if not exists published_at timestamptz;
+alter table public.actualites add column if not exists created_at timestamptz;
+alter table public.actualites add column if not exists updated_at timestamptz;
+update public.actualites set titre = 'Actualite' where titre is null;
+update public.actualites set contenu = '' where contenu is null;
+update public.actualites set visible_public = true where visible_public is null;
+update public.actualites set published_at = now() where published_at is null;
+update public.actualites set created_at = now() where created_at is null;
+update public.actualites set updated_at = now() where updated_at is null;
+alter table public.actualites alter column visible_public set default true;
+alter table public.actualites alter column published_at set default now();
+alter table public.actualites alter column created_at set default now();
+alter table public.actualites alter column updated_at set default now();
+
 create index if not exists actualites_visible_public_idx on public.actualites(visible_public);
 create index if not exists actualites_published_at_idx on public.actualites(published_at desc);
 
@@ -338,6 +433,25 @@ create table if not exists public.volants (
   constraint volants_prix_check check (prix >= 0),
   constraint volants_stock_check check (stock >= 0)
 );
+
+alter table public.volants add column if not exists modele text;
+alter table public.volants add column if not exists marque text;
+alter table public.volants add column if not exists type text;
+alter table public.volants add column if not exists prix numeric(10,2);
+alter table public.volants add column if not exists stock integer;
+alter table public.volants add column if not exists actif boolean;
+alter table public.volants add column if not exists created_at timestamptz;
+alter table public.volants add column if not exists updated_at timestamptz;
+update public.volants set marque = 'A renseigner' where marque is null;
+update public.volants set type = 'plume' where type is null;
+update public.volants set prix = 0 where prix is null;
+update public.volants set stock = 0 where stock is null;
+update public.volants set actif = true where actif is null;
+update public.volants set created_at = now() where created_at is null;
+update public.volants set updated_at = now() where updated_at is null;
+alter table public.volants alter column actif set default true;
+alter table public.volants alter column created_at set default now();
+alter table public.volants alter column updated_at set default now();
 
 create index if not exists volants_actif_idx on public.volants(actif);
 create index if not exists volants_type_idx on public.volants(type);
@@ -380,6 +494,21 @@ create table if not exists public.commandes_volants (
   constraint commandes_volants_quantite_check check (quantite > 0),
   constraint commandes_volants_statut_check check (statut in ('demandee', 'validee', 'payee', 'remise', 'annulee'))
 );
+
+alter table public.commandes_volants add column if not exists statut text;
+alter table public.commandes_volants add column if not exists user_id uuid references auth.users(id) on delete cascade;
+alter table public.commandes_volants add column if not exists volant_id bigint references public.volants(id) on delete restrict;
+alter table public.commandes_volants add column if not exists quantite integer;
+alter table public.commandes_volants add column if not exists total numeric(10,2);
+alter table public.commandes_volants add column if not exists created_at timestamptz;
+alter table public.commandes_volants add column if not exists updated_at timestamptz;
+update public.commandes_volants set statut = 'demandee' where statut is null;
+update public.commandes_volants set quantite = 1 where quantite is null;
+update public.commandes_volants set created_at = now() where created_at is null;
+update public.commandes_volants set updated_at = now() where updated_at is null;
+alter table public.commandes_volants alter column statut set default 'demandee';
+alter table public.commandes_volants alter column created_at set default now();
+alter table public.commandes_volants alter column updated_at set default now();
 
 create index if not exists commandes_volants_user_idx on public.commandes_volants(user_id);
 create index if not exists commandes_volants_volant_idx on public.commandes_volants(volant_id);
