@@ -11,7 +11,16 @@ import { Card } from "@/components/ui/card";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, configured, loading, isAuthenticated, isPasswordRecovery, clearPasswordRecovery } = useAuth();
+  const {
+    login,
+    configured,
+    loading,
+    isAuthenticated,
+    isPasswordRecovery,
+    isCheckingPasswordRecovery,
+    passwordRecoveryError,
+    clearPasswordRecovery
+  } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
@@ -21,6 +30,7 @@ export function LoginForm() {
   const isRecoveryMode = mode === "recovery" || hasRecoveryUrl;
   const isPasswordMode = mode === "password";
   const showPasswordUpdate = isRecoveryMode || isPasswordMode;
+  const canShowRecoveryForm = isPasswordMode || isAuthenticated || isPasswordRecovery;
 
   useEffect(() => {
     const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -48,7 +58,7 @@ export function LoginForm() {
     }
   }
 
-  if (loading && showPasswordUpdate) {
+  if ((loading || isCheckingPasswordRecovery) && showPasswordUpdate) {
     return (
       <Card className="mx-auto max-w-xl p-6">
         <h2 className="text-3xl font-black text-court-900">Vérification du lien</h2>
@@ -57,10 +67,35 @@ export function LoginForm() {
     );
   }
 
-  if (showPasswordUpdate) {
+  if (isRecoveryMode && !canShowRecoveryForm) {
+    return (
+      <Card className="mx-auto max-w-xl p-6">
+        <h2 className="text-3xl font-black text-court-900">Lien de réinitialisation invalide</h2>
+        <p className="mt-2 text-sm leading-6 text-ink-500">
+          {passwordRecoveryError ??
+            "Le lien de mot de passe n'est plus actif. Redemande un lien depuis la page mot de passe oublié."}
+        </p>
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+          <Link
+            href="/mot-de-passe-oublie"
+            className="inline-flex h-11 items-center justify-center rounded-lg bg-court-500 px-4 text-sm font-semibold text-white"
+          >
+            Redemander un lien
+          </Link>
+          <Link
+            href="/connexion"
+            className="inline-flex h-11 items-center justify-center rounded-lg border border-court-200 bg-white px-4 text-sm font-semibold text-court-900 hover:bg-court-100"
+          >
+            Retour connexion
+          </Link>
+        </div>
+      </Card>
+    );
+  }
+
+  if (showPasswordUpdate && canShowRecoveryForm) {
     return (
       <PasswordUpdateForm
-        allowRecoveryAttempt={isRecoveryMode || isPasswordRecovery}
         title={mode === "password" ? "Changer mon mot de passe" : "Créer un nouveau mot de passe"}
         intro={
           mode === "password"

@@ -37,6 +37,8 @@ interface AuthContextValue {
   isManager: boolean;
   isAdmin: boolean;
   isPasswordRecovery: boolean;
+  isCheckingPasswordRecovery: boolean;
+  passwordRecoveryError: string | null;
   login: (email: string, password: string) => Promise<{ ok: boolean; message: string }>;
   signup: (input: SignupInput) => Promise<{ ok: boolean; message: string }>;
   resetPassword: (email: string) => Promise<{ ok: boolean; message: string }>;
@@ -50,7 +52,9 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 interface RecoveryUrlState {
   isRecoveryUrl: boolean;
+  hasRecoveryPayload: boolean;
   code: string | null;
+  errorDescription: string | null;
   sessionTokens: {
     access_token: string;
     refresh_token: string;
@@ -73,7 +77,7 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
 
 function readRecoveryUrlState(): RecoveryUrlState {
   if (typeof window === "undefined") {
-    return { isRecoveryUrl: false, code: null, sessionTokens: null };
+    return { isRecoveryUrl: false, hasRecoveryPayload: false, code: null, errorDescription: null, sessionTokens: null };
   }
 
   const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
@@ -83,11 +87,19 @@ function readRecoveryUrlState(): RecoveryUrlState {
   const type = hashParams.get("type") || searchParams.get("type");
   const mode = searchParams.get("mode");
   const code = searchParams.get("code");
-  const isRecoveryUrl = type === "recovery" || mode === "recovery" || Boolean(accessToken && refreshToken);
+  const errorDescription =
+    hashParams.get("error_description") ||
+    searchParams.get("error_description") ||
+    hashParams.get("error") ||
+    searchParams.get("error");
+  const hasRecoveryPayload = Boolean((accessToken && refreshToken) || code);
+  const isRecoveryUrl = type === "recovery" || mode === "recovery" || hasRecoveryPayload || Boolean(errorDescription);
 
   return {
     isRecoveryUrl,
+    hasRecoveryPayload,
     code,
+    errorDescription,
     sessionTokens:
       accessToken && refreshToken
         ? {
@@ -107,6 +119,9 @@ function cleanRecoveryUrl() {
   url.hash = "";
   url.searchParams.delete("code");
   url.searchParams.delete("type");
+  url.searchParams.delete("error");
+  url.searchParams.delete("error_code");
+  url.searchParams.delete("error_description");
   window.history.replaceState(null, "", `${url.pathname}${url.search}`);
 }
 
@@ -119,6 +134,12 @@ function friendlyAuthError(message: string) {
   }
   if (message.toLowerCase().includes("session missing") || message.toLowerCase().includes("not authenticated")) {
     return "Le lien de réinitialisation n'est plus actif. Redemande un lien de mot de passe oublié.";
+  }
+  if (message.toLowerCase().includes("expired") || message.toLowerCase().includes("otp_expired")) {
+    return "Le lien de réinitialisation a expiré. Redemande un lien de mot de passe oublié.";
+  }
+  if (message.toLowerCase().includes("invalid") && message.toLowerCase().includes("token")) {
+    return "Le lien de réinitialisation est invalide. Redemande un nouveau lien.";
   }
   if (message.toLowerCase().includes("timed out")) {
     return "La demande a pris trop de temps. Vérifie ta connexion puis réessaie.";
@@ -133,9 +154,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(isSupabaseConfigured);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
+  const [isCheckingPasswordRecovery, setIsCheckingPasswordRecovery] = useState(false);
+  const [passwordRecoveryError, setPasswordRecoveryError] = useState<string | null>(null);
 
   const clearPasswordRecovery = useCallback(() => {
     setIsPasswordRecovery(false);
+    setIsCheckingPasswordRecovery(false);
+    setPasswordRecoveryError(null);
     if (typeof window !== "undefined") {
       window.sessionStorage.removeItem("cfvv41:password-recovery");
     }
@@ -207,8 +232,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     let mounted = true;
     const recoveryUrlState = readRecoveryUrlState();
+    const storedPasswordRecovery =
+      typeof window !== "undefined" && window.sessionStorage.getItem("cfvv41:password-recovery") === "1";
+    const shouldHandlePasswordRecovery = recoveryUrlState.isRecoveryUrl || storedPasswordRecovery;
 
-    if (recoveryUrlState.isRecoveryUrl) {
+    if (shouldHandlePasswordRecovery) {
+      setIsCheckingPasswordRecovery(true);
+      setPasswordRecoveryError(null);
+    }
+
+    if (recoveryUrlState.hasRecoveryPayload || storedPasswordRecovery) {
       if (typeof window !== "undefined") {
         setIsPasswordRecovery(true);
         window.sessionStorage.setItem("cfvv41:password-recovery", "1");
@@ -217,11 +250,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void (async () => {
       try {
+        let recoverySessionReady = false;
+
+        if (recoveryUrlState.errorDescription) {
+          throw new Error(recoveryUrlState.errorDescription.replace(/\+/g, " "));
+        }
+
         if (recoveryUrlState.sessionTokens) {
-          await withTimeout(supabase.auth.setSession(recoveryUrlState.sessionTokens), 5000);
+          const { error } = await withTimeout(supabase.auth.setSession(recoveryUrlState.sessionTokens), 5000);
+          if (error) {
+            throw error;
+          }
+          recoverySessionReady = true;
           cleanRecoveryUrl();
         } else if (recoveryUrlState.code && recoveryUrlState.isRecoveryUrl) {
-          await withTimeout(supabase.auth.exchangeCodeForSession(recoveryUrlState.code), 5000);
+          const { error } = await withTimeout(supabase.auth.exchangeCodeForSession(recoveryUrlState.code), 5000);
+          if (error) {
+            throw error;
+          }
+          recoverySessionReady = true;
           cleanRecoveryUrl();
         }
 
@@ -235,12 +282,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setProfile(null);
           setRoles([]);
         }
-      } catch {
+
+        if (shouldHandlePasswordRecovery) {
+          if (data.user && (recoverySessionReady || recoveryUrlState.hasRecoveryPayload || storedPasswordRecovery)) {
+            setIsPasswordRecovery(true);
+            if (typeof window !== "undefined") {
+              window.sessionStorage.setItem("cfvv41:password-recovery", "1");
+            }
+          } else if (!data.user) {
+            setIsPasswordRecovery(false);
+            setPasswordRecoveryError("Le lien de réinitialisation a expiré ou n'est pas complet. Redemande un lien de mot de passe oublié.");
+            if (typeof window !== "undefined") {
+              window.sessionStorage.removeItem("cfvv41:password-recovery");
+            }
+          }
+        }
+      } catch (error) {
         if (!mounted) return;
         setProfile(null);
         setRoles([]);
+        if (shouldHandlePasswordRecovery) {
+          const message = error instanceof Error ? error.message : "";
+          setIsPasswordRecovery(false);
+          setPasswordRecoveryError(
+            friendlyAuthError(message) || "Le lien de réinitialisation a expiré ou n'est pas complet. Redemande un lien de mot de passe oublié."
+          );
+          if (typeof window !== "undefined") {
+            window.sessionStorage.removeItem("cfvv41:password-recovery");
+          }
+          cleanRecoveryUrl();
+        }
       } finally {
         if (mounted) {
+          setIsCheckingPasswordRecovery(false);
           setLoading(false);
         }
       }
@@ -250,6 +324,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         if (event === "PASSWORD_RECOVERY") {
           setIsPasswordRecovery(true);
+          setPasswordRecoveryError(null);
+          setIsCheckingPasswordRecovery(false);
           if (typeof window !== "undefined") {
             window.sessionStorage.setItem("cfvv41:password-recovery", "1");
             window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
@@ -263,6 +339,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setProfile(null);
           setRoles([]);
           setIsPasswordRecovery(false);
+          setPasswordRecoveryError(null);
           if (typeof window !== "undefined") {
             window.sessionStorage.removeItem("cfvv41:password-recovery");
           }
@@ -290,13 +367,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, message: "Configuration Supabase manquante." };
       }
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      try {
+        const { error } = await withTimeout(
+          supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password }),
+          10000
+        );
 
-      if (error) {
-        return { ok: false, message: friendlyAuthError(error.message) };
+        if (error) {
+          return { ok: false, message: friendlyAuthError(error.message) };
+        }
+
+        return { ok: true, message: "Connexion réussie." };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Une erreur est survenue.";
+        return { ok: false, message: friendlyAuthError(message) };
       }
-
-      return { ok: true, message: "Connexion réussie." };
     },
     [supabase]
   );
@@ -307,26 +392,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, message: "Configuration Supabase manquante." };
       }
 
-      const { error } = await supabase.auth.signUp({
-        email: input.email,
-        password: input.password,
-        options: {
-          data: {
-            prenom: input.prenom,
-            nom: input.nom,
-            telephone: input.telephone
-          }
+      try {
+        const { error } = await withTimeout(
+          supabase.auth.signUp({
+            email: input.email.trim().toLowerCase(),
+            password: input.password,
+            options: {
+              data: {
+                prenom: input.prenom.trim(),
+                nom: input.nom.trim(),
+                telephone: input.telephone.trim()
+              }
+            }
+          }),
+          10000
+        );
+
+        if (error) {
+          return { ok: false, message: friendlyAuthError(error.message) };
         }
-      });
 
-      if (error) {
-        return { ok: false, message: friendlyAuthError(error.message) };
+        return {
+          ok: true,
+          message: "Ton compte a été créé. Vérifie ta boîte mail si une confirmation est nécessaire."
+        };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Une erreur est survenue.";
+        return { ok: false, message: friendlyAuthError(message) };
       }
-
-      return {
-        ok: true,
-        message: "Ton compte a été créé. Vérifie ta boîte mail si une confirmation est nécessaire."
-      };
     },
     [supabase]
   );
@@ -337,15 +430,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, message: "Configuration Supabase manquante." };
       }
 
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: typeof window !== "undefined" ? `${window.location.origin}/connexion?mode=recovery` : undefined
-      });
+      try {
+        const { error } = await withTimeout(
+          supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+            redirectTo: typeof window !== "undefined" ? `${window.location.origin}/connexion?mode=recovery` : undefined
+          }),
+          10000
+        );
 
-      if (error) {
-        return { ok: false, message: friendlyAuthError(error.message) };
+        if (error) {
+          return { ok: false, message: friendlyAuthError(error.message) };
+        }
+
+        return { ok: true, message: "Si un compte existe, un email de réinitialisation a été envoyé." };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Une erreur est survenue.";
+        return { ok: false, message: friendlyAuthError(message) };
       }
-
-      return { ok: true, message: "Si un compte existe, un email de réinitialisation a été envoyé." };
     },
     [supabase]
   );
@@ -394,6 +495,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isManager: hasAppRole(roles, "manager") || profile?.role === "entraineur" || profile?.role === "bureau" || profile?.role === "admin",
       isAdmin: hasAppRole(roles, "admin") || hasAppRole(roles, "super_admin") || profile?.role === "admin" || profile?.role === "bureau",
       isPasswordRecovery,
+      isCheckingPasswordRecovery,
+      passwordRecoveryError,
       login,
       signup,
       resetPassword,
@@ -402,7 +505,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       refreshProfile
     }),
-    [clearPasswordRecovery, isPasswordRecovery, loading, login, logout, profile, refreshProfile, resetPassword, roles, signup, updatePassword, user]
+    [
+      clearPasswordRecovery,
+      isCheckingPasswordRecovery,
+      isPasswordRecovery,
+      loading,
+      login,
+      logout,
+      passwordRecoveryError,
+      profile,
+      refreshProfile,
+      resetPassword,
+      roles,
+      signup,
+      updatePassword,
+      user
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

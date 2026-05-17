@@ -152,6 +152,14 @@ Toutes les tables publiques doivent avoir RLS activee.
 - conserver le site fonctionnel quand Supabase n'est pas encore migre ;
 - revalider les pages publiques toutes les 60 secondes.
 
+### Etape 5 - Auth et mot de passe
+
+- securiser le parcours mot de passe oublie / reinitialisation ;
+- ne plus afficher le formulaire de nouveau mot de passe sans session Supabase valide ;
+- gerer les liens expires ou incomplets avec un message clair ;
+- ajouter des timeouts aux appels auth pour eviter les chargements infinis ;
+- normaliser les emails avant connexion, inscription et reinitialisation.
+
 ### MVP
 
 - auth stable ;
