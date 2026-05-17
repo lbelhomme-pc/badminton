@@ -20,11 +20,15 @@ function AdminVolantsContent() {
   const [volants, setVolants] = useState<VolantRow[]>([]);
   const [form, setForm] = useState({ marque: "", modele: "", type: "plume", prix: "22", stock: "12" });
   const [restockById, setRestockById] = useState<Record<number, string>>({});
+  const [priceById, setPriceById] = useState<Record<number, string>>({});
   const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
     const result = await fetchVolants();
     setVolants(result.data);
+    setPriceById(
+      Object.fromEntries(result.data.map((volant) => [volant.id, Number(volant.prix).toFixed(2)]))
+    );
     if (result.error) {
       setFeedback(errorFeedback(result.error));
     }
@@ -55,6 +59,27 @@ function AdminVolantsContent() {
     const result = await updateVolant(id, input);
     setFeedback(actionFeedback(result));
     if (result.ok) await load();
+  }
+
+  async function updateVolantPrice(volant: VolantRow) {
+    const nextPrice = Number((priceById[volant.id] ?? "").replace(",", "."));
+
+    if (!Number.isFinite(nextPrice) || nextPrice < 0) {
+      setFeedback(errorFeedback("Indique un prix valide, par exemple 22,50."));
+      return;
+    }
+
+    const roundedPrice = Math.round(nextPrice * 100) / 100;
+    const result = await updateVolant(volant.id, { prix: roundedPrice });
+    setFeedback(
+      result.ok
+        ? successFeedback(`Prix du volant ${volant.marque} mis à jour à ${roundedPrice.toFixed(2)} €.`)
+        : actionFeedback(result)
+    );
+
+    if (result.ok) {
+      await load();
+    }
   }
 
   async function restockVolant(volant: VolantRow) {
@@ -115,6 +140,26 @@ function AdminVolantsContent() {
             </div>
             <p className="mt-4 text-3xl font-black text-court-900">{volant.stock}</p>
             <p className="text-sm text-ink-500">{Number(volant.prix).toFixed(2)} € le tube</p>
+            <div className="mt-5 rounded-2xl border border-court-100 bg-white p-3">
+              <label className="text-sm font-bold text-court-900" htmlFor={`price-${volant.id}`}>
+                Prix du tube
+              </label>
+              <div className="mt-2 flex gap-2">
+                <input
+                  id={`price-${volant.id}`}
+                  min="0"
+                  step="0.01"
+                  type="number"
+                  inputMode="decimal"
+                  value={priceById[volant.id] ?? Number(volant.prix).toFixed(2)}
+                  onChange={(event) => setPriceById((current) => ({ ...current, [volant.id]: event.target.value }))}
+                  className="h-11 min-w-0 flex-1 rounded-lg border border-court-200 bg-court-50 px-3 text-sm"
+                />
+                <Button type="button" onClick={() => updateVolantPrice(volant)}>
+                  Enregistrer
+                </Button>
+              </div>
+            </div>
             <div className="mt-5 rounded-2xl border border-court-100 bg-court-50 p-3">
               <label className="text-sm font-bold text-court-900" htmlFor={`restock-${volant.id}`}>
                 Réassort club
