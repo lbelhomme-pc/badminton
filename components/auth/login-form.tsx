@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { PasswordUpdateForm } from "@/components/auth/password-update-form";
 import { Button } from "@/components/ui/button";
@@ -11,13 +11,30 @@ import { Card } from "@/components/ui/card";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { login, configured, loading, isAuthenticated, isPasswordRecovery } = useAuth();
+  const { login, configured, loading, isAuthenticated, isPasswordRecovery, clearPasswordRecovery } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
+  const [hasRecoveryUrl, setHasRecoveryUrl] = useState(false);
   const mode = searchParams.get("mode");
-  const showPasswordUpdate = isPasswordRecovery || mode === "recovery" || mode === "password";
+  const isRecoveryMode = mode === "recovery" || hasRecoveryUrl;
+  const isPasswordMode = mode === "password";
+  const showPasswordUpdate = isRecoveryMode || isPasswordMode;
+
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+    const type = hashParams.get("type") || searchParams.get("type");
+    const hasTokens = Boolean(hashParams.get("access_token") && hashParams.get("refresh_token"));
+
+    setHasRecoveryUrl(type === "recovery" || hasTokens);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!showPasswordUpdate && isPasswordRecovery) {
+      clearPasswordRecovery();
+    }
+  }, [clearPasswordRecovery, isPasswordRecovery, showPasswordUpdate]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -43,7 +60,7 @@ export function LoginForm() {
   if (showPasswordUpdate) {
     return (
       <PasswordUpdateForm
-        allowRecoveryAttempt={mode === "recovery" || isPasswordRecovery}
+        allowRecoveryAttempt={isRecoveryMode || isPasswordRecovery}
         title={mode === "password" ? "Changer mon mot de passe" : "Créer un nouveau mot de passe"}
         intro={
           mode === "password"

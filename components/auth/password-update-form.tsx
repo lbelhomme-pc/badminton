@@ -42,14 +42,19 @@ export function PasswordUpdateForm({
     }
 
     setPending(true);
-    const result = await updatePassword(password);
-    setPending(false);
-    setMessage(result.message);
-    setOk(result.ok);
+    try {
+      const result = await updatePassword(password);
+      setMessage(result.message);
+      setOk(result.ok);
 
-    if (result.ok) {
-      setPassword("");
-      setConfirmPassword("");
+      if (result.ok) {
+        setPassword("");
+        setConfirmPassword("");
+      }
+    } catch {
+      setMessage("La mise à jour n'a pas pu aboutir. Réessaie ou redemande un lien de mot de passe oublié.");
+    } finally {
+      setPending(false);
     }
   }
 

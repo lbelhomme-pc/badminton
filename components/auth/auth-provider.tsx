@@ -80,8 +80,7 @@ function readRecoveryUrlState(): RecoveryUrlState {
   const type = hashParams.get("type") || searchParams.get("type");
   const mode = searchParams.get("mode");
   const code = searchParams.get("code");
-  const storedRecovery = window.sessionStorage.getItem("cfvv41:password-recovery") === "1";
-  const isRecoveryUrl = type === "recovery" || mode === "recovery" || storedRecovery;
+  const isRecoveryUrl = type === "recovery" || mode === "recovery" || Boolean(accessToken && refreshToken);
 
   return {
     isRecoveryUrl,
@@ -117,6 +116,9 @@ function friendlyAuthError(message: string) {
   }
   if (message.toLowerCase().includes("session missing") || message.toLowerCase().includes("not authenticated")) {
     return "Le lien de réinitialisation n'est plus actif. Redemande un lien de mot de passe oublié.";
+  }
+  if (message.toLowerCase().includes("timed out")) {
+    return "La demande a pris trop de temps. Vérifie ta connexion puis réessaie.";
   }
   return message || "Une erreur est survenue.";
 }
@@ -315,14 +317,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, message: "Configuration Supabase manquante." };
       }
 
-      const { error } = await supabase.auth.updateUser({ password });
+      try {
+        const { error } = await withTimeout(supabase.auth.updateUser({ password }), 10000);
 
-      if (error) {
-        return { ok: false, message: friendlyAuthError(error.message) };
+        if (error) {
+          return { ok: false, message: friendlyAuthError(error.message) };
+        }
+
+        clearPasswordRecovery();
+        return { ok: true, message: "Mot de passe mis à jour." };
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Une erreur est survenue.";
+        return { ok: false, message: friendlyAuthError(message) };
       }
-
-      clearPasswordRecovery();
-      return { ok: true, message: "Mot de passe mis à jour." };
     },
     [clearPasswordRecovery, supabase]
   );
