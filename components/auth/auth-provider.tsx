@@ -3,8 +3,9 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
+import { hasAppRole, legacyClubRoleToAppRoles, normalizeAppRoles, type AppRole, type LegacyClubRole } from "@/lib/roles";
 
-export type ClubRole = "adherent" | "entraineur" | "bureau" | "admin";
+export type ClubRole = LegacyClubRole;
 
 export interface ClubProfile {
   id: string;
@@ -31,7 +32,9 @@ interface AuthContextValue {
   loading: boolean;
   user: User | null;
   profile: ClubProfile | null;
+  roles: AppRole[];
   isAuthenticated: boolean;
+  isManager: boolean;
   isAdmin: boolean;
   isPasswordRecovery: boolean;
   login: (email: string, password: string) => Promise<{ ok: boolean; message: string }>;
@@ -127,6 +130,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<ClubProfile | null>(null);
+  const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(isSupabaseConfigured);
   const [isPasswordRecovery, setIsPasswordRecovery] = useState(false);
 
@@ -137,10 +141,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const fetchUserRoles = useCallback(
+    async (userId: string, legacyRole?: string | null) => {
+      if (!supabase) {
+        setRoles([]);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+
+        if (error) {
+          setRoles(legacyClubRoleToAppRoles(legacyRole));
+          return;
+        }
+
+        const nextRoles = (data ?? []).map((row) => row.role);
+        setRoles(nextRoles.length > 0 ? normalizeAppRoles(nextRoles) : legacyClubRoleToAppRoles(legacyRole));
+      } catch {
+        setRoles(legacyClubRoleToAppRoles(legacyRole));
+      }
+    },
+    [supabase]
+  );
+
   const fetchProfile = useCallback(
     async (userId: string) => {
       if (!supabase) {
         setProfile(null);
+        setRoles([]);
         return;
       }
 
@@ -149,15 +178,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           setProfile(null);
+          await fetchUserRoles(userId);
           return;
         }
 
-        setProfile(data as ClubProfile);
+        const nextProfile = data as ClubProfile;
+        setProfile(nextProfile);
+        await fetchUserRoles(userId, nextProfile.role);
       } catch {
         setProfile(null);
+        await fetchUserRoles(userId);
       }
     },
-    [supabase]
+    [fetchUserRoles, supabase]
   );
 
   const refreshProfile = useCallback(async () => {
@@ -200,10 +233,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await fetchProfile(data.user.id);
         } else {
           setProfile(null);
+          setRoles([]);
         }
       } catch {
         if (!mounted) return;
         setProfile(null);
+        setRoles([]);
       } finally {
         if (mounted) {
           setLoading(false);
@@ -226,6 +261,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await fetchProfile(session.user.id);
         } else {
           setProfile(null);
+          setRoles([]);
           setIsPasswordRecovery(false);
           if (typeof window !== "undefined") {
             window.sessionStorage.removeItem("cfvv41:password-recovery");
@@ -234,6 +270,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch {
         setUser(session?.user ?? null);
         setProfile(null);
+        if (!session?.user) {
+          setRoles([]);
+        }
       } finally {
         setLoading(false);
       }
@@ -340,6 +379,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setUser(null);
     setProfile(null);
+    setRoles([]);
     clearPasswordRecovery();
   }, [clearPasswordRecovery, supabase]);
 
@@ -349,8 +389,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       user,
       profile,
+      roles,
       isAuthenticated: Boolean(user),
-      isAdmin: profile?.role === "admin" || profile?.role === "bureau",
+      isManager: hasAppRole(roles, "manager") || profile?.role === "entraineur" || profile?.role === "bureau" || profile?.role === "admin",
+      isAdmin: hasAppRole(roles, "admin") || hasAppRole(roles, "super_admin") || profile?.role === "admin" || profile?.role === "bureau",
       isPasswordRecovery,
       login,
       signup,
@@ -360,7 +402,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       logout,
       refreshProfile
     }),
-    [clearPasswordRecovery, isPasswordRecovery, loading, login, logout, profile, refreshProfile, resetPassword, signup, updatePassword, user]
+    [clearPasswordRecovery, isPasswordRecovery, loading, login, logout, profile, refreshProfile, resetPassword, roles, signup, updatePassword, user]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

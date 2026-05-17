@@ -1,4 +1,5 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { appRolesToLegacyClubRole, legacyClubRoleToAppRoles, normalizeAppRoles, type AppRole, type LegacyClubRole } from "@/lib/roles";
 
 export interface CreneauRow {
   id: number;
@@ -59,8 +60,14 @@ export interface ProfileRow {
   nom: string | null;
   email: string | null;
   telephone: string | null;
-  role: string;
+  role: LegacyClubRole;
+  roles: AppRole[];
   categorie: string | null;
+}
+
+interface UserRoleRow {
+  user_id: string;
+  role: AppRole;
 }
 
 export interface RankingRow {
@@ -278,15 +285,73 @@ export async function fetchProfiles() {
   if (!supabase) return { data: [] as ProfileRow[], error: "Configuration Supabase manquante." };
 
   const { data, error } = await supabase.from("profiles").select("id, prenom, nom, email, telephone, role, categorie").order("nom");
-  return { data: (data ?? []) as ProfileRow[], error: error?.message ?? null };
+  if (error) {
+    return { data: [] as ProfileRow[], error: error.message };
+  }
+
+  const profiles = (data ?? []) as Omit<ProfileRow, "roles">[];
+  const { data: roleRows, error: rolesError } = await supabase.from("user_roles").select("user_id, role");
+  const rolesByUser: Record<string, AppRole[]> = {};
+
+  if (!rolesError) {
+    ((roleRows ?? []) as UserRoleRow[]).forEach((row) => {
+      rolesByUser[row.user_id] = normalizeAppRoles([...(rolesByUser[row.user_id] ?? []), row.role]);
+    });
+  }
+
+  return {
+    data: profiles.map((profile) => ({
+      ...profile,
+      roles: rolesByUser[profile.id] ?? legacyClubRoleToAppRoles(profile.role)
+    })),
+    error: rolesError ? "Rôles avancés indisponibles : compatibilité avec l'ancien rôle utilisée." : null
+  };
 }
 
 export async function updateProfileRole(id: string, role: ProfileRow["role"]) {
+  return updateUserRoles(id, legacyClubRoleToAppRoles(role));
+}
+
+function isMissingRpc(errorMessage: string) {
+  const message = errorMessage.toLowerCase();
+  return message.includes("could not find the function") || message.includes("schema cache") || message.includes("set_user_roles");
+}
+
+export async function updateUserRoles(id: string, roles: AppRole[]) {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
-  const { error } = await supabase.from("profiles").update({ role }).eq("id", id);
-  return { ok: !error, message: error?.message ?? "Rôle mis à jour." };
+  const nextRoles = normalizeAppRoles(roles);
+  const { error: rpcError } = await supabase.rpc("set_user_roles", {
+    target_user_id: id,
+    target_roles: nextRoles
+  });
+
+  if (!rpcError) {
+    return { ok: true, message: "Rôles mis à jour." };
+  }
+
+  if (!isMissingRpc(rpcError.message)) {
+    return { ok: false, message: rpcError.message };
+  }
+
+  const legacyRole = appRolesToLegacyClubRole(nextRoles);
+  const { error: legacyError } = await supabase.from("profiles").update({ role: legacyRole }).eq("id", id);
+
+  if (legacyError) {
+    return { ok: false, message: legacyError.message };
+  }
+
+  const { error: deleteError } = await supabase.from("user_roles").delete().eq("user_id", id);
+
+  if (!deleteError) {
+    const { error: insertError } = await supabase.from("user_roles").insert(nextRoles.map((role) => ({ user_id: id, role })));
+    if (insertError) {
+      return { ok: true, message: "Rôle principal mis à jour. Les rôles avancés seront disponibles après la migration Supabase." };
+    }
+  }
+
+  return { ok: true, message: "Rôles mis à jour." };
 }
 
 export async function fetchPublicRankings() {

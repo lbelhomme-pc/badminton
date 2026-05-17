@@ -128,6 +128,15 @@ Toutes les tables publiques doivent avoir RLS activee.
 - poser `user_roles`, helpers RLS, audit logs, settings, stock movements ;
 - garder la compatibilite avec `profiles.role` pour ne pas casser l'interface existante.
 
+### Etape 2 - Raccordement des roles
+
+- ajouter une couche `lib/roles.ts` pour normaliser `member`, `manager`, `admin`, `super_admin` ;
+- faire lire `user_roles` par l'auth provider avec fallback sur `profiles.role` ;
+- exposer `roles`, `isManager` et `isAdmin` cote application ;
+- transformer l'ecran admin adherents en gestion multi-roles ;
+- centraliser la modification des roles via la fonction SQL `set_user_roles` ;
+- interdire la modification de ses propres roles pour eviter de perdre l'acces admin.
+
 ### MVP
 
 - auth stable ;

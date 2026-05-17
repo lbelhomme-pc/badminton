@@ -65,6 +65,35 @@ create table if not exists public.user_roles (
 create index if not exists user_roles_role_idx on public.user_roles(role);
 create index if not exists user_roles_user_idx on public.user_roles(user_id);
 
+create or replace function public.prevent_user_roles_self_lockout()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if tg_op = 'DELETE'
+    and old.user_id = (select auth.uid())
+    and old.role in ('admin', 'super_admin')
+    and not exists (
+      select 1
+      from public.user_roles
+      where user_id = old.user_id
+        and role in ('admin', 'super_admin')
+        and role <> old.role
+    ) then
+    raise exception 'Impossible de retirer ses propres droits admin';
+  end if;
+
+  return old;
+end;
+$$;
+
+drop trigger if exists user_roles_prevent_self_lockout on public.user_roles;
+create trigger user_roles_prevent_self_lockout
+before delete on public.user_roles
+for each row execute function public.prevent_user_roles_self_lockout();
+
 create or replace function public.sync_user_roles_from_profile()
 returns trigger
 language plpgsql
@@ -119,6 +148,75 @@ select id, 'admin'::public.app_role
 from public.profiles
 where role in ('bureau', 'admin')
 on conflict (user_id, role) do nothing;
+
+create or replace function public.set_user_roles(target_user_id uuid, target_roles public.app_role[])
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  normalized_roles public.app_role[];
+  legacy_role text;
+begin
+  if not public.is_admin() then
+    raise exception 'Acces reserve aux administrateurs';
+  end if;
+
+  if target_user_id = (select auth.uid()) then
+    raise exception 'Impossible de modifier ses propres roles';
+  end if;
+
+  normalized_roles := coalesce(target_roles, array[]::public.app_role[]);
+
+  if 'super_admin'::public.app_role = any(normalized_roles) then
+    normalized_roles := normalized_roles || array['admin', 'manager', 'member']::public.app_role[];
+  elsif 'admin'::public.app_role = any(normalized_roles) then
+    normalized_roles := normalized_roles || array['manager', 'member']::public.app_role[];
+  elsif 'manager'::public.app_role = any(normalized_roles) then
+    normalized_roles := normalized_roles || array['member']::public.app_role[];
+  end if;
+
+  if not ('member'::public.app_role = any(normalized_roles)) then
+    normalized_roles := normalized_roles || array['member']::public.app_role[];
+  end if;
+
+  select array_agg(distinct role_value order by role_value)
+  into normalized_roles
+  from unnest(normalized_roles) as role_value;
+
+  delete from public.user_roles
+  where user_id = target_user_id
+    and not (role = any(normalized_roles));
+
+  insert into public.user_roles (user_id, role, created_by)
+  select target_user_id, role_value, (select auth.uid())
+  from unnest(normalized_roles) as role_value
+  on conflict (user_id, role) do nothing;
+
+  legacy_role := case
+    when 'admin'::public.app_role = any(normalized_roles) or 'super_admin'::public.app_role = any(normalized_roles) then 'admin'
+    when 'manager'::public.app_role = any(normalized_roles) then 'bureau'
+    else 'adherent'
+  end;
+
+  update public.profiles
+  set role = legacy_role
+  where id = target_user_id;
+
+  insert into public.audit_logs (actor_id, action, table_name, row_id, metadata)
+  values (
+    (select auth.uid()),
+    'user_roles.updated',
+    'user_roles',
+    target_user_id::text,
+    jsonb_build_object('roles', normalized_roles)
+  );
+end;
+$$;
+
+revoke all on function public.set_user_roles(uuid, public.app_role[]) from public;
+grant execute on function public.set_user_roles(uuid, public.app_role[]) to authenticated;
 
 create table if not exists public.settings_site (
   key text primary key,
