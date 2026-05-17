@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { AdminFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -43,7 +44,7 @@ function AdminHomeContent() {
     tarifs: 0,
     volants: 0
   });
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   useEffect(() => {
     async function load() {
@@ -65,7 +66,7 @@ function AdminHomeContent() {
         volants: volants.data.length
       });
 
-      setMessage(profiles.error || reservations.error || creneaux.error || actualites.error || tarifs.error || volants.error);
+      setFeedback(errorFeedback(profiles.error || reservations.error || creneaux.error || actualites.error || tarifs.error || volants.error));
     }
 
     load();
@@ -85,7 +86,7 @@ function AdminHomeContent() {
       title="Pilotage du CFVV41"
       intro="Les actions sensibles restent protégées par les règles Supabase RLS, même si quelqu'un appelle la base directement."
     >
-      {message ? <p className="mb-6 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">{message}</p> : null}
+      <AdminFeedback feedback={feedback} className="mb-6" />
 
       <section className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         {statCards.map(([label, value]) => (

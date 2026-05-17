@@ -73,6 +73,36 @@ interface UserRoleRow {
   role: AppRole;
 }
 
+function friendlyDatabaseError(error: { message: string; code?: string } | null | undefined) {
+  if (!error) {
+    return null;
+  }
+
+  const message = error.message.toLowerCase();
+
+  if (message.includes("row-level security") || message.includes("permission denied")) {
+    return "Droits insuffisants. Vérifie que ton compte a bien le rôle admin/manager et reconnecte-toi.";
+  }
+
+  if (error.code === "23505" || message.includes("duplicate key")) {
+    return "Cette donnée existe déjà.";
+  }
+
+  if (error.code === "23514" || message.includes("check constraint")) {
+    return "Une valeur saisie n'est pas acceptée par la base.";
+  }
+
+  if (message.includes("invalid input syntax")) {
+    return "Une valeur saisie n'est pas dans le bon format.";
+  }
+
+  if (message.includes("schema cache")) {
+    return "La structure Supabase vient de changer. Attends quelques secondes puis réessaie.";
+  }
+
+  return error.message;
+}
+
 export type SiteSettingKey = "club" | "contact";
 
 export interface SiteSettingRow {
@@ -101,7 +131,7 @@ export async function fetchCreneaux() {
   if (!supabase) return { data: [] as CreneauRow[], error: "Configuration Supabase manquante." };
 
   const { data, error } = await supabase.from("creneaux").select("*").order("id", { ascending: true });
-  return { data: (data ?? []) as CreneauRow[], error: error?.message ?? null };
+  return { data: (data ?? []) as CreneauRow[], error: friendlyDatabaseError(error) };
 }
 
 export async function createCreneau(input: Omit<CreneauRow, "id">) {
@@ -109,7 +139,7 @@ export async function createCreneau(input: Omit<CreneauRow, "id">) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("creneaux").insert(input);
-  return { ok: !error, message: error?.message ?? "Créneau créé." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Créneau créé." };
 }
 
 export async function updateCreneau(id: number, input: Partial<CreneauRow>) {
@@ -117,7 +147,7 @@ export async function updateCreneau(id: number, input: Partial<CreneauRow>) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("creneaux").update(input).eq("id", id);
-  return { ok: !error, message: error?.message ?? "Créneau mis à jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Créneau mis à jour." };
 }
 
 export async function fetchMyReservations() {
@@ -129,7 +159,7 @@ export async function fetchMyReservations() {
     .select("*, creneaux(*)")
     .order("date_reservation", { ascending: true });
 
-  return { data: (data ?? []) as ReservationRow[], error: error?.message ?? null };
+  return { data: (data ?? []) as ReservationRow[], error: friendlyDatabaseError(error) };
 }
 
 export async function fetchAllReservations() {
@@ -141,7 +171,7 @@ export async function fetchAllReservations() {
     .select("*, creneaux(*)")
     .order("date_reservation", { ascending: false });
 
-  return { data: (data ?? []) as ReservationRow[], error: error?.message ?? null };
+  return { data: (data ?? []) as ReservationRow[], error: friendlyDatabaseError(error) };
 }
 
 export async function createReservation(userId: string, creneauId: number, dateReservation: string) {
@@ -159,7 +189,7 @@ export async function createReservation(userId: string, creneauId: number, dateR
     return { ok: false, message: "Tu as déjà réservé ce créneau." };
   }
 
-  return { ok: !error, message: error?.message ?? "Réservation confirmée." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Réservation confirmée." };
 }
 
 export async function updateReservationStatus(id: number, statut: string) {
@@ -167,7 +197,7 @@ export async function updateReservationStatus(id: number, statut: string) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("reservations").update({ statut }).eq("id", id);
-  return { ok: !error, message: error?.message ?? "Réservation mise à jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Réservation mise à jour." };
 }
 
 export async function fetchActualites(includeInternal = false) {
@@ -180,7 +210,7 @@ export async function fetchActualites(includeInternal = false) {
   }
 
   const { data, error } = await query;
-  return { data: (data ?? []) as ActualiteRow[], error: error?.message ?? null };
+  return { data: (data ?? []) as ActualiteRow[], error: friendlyDatabaseError(error) };
 }
 
 export type ActualiteInput = Pick<ActualiteRow, "titre" | "contenu" | "visible_public"> &
@@ -193,7 +223,7 @@ export async function createActualite(input: ActualiteInput) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("actualites").insert(input);
-  return { ok: !error, message: error?.message ?? "Actualité créée." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Actualité créée." };
 }
 
 export async function updateActualite(id: number, input: Partial<ActualiteInput>) {
@@ -201,7 +231,7 @@ export async function updateActualite(id: number, input: Partial<ActualiteInput>
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("actualites").update(input).eq("id", id);
-  return { ok: !error, message: error?.message ?? "Actualité mise à jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Actualité mise à jour." };
 }
 
 export async function deleteActualite(id: number) {
@@ -209,7 +239,7 @@ export async function deleteActualite(id: number) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("actualites").delete().eq("id", id);
-  return { ok: !error, message: error?.message ?? "Actualité supprimée." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Actualité supprimée." };
 }
 
 export async function fetchVolants() {
@@ -217,7 +247,7 @@ export async function fetchVolants() {
   if (!supabase) return { data: [] as VolantRow[], error: "Configuration Supabase manquante." };
 
   const { data, error } = await supabase.from("volants").select("*").order("id", { ascending: true });
-  return { data: (data ?? []) as VolantRow[], error: error?.message ?? null };
+  return { data: (data ?? []) as VolantRow[], error: friendlyDatabaseError(error) };
 }
 
 export async function fetchTarifs(includeInactive = false) {
@@ -230,7 +260,7 @@ export async function fetchTarifs(includeInactive = false) {
   }
 
   const { data, error } = await query;
-  return { data: (data ?? []) as TarifRow[], error: error?.message ?? null };
+  return { data: (data ?? []) as TarifRow[], error: friendlyDatabaseError(error) };
 }
 
 export async function createTarif(input: Omit<TarifRow, "id">) {
@@ -238,7 +268,7 @@ export async function createTarif(input: Omit<TarifRow, "id">) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("tarifs").insert(input);
-  return { ok: !error, message: error?.message ?? "Tarif créé." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Tarif créé." };
 }
 
 export async function updateTarif(id: number, input: Partial<TarifRow>) {
@@ -246,7 +276,7 @@ export async function updateTarif(id: number, input: Partial<TarifRow>) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("tarifs").update(input).eq("id", id);
-  return { ok: !error, message: error?.message ?? "Tarif mis à jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Tarif mis à jour." };
 }
 
 export async function deleteTarif(id: number) {
@@ -254,7 +284,7 @@ export async function deleteTarif(id: number) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("tarifs").delete().eq("id", id);
-  return { ok: !error, message: error?.message ?? "Tarif supprimé." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Tarif supprimé." };
 }
 
 export async function fetchSiteSettings() {
@@ -263,7 +293,7 @@ export async function fetchSiteSettings() {
 
   const { data, error } = await supabase.from("settings_site").select("key, value, visibility").in("key", ["club", "contact"]);
 
-  return { data: (data ?? []) as SiteSettingRow[], error: error?.message ?? null };
+  return { data: (data ?? []) as SiteSettingRow[], error: friendlyDatabaseError(error) };
 }
 
 export async function upsertSiteSetting(input: SiteSettingRow) {
@@ -271,7 +301,7 @@ export async function upsertSiteSetting(input: SiteSettingRow) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("settings_site").upsert(input, { onConflict: "key" });
-  return { ok: !error, message: error?.message ?? "Paramètre mis à jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Paramètre mis à jour." };
 }
 
 export async function createVolant(input: Omit<VolantRow, "id">) {
@@ -279,7 +309,7 @@ export async function createVolant(input: Omit<VolantRow, "id">) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("volants").insert(input);
-  return { ok: !error, message: error?.message ?? "Volant ajouté." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Volant ajouté." };
 }
 
 export async function updateVolant(id: number, input: Partial<VolantRow>) {
@@ -287,7 +317,7 @@ export async function updateVolant(id: number, input: Partial<VolantRow>) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("volants").update(input).eq("id", id);
-  return { ok: !error, message: error?.message ?? "Volant mis à jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Volant mis à jour." };
 }
 
 export async function createCommandeVolants(userId: string, volant: VolantRow, quantite: number) {
@@ -310,7 +340,7 @@ export async function createCommandeVolants(userId: string, volant: VolantRow, q
     return { ok: false, message: "Ce modèle de volant n'est plus disponible." };
   }
 
-  return { ok: !error, message: error?.message ?? "Commande envoyée. Le stock a été mis à jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Commande envoyée. Le stock a été mis à jour." };
 }
 
 export async function fetchProfiles() {
@@ -319,7 +349,7 @@ export async function fetchProfiles() {
 
   const { data, error } = await supabase.from("profiles").select("id, prenom, nom, email, telephone, role, categorie").order("nom");
   if (error) {
-    return { data: [] as ProfileRow[], error: error.message };
+    return { data: [] as ProfileRow[], error: friendlyDatabaseError(error) ?? error.message };
   }
 
   const profiles = (data ?? []) as Omit<ProfileRow, "roles">[];
@@ -400,5 +430,5 @@ export async function fetchPublicRankings() {
     .eq("visibility", "public")
     .order("display_name", { ascending: true });
 
-  return { data: (data ?? []) as RankingRow[], error: error?.message ?? null };
+  return { data: (data ?? []) as RankingRow[], error: friendlyDatabaseError(error) };
 }

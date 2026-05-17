@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminFeedback, actionFeedback, errorFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -19,12 +20,14 @@ function AdminVolantsContent() {
   const [volants, setVolants] = useState<VolantRow[]>([]);
   const [form, setForm] = useState({ marque: "", modele: "", type: "plume", prix: "22", stock: "12" });
   const [restockById, setRestockById] = useState<Record<number, string>>({});
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
     const result = await fetchVolants();
     setVolants(result.data);
-    setMessage(result.error);
+    if (result.error) {
+      setFeedback(errorFeedback(result.error));
+    }
   }
 
   useEffect(() => {
@@ -34,14 +37,14 @@ function AdminVolantsContent() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = await createVolant({
-      marque: form.marque,
-      modele: form.modele || null,
+      marque: form.marque.trim(),
+      modele: form.modele.trim() || null,
       type: form.type,
-      prix: Number(form.prix),
-      stock: Number(form.stock),
+      prix: Number((form.prix || "0").replace(",", ".")),
+      stock: Math.max(0, Math.floor(Number((form.stock || "0").replace(",", ".")))),
       actif: true
     });
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) {
       setForm({ marque: "", modele: "", type: "plume", prix: "22", stock: "12" });
       await load();
@@ -50,7 +53,7 @@ function AdminVolantsContent() {
 
   async function patchVolant(id: number, input: Partial<VolantRow>) {
     const result = await updateVolant(id, input);
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) await load();
   }
 
@@ -58,12 +61,12 @@ function AdminVolantsContent() {
     const quantity = Math.floor(Number(restockById[volant.id] ?? 0));
 
     if (!Number.isFinite(quantity) || quantity <= 0) {
-      setMessage("Indique un nombre de tubes a ajouter au stock.");
+      setFeedback(errorFeedback("Indique un nombre de tubes a ajouter au stock."));
       return;
     }
 
     const result = await updateVolant(volant.id, { stock: volant.stock + quantity });
-    setMessage(result.ok ? `${quantity} tube(s) ajoute(s) au stock ${volant.marque}.` : result.message);
+    setFeedback(result.ok ? successFeedback(`${quantity} tube(s) ajoute(s) au stock ${volant.marque}.`) : actionFeedback(result));
 
     if (result.ok) {
       setRestockById((current) => ({ ...current, [volant.id]: "" }));
@@ -96,7 +99,7 @@ function AdminVolantsContent() {
         </form>
       </Card>
 
-      {message ? <p className="mt-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
+      <AdminFeedback feedback={feedback} className="mt-6" />
 
       <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {volants.map((volant) => (
@@ -169,6 +172,7 @@ function VolantInput({
       <input
         required={required}
         type={type}
+        step={type === "number" ? "0.01" : undefined}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="h-11 rounded-lg border border-court-200 bg-court-50 px-3"

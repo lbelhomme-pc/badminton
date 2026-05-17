@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -121,13 +122,15 @@ function AdminAdherentsContent() {
   const { user } = useAuth();
   const [profiles, setProfiles] = useState<ProfileRow[]>([]);
   const [rolesById, setRolesById] = useState<Record<string, AppRole[]>>({});
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
     const result = await fetchProfiles();
     setProfiles(result.data);
     setRolesById(Object.fromEntries(result.data.map((profile) => [profile.id, profile.roles])));
-    setMessage(result.error);
+    if (result.error) {
+      setFeedback(errorFeedback(result.error));
+    }
   }
 
   useEffect(() => {
@@ -138,12 +141,12 @@ function AdminAdherentsContent() {
     const roles = getSelectedRoles(profile, rolesById);
 
     if (profile.id === user?.id && !sameRoles(roles, profile.roles)) {
-      setMessage("Pour éviter de te bloquer, tes propres rôles ne peuvent pas être modifiés ici.");
+      setFeedback(errorFeedback("Pour éviter de te bloquer, tes propres rôles ne peuvent pas être modifiés ici."));
       return;
     }
 
     const result = await updateUserRoles(profile.id, roles);
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) await load();
   }
 
@@ -156,7 +159,7 @@ function AdminAdherentsContent() {
 
   return (
     <AdminShell title="Adhérents" intro={pageIntro}>
-      {message ? <p className="mt-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
+      <AdminFeedback feedback={feedback} className="mt-6" />
 
       <section className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
         <Card className="p-5">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -31,12 +32,14 @@ export function AdminCreneaux() {
 function AdminCreneauxContent() {
   const [creneaux, setCreneaux] = useState<CreneauRow[]>([]);
   const [form, setForm] = useState(initialForm);
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
     const result = await fetchCreneaux();
     setCreneaux(result.data);
-    setMessage(result.error);
+    if (result.error) {
+      setFeedback(errorFeedback(result.error));
+    }
   }
 
   useEffect(() => {
@@ -50,19 +53,19 @@ function AdminCreneauxContent() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = await createCreneau({
-      jour: form.jour,
+      jour: form.jour.trim(),
       heure_debut: form.heure_debut,
       heure_fin: form.heure_fin,
-      gymnase: form.gymnase,
-      adresse: form.adresse || null,
+      gymnase: form.gymnase.trim(),
+      adresse: form.adresse.trim() || null,
       type: form.type,
       public: form.public,
-      niveau: form.niveau || null,
+      niveau: form.niveau.trim() || null,
       places_max: form.places_max ? Number(form.places_max) : null,
-      responsable: form.responsable || null,
+      responsable: form.responsable.trim() || null,
       actif: true
     });
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) {
       setForm(initialForm);
       await load();
@@ -71,13 +74,13 @@ function AdminCreneauxContent() {
 
   async function toggleActive(creneau: CreneauRow) {
     const result = await updateCreneau(creneau.id, { actif: !creneau.actif });
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) await load();
   }
 
   return (
     <AdminShell title="Gestion des créneaux" intro="Créer un créneau régulier et désactiver une séance si besoin.">
-      {message ? <p className="mt-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
+      <AdminFeedback feedback={feedback} className="mt-6" />
 
       <Card className="mt-8 p-5">
         <h2 className="text-xl font-black text-court-900">Nouveau créneau</h2>

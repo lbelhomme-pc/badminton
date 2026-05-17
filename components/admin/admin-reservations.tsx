@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -25,12 +26,14 @@ function AdminReservationsContent() {
   const [reservations, setReservations] = useState<ReservationRow[]>([]);
   const [dateFilter, setDateFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
     const result = await fetchAllReservations();
     setReservations(result.data);
-    setMessage(result.error);
+    if (result.error) {
+      setFeedback(errorFeedback(result.error));
+    }
   }
 
   useEffect(() => {
@@ -49,7 +52,7 @@ function AdminReservationsContent() {
 
   async function updateStatus(id: number, statut: string) {
     const result = await updateReservationStatus(id, statut);
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) await load();
   }
 
@@ -87,7 +90,7 @@ function AdminReservationsContent() {
         </div>
       </Card>
 
-      {message ? <p className="mt-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
+      <AdminFeedback feedback={feedback} className="mt-6" />
 
       <section className="mt-8 grid gap-4">
         {filtered.map((reservation) => (

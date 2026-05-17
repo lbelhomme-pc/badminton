@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -31,11 +32,11 @@ function toForm(tarif: TarifRow): TarifForm {
 
 function toInput(form: TarifForm) {
   return {
-    titre: form.titre,
-    description: form.description || null,
-    montant: Number(form.montant || 0),
-    public: form.public || null,
-    ordre: Number(form.ordre || 0),
+    titre: form.titre.trim(),
+    description: form.description.trim() || null,
+    montant: Number((form.montant || "0").replace(",", ".")),
+    public: form.public.trim() || null,
+    ordre: Number((form.ordre || "0").replace(",", ".")),
     actif: form.actif
   };
 }
@@ -52,12 +53,14 @@ function AdminTarifsContent() {
   const [tarifs, setTarifs] = useState<TarifRow[]>([]);
   const [form, setForm] = useState<TarifForm>(emptyForm);
   const [editing, setEditing] = useState<Record<number, TarifForm>>({});
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
     const result = await fetchTarifs(true);
     setTarifs(result.data);
-    setMessage(result.error);
+    if (result.error) {
+      setFeedback(errorFeedback(result.error));
+    }
   }
 
   useEffect(() => {
@@ -78,7 +81,7 @@ function AdminTarifsContent() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = await createTarif(toInput(form));
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
 
     if (result.ok) {
       setForm(emptyForm);
@@ -89,7 +92,7 @@ function AdminTarifsContent() {
   async function save(tarif: TarifRow) {
     const current = editing[tarif.id] ?? toForm(tarif);
     const result = await updateTarif(tarif.id, toInput(current));
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
 
     if (result.ok) {
       setEditing((state) => {
@@ -103,7 +106,7 @@ function AdminTarifsContent() {
 
   async function remove(id: number) {
     const result = await deleteTarif(id);
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) await load();
   }
 
@@ -134,7 +137,7 @@ function AdminTarifsContent() {
         </form>
       </Card>
 
-      {message ? <p className="mt-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
+      <AdminFeedback feedback={feedback} className="mt-6" />
 
       <section className="mt-8 grid gap-4 lg:grid-cols-2">
         {tarifs.map((tarif) => {
@@ -206,7 +209,7 @@ function TarifInput({
       <input
         required={required}
         type={type}
-        step={type === "number" ? "1" : undefined}
+        step={type === "number" ? "0.01" : undefined}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="h-11 rounded-lg border border-court-200 bg-court-50 px-3 outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20"

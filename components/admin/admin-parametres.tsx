@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminFeedback, errorFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -39,14 +40,14 @@ export function AdminParametres() {
 function AdminParametresContent() {
   const [club, setClub] = useState<ClubForm>(defaultClub);
   const [contact, setContact] = useState<ContactForm>(defaultContact);
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
   const [pending, setPending] = useState(false);
 
   async function load() {
     const result = await fetchSiteSettings();
 
     if (result.error) {
-      setMessage(result.error);
+      setFeedback(errorFeedback(result.error));
       return;
     }
 
@@ -76,7 +77,11 @@ function AdminParametresContent() {
     ]);
 
     setPending(false);
-    setMessage(clubResult.ok && contactResult.ok ? "Paramètres du site mis à jour." : clubResult.message || contactResult.message);
+    setFeedback(
+      clubResult.ok && contactResult.ok
+        ? successFeedback("Paramètres du site mis à jour.")
+        : errorFeedback(!clubResult.ok ? clubResult.message : contactResult.message)
+    );
 
     if (clubResult.ok && contactResult.ok) {
       await load();
@@ -88,7 +93,7 @@ function AdminParametresContent() {
       title="Paramètres du site"
       intro="Centralise les informations publiques du club : nom, ville, lien FFBaD, contact et réseaux. Ces données serviront progressivement aux pages publiques."
     >
-      {message ? <p className="mb-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
+      <AdminFeedback feedback={feedback} className="mb-6" />
 
       <form className="grid gap-6 lg:grid-cols-2" onSubmit={save}>
         <Card className="p-5">

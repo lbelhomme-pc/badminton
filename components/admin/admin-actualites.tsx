@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ExternalLink, ImageIcon } from "lucide-react";
+import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -63,12 +64,14 @@ function AdminActualitesContent() {
   const [actualites, setActualites] = useState<ActualiteRow[]>([]);
   const [form, setForm] = useState<ActualiteForm>(emptyActualiteForm);
   const [editing, setEditing] = useState<Record<number, ActualiteForm>>({});
-  const [message, setMessage] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
     const result = await fetchActualites(true);
     setActualites(result.data);
-    setMessage(result.error);
+    if (result.error) {
+      setFeedback(errorFeedback(result.error));
+    }
   }
 
   useEffect(() => {
@@ -78,7 +81,7 @@ function AdminActualitesContent() {
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const result = await createActualite(toActualitePayload(form, user?.id));
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) {
       setForm(emptyActualiteForm);
       await load();
@@ -87,7 +90,7 @@ function AdminActualitesContent() {
 
   async function remove(id: number) {
     const result = await deleteActualite(id);
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
     if (result.ok) await load();
   }
 
@@ -118,7 +121,7 @@ function AdminActualitesContent() {
   async function save(actualite: ActualiteRow) {
     const current = editValue(actualite);
     const result = await updateActualite(actualite.id, toActualitePayload(current));
-    setMessage(result.message);
+    setFeedback(actionFeedback(result));
 
     if (result.ok) {
       setEditing((state) => {
@@ -195,7 +198,7 @@ function AdminActualitesContent() {
         </form>
       </Card>
 
-      {message ? <p className="mt-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
+      <AdminFeedback feedback={feedback} className="mt-6" />
 
       <section className="mt-8 grid gap-4 md:grid-cols-2">
         {actualites.map((actualite) => (
