@@ -43,6 +43,7 @@ export function LoginForm() {
   if (showPasswordUpdate) {
     return (
       <PasswordUpdateForm
+        allowRecoveryAttempt={mode === "recovery" || isPasswordRecovery}
         title={mode === "password" ? "Changer mon mot de passe" : "Créer un nouveau mot de passe"}
         intro={
           mode === "password"

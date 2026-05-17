@@ -45,6 +45,15 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+interface RecoveryUrlState {
+  isRecoveryUrl: boolean;
+  code: string | null;
+  sessionTokens: {
+    access_token: string;
+    refresh_token: string;
+  } | null;
+}
+
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
@@ -59,12 +68,55 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
   });
 }
 
+function readRecoveryUrlState(): RecoveryUrlState {
+  if (typeof window === "undefined") {
+    return { isRecoveryUrl: false, code: null, sessionTokens: null };
+  }
+
+  const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const searchParams = new URLSearchParams(window.location.search);
+  const accessToken = hashParams.get("access_token");
+  const refreshToken = hashParams.get("refresh_token");
+  const type = hashParams.get("type") || searchParams.get("type");
+  const mode = searchParams.get("mode");
+  const code = searchParams.get("code");
+  const storedRecovery = window.sessionStorage.getItem("cfvv41:password-recovery") === "1";
+  const isRecoveryUrl = type === "recovery" || mode === "recovery" || storedRecovery;
+
+  return {
+    isRecoveryUrl,
+    code,
+    sessionTokens:
+      accessToken && refreshToken
+        ? {
+            access_token: accessToken,
+            refresh_token: refreshToken
+          }
+        : null
+  };
+}
+
+function cleanRecoveryUrl() {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  const url = new URL(window.location.href);
+  url.hash = "";
+  url.searchParams.delete("code");
+  url.searchParams.delete("type");
+  window.history.replaceState(null, "", `${url.pathname}${url.search}`);
+}
+
 function friendlyAuthError(message: string) {
   if (message.toLowerCase().includes("invalid login")) {
     return "Email ou mot de passe incorrect.";
   }
   if (message.toLowerCase().includes("already registered")) {
     return "Un compte existe déjà avec cet email.";
+  }
+  if (message.toLowerCase().includes("session missing") || message.toLowerCase().includes("not authenticated")) {
+    return "Le lien de réinitialisation n'est plus actif. Redemande un lien de mot de passe oublié.";
   }
   return message || "Une erreur est survenue.";
 }
@@ -119,12 +171,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     let mounted = true;
+    const recoveryUrlState = readRecoveryUrlState();
 
-    if (typeof window !== "undefined") {
-      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-      const isRecoveryUrl = hashParams.get("type") === "recovery" || window.sessionStorage.getItem("cfvv41:password-recovery") === "1";
-
-      if (isRecoveryUrl) {
+    if (recoveryUrlState.isRecoveryUrl) {
+      if (typeof window !== "undefined") {
         setIsPasswordRecovery(true);
         window.sessionStorage.setItem("cfvv41:password-recovery", "1");
       }
@@ -132,6 +182,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     void (async () => {
       try {
+        if (recoveryUrlState.sessionTokens) {
+          await withTimeout(supabase.auth.setSession(recoveryUrlState.sessionTokens), 5000);
+          cleanRecoveryUrl();
+        } else if (recoveryUrlState.code && recoveryUrlState.isRecoveryUrl) {
+          await withTimeout(supabase.auth.exchangeCodeForSession(recoveryUrlState.code), 5000);
+          cleanRecoveryUrl();
+        }
+
         const { data } = await withTimeout(supabase.auth.getUser(), 5000);
         if (!mounted) return;
 

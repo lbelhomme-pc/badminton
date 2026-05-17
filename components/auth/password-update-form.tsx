@@ -10,19 +10,22 @@ interface PasswordUpdateFormProps {
   title?: string;
   intro?: string;
   compact?: boolean;
+  allowRecoveryAttempt?: boolean;
 }
 
 export function PasswordUpdateForm({
   title = "Choisir un nouveau mot de passe",
   intro = "Saisis un nouveau mot de passe pour sécuriser ton compte adhérent.",
-  compact = false
+  compact = false,
+  allowRecoveryAttempt = false
 }: PasswordUpdateFormProps) {
-  const { configured, isAuthenticated, updatePassword } = useAuth();
+  const { configured, isAuthenticated, isPasswordRecovery, updatePassword } = useAuth();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [ok, setOk] = useState(false);
   const [pending, setPending] = useState(false);
+  const canUpdatePassword = configured && (isAuthenticated || isPasswordRecovery || allowRecoveryAttempt);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,9 +64,9 @@ export function PasswordUpdateForm({
         </p>
       ) : null}
 
-      {!isAuthenticated ? (
+      {!canUpdatePassword ? (
         <p className="mt-4 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">
-          Le lien de réinitialisation a expiré ou la session n'est plus active. Redemande un lien de mot de passe oublié.
+          Connecte-toi ou redemande un lien de mot de passe oublié pour modifier ton mot de passe.
         </p>
       ) : null}
 
@@ -99,7 +102,7 @@ export function PasswordUpdateForm({
           </p>
         ) : null}
 
-        <Button type="submit" disabled={pending || !configured || !isAuthenticated}>
+        <Button type="submit" disabled={pending || !canUpdatePassword}>
           {pending ? "Mise à jour..." : "Mettre à jour le mot de passe"}
         </Button>
       </form>
