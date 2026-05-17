@@ -26,8 +26,8 @@ interface AdminShellProps {
 
 export function AdminShell({ title, intro, eyebrow = "Administration", children }: AdminShellProps) {
   const pathname = usePathname();
-  const { isAdmin, isManager } = useAuth();
-  const visibleItems = adminNavItems.filter((item) => item.minRole === "manager" ? isManager || isAdmin : isAdmin);
+  const { isAdmin } = useAuth();
+  const visibleItems = adminNavItems.filter((item) => item.minRole === "manager" || isAdmin);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

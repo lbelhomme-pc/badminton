@@ -13,6 +13,7 @@ const primaryLinks = [
   { href: "/", label: "Accueil" },
   { href: "/creneaux", label: "Créneaux" },
   { href: "/tarifs", label: "Tarifs" },
+  { href: "/commande-volants", label: "Volants" },
   { href: "/club", label: "Le club" },
   { href: "/contact", label: "Contact" }
 ];
