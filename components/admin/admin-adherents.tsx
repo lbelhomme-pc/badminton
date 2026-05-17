@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
 import { appRoleLabels, normalizeAppRoles, type AppRole } from "@/lib/roles";
@@ -154,10 +155,7 @@ function AdminAdherentsContent() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-black text-court-900">Adhérents</h1>
-      <p className="mt-3 max-w-2xl text-ink-500">{pageIntro}</p>
-
+    <AdminShell title="Adhérents" intro={pageIntro}>
       {message ? <p className="mt-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
 
       <section className="mt-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
@@ -235,6 +233,6 @@ function AdminAdherentsContent() {
           </Card>
         ))}
       </section>
-    </div>
+    </AdminShell>
   );
 }

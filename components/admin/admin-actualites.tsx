@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,7 @@ import {
 
 export function AdminActualites() {
   return (
-    <AdminRoute>
+    <AdminRoute requiredRole="manager">
       <AdminActualitesContent />
     </AdminRoute>
   );
@@ -96,11 +97,8 @@ function AdminActualitesContent() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-black text-court-900">Actualités</h1>
-      <p className="mt-3 max-w-2xl text-ink-500">Publier une information publique ou réservée aux adhérents connectés.</p>
-
-      <Card className="mt-8 p-5">
+    <AdminShell title="Actualités" intro="Publier une information publique ou réservée aux adhérents connectés.">
+      <Card className="p-5">
         <h2 className="text-xl font-black text-court-900">Nouvelle actualité</h2>
         <form className="mt-5 grid gap-4" onSubmit={onSubmit}>
           <label className="grid gap-2 text-sm font-semibold text-court-900">
@@ -148,7 +146,7 @@ function AdminActualitesContent() {
           />
         ))}
       </section>
-    </div>
+    </AdminShell>
   );
 }
 

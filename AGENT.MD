@@ -137,6 +137,14 @@ Toutes les tables publiques doivent avoir RLS activee.
 - centraliser la modification des roles via la fonction SQL `set_user_roles` ;
 - interdire la modification de ses propres roles pour eviter de perdre l'acces admin.
 
+### Etape 3 - Back-office utilisable
+
+- ajouter un shell d'administration commun avec navigation horizontale ;
+- distinguer les pages operationnelles accessibles aux `manager` des pages sensibles reservees aux `admin` ;
+- ajouter la page `/admin/parametres` pour modifier les infos publiques du club ;
+- brancher les parametres sur `settings_site` ;
+- garder un message clair si la migration Supabase n'est pas encore executee.
+
 ### MVP
 
 - auth stable ;

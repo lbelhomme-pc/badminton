@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -8,7 +9,7 @@ import { createVolant, fetchVolants, updateVolant, type VolantRow } from "@/serv
 
 export function AdminVolants() {
   return (
-    <AdminRoute>
+    <AdminRoute requiredRole="manager">
       <AdminVolantsContent />
     </AdminRoute>
   );
@@ -71,13 +72,8 @@ function AdminVolantsContent() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-black text-court-900">Gestion des volants</h1>
-      <p className="mt-3 max-w-2xl text-ink-500">
-        Ajouter un modèle, corriger un écart ou saisir un réassort quand le club achète des tubes.
-      </p>
-
-      <Card className="mt-8 p-5">
+    <AdminShell title="Gestion des volants" intro="Ajouter un modèle, corriger un écart ou saisir un réassort quand le club achète des tubes.">
+      <Card className="p-5">
         <h2 className="text-xl font-black text-court-900">Nouveau volant</h2>
         <form className="mt-5 grid gap-4 md:grid-cols-5" onSubmit={onSubmit}>
           <VolantInput label="Marque" value={form.marque} onChange={(value) => setForm((current) => ({ ...current, marque: value }))} />
@@ -150,7 +146,7 @@ function AdminVolantsContent() {
           </Card>
         ))}
       </section>
-    </div>
+    </AdminShell>
   );
 }
 

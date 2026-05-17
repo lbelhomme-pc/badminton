@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -14,7 +15,7 @@ const statuses = ["en_attente", "confirmee", "annulee", "refusee"];
 
 export function AdminReservations() {
   return (
-    <AdminRoute>
+    <AdminRoute requiredRole="manager">
       <AdminReservationsContent />
     </AdminRoute>
   );
@@ -53,11 +54,8 @@ function AdminReservationsContent() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-black text-court-900">Réservations</h1>
-      <p className="mt-3 max-w-2xl text-ink-500">Suivi simple des réservations et des annulations.</p>
-
-      <Card className="mt-8 grid gap-4 p-5 md:grid-cols-3">
+    <AdminShell title="Réservations" intro="Suivi simple des réservations et des annulations.">
+      <Card className="grid gap-4 p-5 md:grid-cols-3">
         <label className="grid gap-2 text-sm font-semibold text-court-900">
           Date
           <input
@@ -117,6 +115,6 @@ function AdminReservationsContent() {
           </Card>
         ))}
       </section>
-    </div>
+    </AdminShell>
   );
 }

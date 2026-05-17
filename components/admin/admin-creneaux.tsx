@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,7 +22,7 @@ const initialForm = {
 
 export function AdminCreneaux() {
   return (
-    <AdminRoute>
+    <AdminRoute requiredRole="manager">
       <AdminCreneauxContent />
     </AdminRoute>
   );
@@ -75,10 +76,7 @@ function AdminCreneauxContent() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-black text-court-900">Gestion des créneaux</h1>
-      <p className="mt-3 max-w-2xl text-ink-500">Créer un créneau régulier et désactiver une séance si besoin.</p>
-
+    <AdminShell title="Gestion des créneaux" intro="Créer un créneau régulier et désactiver une séance si besoin.">
       {message ? <p className="mt-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
 
       <Card className="mt-8 p-5">
@@ -119,7 +117,7 @@ function AdminCreneauxContent() {
           </Card>
         ))}
       </section>
-    </div>
+    </AdminShell>
   );
 }
 

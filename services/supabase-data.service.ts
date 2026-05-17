@@ -70,6 +70,14 @@ interface UserRoleRow {
   role: AppRole;
 }
 
+export type SiteSettingKey = "club" | "contact";
+
+export interface SiteSettingRow {
+  key: SiteSettingKey;
+  value: Record<string, string>;
+  visibility: "public" | "internal" | "admin";
+}
+
 export interface RankingRow {
   id: number;
   display_name: string;
@@ -239,6 +247,23 @@ export async function deleteTarif(id: number) {
 
   const { error } = await supabase.from("tarifs").delete().eq("id", id);
   return { ok: !error, message: error?.message ?? "Tarif supprimé." };
+}
+
+export async function fetchSiteSettings() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as SiteSettingRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase.from("settings_site").select("key, value, visibility").in("key", ["club", "contact"]);
+
+  return { data: (data ?? []) as SiteSettingRow[], error: error?.message ?? null };
+}
+
+export async function upsertSiteSetting(input: SiteSettingRow) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.from("settings_site").upsert(input, { onConflict: "key" });
+  return { ok: !error, message: error?.message ?? "Paramètre mis à jour." };
 }
 
 export async function createVolant(input: Omit<VolantRow, "id">) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -107,13 +108,8 @@ function AdminTarifsContent() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <h1 className="text-4xl font-black text-court-900">Gestion des tarifs</h1>
-      <p className="mt-3 max-w-2xl text-ink-500">
-        Modifie les montants affichés sur la page Tarifs. Mets 0 pour un tarif gratuit ou à confirmer.
-      </p>
-
-      <Card className="mt-8 p-5">
+    <AdminShell title="Gestion des tarifs" intro="Modifie les montants affichés sur la page Tarifs. Mets 0 pour un tarif gratuit ou à confirmer.">
+      <Card className="p-5">
         <h2 className="text-xl font-black text-court-900">Nouveau tarif</h2>
         <form className="mt-5 grid gap-4 md:grid-cols-3" onSubmit={onSubmit}>
           <TarifInput label="Titre" value={form.titre} onChange={(value) => updateForm("titre", value)} />
@@ -187,7 +183,7 @@ function AdminTarifsContent() {
           );
         })}
       </section>
-    </div>
+    </AdminShell>
   );
 }
 
