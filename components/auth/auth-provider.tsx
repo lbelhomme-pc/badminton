@@ -61,7 +61,7 @@ interface RecoveryUrlState {
   } | null;
 }
 
-function withTimeout<T>(promise: Promise<T>, timeoutMs: number) {
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number) {
   let timeoutId: ReturnType<typeof setTimeout> | undefined;
 
   const timeout = new Promise<T>((_, reject) => {
@@ -135,11 +135,20 @@ function clearSupabaseAuthStorage() {
   [window.localStorage, window.sessionStorage].forEach((storage) => {
     for (let index = storage.length - 1; index >= 0; index -= 1) {
       const key = storage.key(index);
-      if (key?.startsWith("sb-") && key.includes("auth-token")) {
+      if (key?.startsWith("sb-") || key === "supabase.auth.token") {
         storage.removeItem(key);
       }
     }
   });
+
+  if ("caches" in window) {
+    void window.caches
+      .keys()
+      .then((keys) => Promise.all(keys.filter((key) => key.startsWith("cfvv41-")).map((key) => window.caches.delete(key))))
+      .catch(() => undefined);
+  }
+
+  window.dispatchEvent(new Event("cfvv41:auth-logout"));
 }
 
 function friendlyAuthError(message: string) {
@@ -191,7 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const { data, error } = await supabase.from("user_roles").select("role").eq("user_id", userId);
+        const { data, error } = await withTimeout(supabase.from("user_roles").select("role").eq("user_id", userId), 5000);
 
         if (error) {
           setRoles(legacyClubRoleToAppRoles(legacyRole));
@@ -216,7 +225,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
+        const { data, error } = await withTimeout(supabase.from("profiles").select("*").eq("id", userId).single(), 5000);
 
         if (error) {
           setProfile(null);
@@ -316,6 +325,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       } catch (error) {
         if (!mounted) return;
+        setUser(null);
         setProfile(null);
         setRoles([]);
         if (shouldHandlePasswordRecovery) {
@@ -372,8 +382,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
+    const onForcedLogout = () => {
+      setUser(null);
+      setProfile(null);
+      setRoles([]);
+      setIsPasswordRecovery(false);
+      setIsCheckingPasswordRecovery(false);
+      setPasswordRecoveryError(null);
+      setLoading(false);
+    };
+
+    window.addEventListener("cfvv41:auth-logout", onForcedLogout);
+
     return () => {
       mounted = false;
+      window.removeEventListener("cfvv41:auth-logout", onForcedLogout);
       listener.subscription.unsubscribe();
     };
   }, [fetchProfile, supabase]);
@@ -504,6 +527,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(null);
     setRoles([]);
     clearPasswordRecovery();
+    setLoading(false);
   }, [clearPasswordRecovery, supabase]);
 
   const value = useMemo<AuthContextValue>(

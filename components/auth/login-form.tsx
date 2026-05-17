@@ -19,7 +19,8 @@ export function LoginForm() {
     isPasswordRecovery,
     isCheckingPasswordRecovery,
     passwordRecoveryError,
-    clearPasswordRecovery
+    clearPasswordRecovery,
+    logout
   } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +28,7 @@ export function LoginForm() {
   const [pending, setPending] = useState(false);
   const [hasRecoveryUrl, setHasRecoveryUrl] = useState(false);
   const mode = searchParams.get("mode");
+  const loggedOut = searchParams.get("logged_out") === "1";
   const isRecoveryMode = mode === "recovery" || hasRecoveryUrl;
   const isPasswordMode = mode === "password";
   const showPasswordUpdate = isRecoveryMode || isPasswordMode;
@@ -45,6 +47,17 @@ export function LoginForm() {
       clearPasswordRecovery();
     }
   }, [clearPasswordRecovery, isPasswordRecovery, showPasswordUpdate]);
+
+  useEffect(() => {
+    if (!loggedOut) {
+      return;
+    }
+
+    setMessage("Tu as bien été déconnecté.");
+    if (isAuthenticated) {
+      void logout();
+    }
+  }, [isAuthenticated, loggedOut, logout]);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -106,7 +119,7 @@ export function LoginForm() {
     );
   }
 
-  if (isAuthenticated) {
+  if (isAuthenticated && !loggedOut) {
     return (
       <Card className="mx-auto max-w-xl p-6">
         <h2 className="text-3xl font-black text-court-900">Tu es déjà connecté</h2>

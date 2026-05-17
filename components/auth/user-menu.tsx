@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LogOut, Shield, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -27,19 +26,20 @@ function GuestMenu() {
 }
 
 export function UserMenu() {
-  const router = useRouter();
-  const { loading, isAuthenticated, profile, user, isAdmin, logout } = useAuth();
+  const { isAuthenticated, profile, user, isAdmin, logout } = useAuth();
   const [pendingLogout, setPendingLogout] = useState(false);
 
   async function onLogout() {
     setPendingLogout(true);
     await logout();
-    router.push("/connexion");
-    router.refresh();
+    if (typeof window !== "undefined") {
+      window.location.replace("/connexion?logged_out=1");
+      return;
+    }
     setPendingLogout(false);
   }
 
-  if (loading || !isAuthenticated) {
+  if (!isAuthenticated) {
     return <GuestMenu />;
   }
 

@@ -1,4 +1,4 @@
-const CACHE_NAME = "cfvv41-static-v1";
+const CACHE_NAME = "cfvv41-static-v2";
 const STATIC_ASSETS = ["/", "/creneaux", "/inscription", "/pwa-icon.svg", "/logo-cfvv41.svg"];
 
 self.addEventListener("install", (event) => {
