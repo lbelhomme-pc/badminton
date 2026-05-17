@@ -6,6 +6,8 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { PwaInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 import { Providers } from "@/components/providers";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "CFVV41 - Planning, réservations et vie du club",
   description:

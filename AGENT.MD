@@ -145,6 +145,13 @@ Toutes les tables publiques doivent avoir RLS activee.
 - brancher les parametres sur `settings_site` ;
 - garder un message clair si la migration Supabase n'est pas encore executee.
 
+### Etape 4 - Parametres publics connectes
+
+- lire `settings_site` depuis le site public avec fallback local ;
+- brancher inscription, licence FFBaD, contact et footer sur les parametres admin ;
+- conserver le site fonctionnel quand Supabase n'est pas encore migre ;
+- revalider les pages publiques toutes les 60 secondes.
+
 ### MVP
 
 - auth stable ;

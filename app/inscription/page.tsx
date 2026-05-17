@@ -2,22 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2, ExternalLink, FileText, HeartPulse, UserPlus } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import { getFfbadRegistrationUrl } from "@/services/club.service";
+import { getPublicClubSettings } from "@/services/club.service";
 
 export const metadata: Metadata = {
   title: "Inscription au club - CFVV41",
   description: "Étapes d'inscription, séance d'essai, tarifs et licence FFBaD du CFVV41."
 };
 
-export default function InscriptionPage() {
-  const registrationUrl = getFfbadRegistrationUrl();
+export default async function InscriptionPage() {
+  const settings = await getPublicClubSettings();
+  const registrationUrl = settings.club.ffbadUrl;
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <section className="grid gap-8 rounded-lg border border-court-200 bg-white p-6 shadow-soft lg:grid-cols-[1fr_360px]">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Inscriptions</p>
-          <h1 className="mt-3 text-4xl font-black text-court-900">Rejoindre le CFVV41</h1>
+          <h1 className="mt-3 text-4xl font-black text-court-900">Rejoindre le {settings.club.name}</h1>
           <p className="mt-4 max-w-2xl text-lg leading-8 text-ink-500">
             Tu veux rejoindre le club ? Commence par consulter les créneaux, puis crée ton compte ou demande une séance
             d'essai. Le club te recontactera si besoin pour finaliser ton inscription et ta licence.
@@ -39,6 +40,7 @@ export default function InscriptionPage() {
             <Link
               href={registrationUrl}
               target="_blank"
+              rel="noreferrer"
               className="inline-flex h-12 items-center justify-center rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-100"
             >
               Licence FFBaD
