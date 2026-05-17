@@ -96,6 +96,10 @@ function friendlyDatabaseError(error: { message: string; code?: string } | null 
     return "Une valeur saisie n'est pas dans le bon format.";
   }
 
+  if (message.includes("stock_movements_commande_id_fkey")) {
+    return "Le suivi de stock Supabase doit être mis à jour. Exécute le script supabase/fix-volants-order-stock-trigger.sql puis réessaie.";
+  }
+
   if (message.includes("schema cache")) {
     return "La structure Supabase vient de changer. Attends quelques secondes puis réessaie.";
   }
@@ -340,7 +344,10 @@ export async function createCommandeVolants(userId: string, volant: VolantRow, q
     return { ok: false, message: "Ce modèle de volant n'est plus disponible." };
   }
 
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Commande envoyée. Le stock a été mis à jour." };
+  return {
+    ok: !error,
+    message: friendlyDatabaseError(error) ?? `Commande de ${quantite} tube${quantite > 1 ? "s" : ""} envoyée. Le stock a été mis à jour.`
+  };
 }
 
 export async function fetchProfiles() {

@@ -578,9 +578,6 @@ begin
       where id = new.volant_id
       returning stock into current_stock;
 
-      insert into public.stock_movements (volant_id, commande_id, delta, stock_after, reason, created_by)
-      values (new.volant_id, new.id, -new.quantite, current_stock, 'order_created', coalesce(auth.uid(), new.user_id));
-
       if new.total is null then
         new.total := current_price * new.quantite;
       end if;
@@ -641,10 +638,38 @@ begin
 end;
 $$;
 
+create or replace function public.log_volant_stock_for_order_insert()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  current_stock integer;
+begin
+  if new.statut <> 'annulee' then
+    select stock
+    into current_stock
+    from public.volants
+    where id = new.volant_id;
+
+    insert into public.stock_movements (volant_id, commande_id, delta, stock_after, reason, created_by)
+    values (new.volant_id, new.id, -new.quantite, current_stock, 'order_created', coalesce(auth.uid(), new.user_id));
+  end if;
+
+  return new;
+end;
+$$;
+
 drop trigger if exists commandes_volants_sync_stock_insert on public.commandes_volants;
 create trigger commandes_volants_sync_stock_insert
 before insert on public.commandes_volants
 for each row execute function public.sync_volant_stock_for_order();
+
+drop trigger if exists commandes_volants_log_stock_insert on public.commandes_volants;
+create trigger commandes_volants_log_stock_insert
+after insert on public.commandes_volants
+for each row execute function public.log_volant_stock_for_order_insert();
 
 drop trigger if exists commandes_volants_sync_stock_update on public.commandes_volants;
 create trigger commandes_volants_sync_stock_update

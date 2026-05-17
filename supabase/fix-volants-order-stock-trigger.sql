@@ -1,5 +1,6 @@
--- Migration a executer une fois sur une base Supabase deja creee.
--- Elle automatise le stock des volants lors des commandes adherents.
+-- Correctif a executer dans Supabase SQL Editor si les commandes de volants
+-- affichent une erreur stock_movements_commande_id_fkey.
+-- Le mouvement de stock doit etre journalise APRES la creation de la commande.
 
 create table if not exists public.stock_movements (
   id bigint generated always as identity primary key,
@@ -149,18 +150,3 @@ drop trigger if exists commandes_volants_sync_stock_update on public.commandes_v
 create trigger commandes_volants_sync_stock_update
 before update of statut, quantite on public.commandes_volants
 for each row execute function public.sync_volant_stock_for_order();
-
-alter table public.stock_movements enable row level security;
-
-drop policy if exists "stock_movements_manager_select" on public.stock_movements;
-drop policy if exists "stock_movements_manager_insert" on public.stock_movements;
-
-create policy "stock_movements_manager_select"
-on public.stock_movements
-for select
-using (public.is_manager());
-
-create policy "stock_movements_manager_insert"
-on public.stock_movements
-for insert
-with check (public.is_manager());
