@@ -40,12 +40,35 @@ export default function HomePage() {
             </div>
           </div>
           <div className="grid gap-4">
-            <Card className="p-5">
-              <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Prochain réflexe</p>
-              <h2 className="mt-2 text-2xl font-black text-court-900">Réserver rapidement depuis le téléphone</h2>
-              <p className="mt-3 text-sm leading-6 text-ink-500">
-                Le site peut être installé comme une application mobile pour retrouver les créneaux et l'espace adhérent plus vite.
+            <Card className="border-court-800 bg-court-900 p-5 text-white shadow-lift">
+              <div className="flex items-center gap-2">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-court-500/20 text-court-200">
+                  <Sparkles className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <p className="text-sm font-semibold uppercase tracking-wide text-court-200">Séance d'essai</p>
+              </div>
+              <h2 className="mt-4 text-2xl font-black leading-tight">Envie d'essayer le badminton ?</h2>
+              <p className="mt-3 text-sm leading-6 text-court-50">
+                Une séance d'essai est possible pour découvrir l'ambiance du CFVV41 avant de s'inscrire. Consulte les
+                créneaux puis contacte le club pour choisir le bon moment selon ton profil.
               </p>
+              <p className="mt-4 rounded-lg bg-white/10 p-3 text-sm font-semibold leading-6 text-white">
+                Pas besoin d'être déjà bon : viens simplement avec une tenue de sport, on t'explique le reste.
+              </p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <Link
+                  href="/creneaux"
+                  className="inline-flex h-11 items-center justify-center rounded-lg bg-white px-4 text-sm font-black text-court-900 transition hover:bg-court-50"
+                >
+                  Voir les créneaux
+                </Link>
+                <Link
+                  href="/inscriptions/seance-essai"
+                  className="inline-flex h-11 items-center justify-center rounded-lg bg-court-500 px-4 text-sm font-black text-white transition hover:bg-court-600"
+                >
+                  Demander une séance d'essai
+                </Link>
+              </div>
             </Card>
             <div className="grid gap-4 sm:grid-cols-2">
               {clubStats.slice(0, 2).map((stat) => (
