@@ -5,11 +5,12 @@ import { ActualitesList } from "@/components/public/actualites-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { clubStats } from "@/lib/mock-data";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatTime, slotTypeLabel } from "@/lib/utils";
 import { getEvents, getOpenSlots } from "@/services/club.service";
 
 export default function HomePage() {
   const openSlots = getOpenSlots().slice(0, 3);
+  const nextSlot = openSlots[0];
   const events = getEvents();
 
   return (
@@ -70,6 +71,32 @@ export default function HomePage() {
                 </Link>
               </div>
             </Card>
+            {nextSlot ? (
+              <Link
+                href={`/planning/${nextSlot.id}`}
+                className="rounded-lg border border-court-200 bg-white p-5 shadow-soft transition hover:-translate-y-0.5 hover:shadow-lift"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Prochain créneau</p>
+                    <h2 className="mt-2 text-2xl font-black leading-tight text-court-900">{nextSlot.title}</h2>
+                  </div>
+                  <span className="rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-700">Ouvert</span>
+                </div>
+                <div className="mt-4 grid gap-2 text-sm text-ink-500">
+                  <p>
+                    <span className="font-semibold text-court-900">{formatDate(nextSlot.startsAt, "short")}</span>
+                    {" · "}
+                    {formatTime(nextSlot.startsAt)} - {formatTime(nextSlot.endsAt)}
+                  </p>
+                  <p>{nextSlot.venueName}</p>
+                  <p>{slotTypeLabel(nextSlot.type)} · {nextSlot.recommendedLevel}</p>
+                </div>
+                <span className="mt-5 inline-flex h-11 w-full items-center justify-center rounded-lg border border-court-200 bg-court-50 px-4 text-sm font-black text-court-900 transition hover:bg-court-100">
+                  Voir le détail
+                </span>
+              </Link>
+            ) : null}
             <div className="grid gap-4 sm:grid-cols-2">
               {clubStats.slice(0, 2).map((stat) => (
                 <div key={stat.label} className="rounded-lg border border-court-200 bg-court-50 p-5">
