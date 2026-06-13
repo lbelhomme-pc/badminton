@@ -38,6 +38,27 @@ function MemberContent() {
           </div>
 
           <Card className="p-5">
+            <h2 className="text-2xl font-black text-court-900">Ce que permet ton compte</h2>
+            <p className="mt-2 text-sm leading-6 text-ink-500">
+              Le compte adhérent sert à gérer les actions utiles au quotidien, sans passer par plusieurs messages au club.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              {[
+                "Réserver un créneau ouvert",
+                "Voir et annuler tes réservations",
+                "Commander des volants",
+                "Retrouver les infos internes du club",
+                "Consulter ton profil adhérent",
+                "Modifier ton mot de passe"
+              ].map((item) => (
+                <div key={item} className="rounded-lg border border-court-100 bg-court-50 px-4 py-3 text-sm font-semibold text-court-900">
+                  {item}
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <Card className="p-5">
             <h2 className="text-2xl font-black text-court-900">Mes prochaines réservations</h2>
             {reservations.length === 0 ? (
               <p className="mt-3 text-sm text-ink-500">Aucune réservation pour le moment.</p>

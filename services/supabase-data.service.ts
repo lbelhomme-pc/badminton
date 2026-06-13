@@ -47,6 +47,24 @@ export interface VolantRow {
   actif: boolean;
 }
 
+export interface ShuttleOrderAdminRow {
+  id: number;
+  user_id: string;
+  buyer_name: string | null;
+  buyer_email: string | null;
+  volant_label: string | null;
+  quantite: number;
+  statut: string;
+  total: number | null;
+  created_at: string;
+}
+
+export interface MemberChoiceRow {
+  id: string;
+  display_name: string | null;
+  email: string | null;
+}
+
 export interface TarifRow {
   id: number;
   titre: string;
@@ -98,6 +116,14 @@ function friendlyDatabaseError(error: { message: string; code?: string } | null 
 
   if (message.includes("stock_movements_commande_id_fkey")) {
     return "Le suivi de stock Supabase doit être mis à jour. Exécute le script supabase/fix-volants-order-stock-trigger.sql puis réessaie.";
+  }
+
+  if (
+    message.includes("list_members_for_manager") ||
+    message.includes("list_shuttle_orders_for_manager") ||
+    message.includes("create_direct_shuttle_order")
+  ) {
+    return "La vente rapide des volants doit être activée dans Supabase. Exécute le script supabase/volants-vente-rapide.sql puis réessaie.";
   }
 
   if (message.includes("schema cache")) {
@@ -348,6 +374,42 @@ export async function createCommandeVolants(userId: string, volant: VolantRow, q
     ok: !error,
     message: friendlyDatabaseError(error) ?? `Commande de ${quantite} tube${quantite > 1 ? "s" : ""} envoyée. Le stock a été mis à jour.`
   };
+}
+
+export async function fetchShuttleOrdersForManager(limitCount = 12) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as ShuttleOrderAdminRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase.rpc("list_shuttle_orders_for_manager", {
+    limit_count: limitCount
+  });
+
+  return { data: (data ?? []) as ShuttleOrderAdminRow[], error: friendlyDatabaseError(error) };
+}
+
+export async function fetchMemberChoicesForManager() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as MemberChoiceRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase.rpc("list_members_for_manager");
+  return { data: (data ?? []) as MemberChoiceRow[], error: friendlyDatabaseError(error) };
+}
+
+export async function createDirectCommandeVolants(input: { userId: string; volantId: number; quantite: number }) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.rpc("create_direct_shuttle_order", {
+    target_user_id: input.userId,
+    target_volant_id: input.volantId,
+    target_quantite: input.quantite
+  });
+
+  if (error?.message.includes("Stock insuffisant")) {
+    return { ok: false, message: "Stock insuffisant pour cette vente." };
+  }
+
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Vente sur place enregistrée. Le stock a été mis à jour." };
 }
 
 export async function fetchProfiles() {

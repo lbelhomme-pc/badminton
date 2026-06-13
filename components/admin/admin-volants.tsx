@@ -6,7 +6,17 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { createVolant, fetchVolants, updateVolant, type VolantRow } from "@/services/supabase-data.service";
+import {
+  createDirectCommandeVolants,
+  createVolant,
+  fetchMemberChoicesForManager,
+  fetchShuttleOrdersForManager,
+  fetchVolants,
+  updateVolant,
+  type MemberChoiceRow,
+  type ShuttleOrderAdminRow,
+  type VolantRow
+} from "@/services/supabase-data.service";
 
 export function AdminVolants() {
   return (
@@ -18,19 +28,30 @@ export function AdminVolants() {
 
 function AdminVolantsContent() {
   const [volants, setVolants] = useState<VolantRow[]>([]);
+  const [members, setMembers] = useState<MemberChoiceRow[]>([]);
+  const [orders, setOrders] = useState<ShuttleOrderAdminRow[]>([]);
   const [form, setForm] = useState({ marque: "", modele: "", type: "plume", prix: "22", stock: "12" });
+  const [quickSale, setQuickSale] = useState({ userId: "", volantId: "", quantite: "1" });
   const [restockById, setRestockById] = useState<Record<number, string>>({});
   const [priceById, setPriceById] = useState<Record<number, string>>({});
   const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
-    const result = await fetchVolants();
+    const [result, membersResult, ordersResult] = await Promise.all([
+      fetchVolants(),
+      fetchMemberChoicesForManager(),
+      fetchShuttleOrdersForManager(10)
+    ]);
+
     setVolants(result.data);
+    setMembers(membersResult.data);
+    setOrders(ordersResult.data);
     setPriceById(
       Object.fromEntries(result.data.map((volant) => [volant.id, Number(volant.prix).toFixed(2)]))
     );
-    if (result.error) {
-      setFeedback(errorFeedback(result.error));
+    const error = result.error || membersResult.error || ordersResult.error;
+    if (error) {
+      setFeedback(errorFeedback(error));
     }
   }
 
@@ -99,6 +120,46 @@ function AdminVolantsContent() {
     }
   }
 
+  async function onQuickSale(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const quantite = Math.max(1, Math.floor(Number(quickSale.quantite || 1)));
+    const volantId = Number(quickSale.volantId);
+    const selectedVolant = volants.find((volant) => volant.id === volantId);
+
+    if (!quickSale.userId) {
+      setFeedback(errorFeedback("Choisis l'adhérent qui achète les volants."));
+      return;
+    }
+
+    if (!selectedVolant) {
+      setFeedback(errorFeedback("Choisis un modèle de volant."));
+      return;
+    }
+
+    if (quantite > selectedVolant.stock) {
+      setFeedback(errorFeedback("La quantité vendue dépasse le stock disponible."));
+      return;
+    }
+
+    const result = await createDirectCommandeVolants({
+      userId: quickSale.userId,
+      volantId,
+      quantite
+    });
+
+    setFeedback(actionFeedback(result));
+    if (result.ok) {
+      setQuickSale((current) => ({ ...current, volantId: "", quantite: "1" }));
+      await load();
+    }
+  }
+
+  function memberLabel(member: MemberChoiceRow) {
+    const name = member.display_name?.trim();
+    if (name) return member.email ? `${name} · ${member.email}` : name;
+    return member.email ?? "Adhérent sans nom";
+  }
+
   return (
     <AdminShell title="Gestion des volants" intro="Ajouter un modèle, corriger un écart ou saisir un réassort quand le club achète des tubes.">
       <Card className="p-5">
@@ -125,6 +186,59 @@ function AdminVolantsContent() {
       </Card>
 
       <AdminFeedback feedback={feedback} className="mt-6" />
+
+      <Card className="mt-8 p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-black text-court-900">Vente rapide sur place</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-500">
+              À utiliser quand un adhérent prend des volants directement à la salle. La vente est enregistrée avec son nom,
+              le statut passe en remis et le stock baisse automatiquement.
+            </p>
+          </div>
+        </div>
+        <form className="mt-5 grid gap-4 lg:grid-cols-[1.3fr_1fr_0.5fr_auto]" onSubmit={onQuickSale}>
+          <label className="grid gap-2 text-sm font-semibold text-court-900">
+            Adhérent
+            <select
+              value={quickSale.userId}
+              onChange={(event) => setQuickSale((current) => ({ ...current, userId: event.target.value }))}
+              className="h-11 rounded-lg border border-court-200 bg-court-50 px-3"
+            >
+              <option value="">Choisir un adhérent</option>
+              {members.map((member) => (
+                <option key={member.id} value={member.id}>
+                  {memberLabel(member)}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="grid gap-2 text-sm font-semibold text-court-900">
+            Volants
+            <select
+              value={quickSale.volantId}
+              onChange={(event) => setQuickSale((current) => ({ ...current, volantId: event.target.value }))}
+              className="h-11 rounded-lg border border-court-200 bg-court-50 px-3"
+            >
+              <option value="">Choisir un modèle</option>
+              {volants.filter((volant) => volant.actif).map((volant) => (
+                <option key={volant.id} value={volant.id}>
+                  {volant.marque} {volant.modele ?? ""} · stock {volant.stock}
+                </option>
+              ))}
+            </select>
+          </label>
+          <VolantInput
+            label="Tubes"
+            type="number"
+            value={quickSale.quantite}
+            onChange={(value) => setQuickSale((current) => ({ ...current, quantite: value }))}
+          />
+          <Button type="submit" className="self-end">
+            Enregistrer la vente
+          </Button>
+        </form>
+      </Card>
 
       <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {volants.map((volant) => (
@@ -182,7 +296,7 @@ function AdminVolantsContent() {
             </div>
             <div className="mt-5 flex flex-wrap gap-2">
               <Button variant="outline" onClick={() => patchVolant(volant.id, { stock: Math.max(0, volant.stock - 1) })}>
-                Correction -1
+                Correction -1 sans acheteur
               </Button>
               <Button variant="outline" onClick={() => patchVolant(volant.id, { stock: volant.stock + 1 })}>
                 Correction +1
@@ -194,6 +308,39 @@ function AdminVolantsContent() {
           </Card>
         ))}
       </section>
+
+      <Card className="mt-8 p-5">
+        <h2 className="text-xl font-black text-court-900">Derniers achats de volants</h2>
+        <p className="mt-2 text-sm leading-6 text-ink-500">
+          Ces lignes viennent de la table `commandes_volants` : elles indiquent qui a commandé ou acheté des volants.
+        </p>
+        {orders.length === 0 ? (
+          <p className="mt-4 rounded-lg bg-court-50 p-4 text-sm font-semibold text-ink-500">Aucun achat enregistré pour le moment.</p>
+        ) : (
+          <div className="mt-4 grid gap-3">
+            {orders.map((order) => (
+              <div key={order.id} className="rounded-lg border border-court-100 bg-court-50 p-4">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <p className="font-black text-court-900">{order.buyer_name || order.buyer_email || "Adhérent"}</p>
+                    {order.buyer_email ? <p className="text-xs font-semibold text-ink-500">{order.buyer_email}</p> : null}
+                    <p className="mt-2 text-sm text-ink-500">
+                      {order.quantite} tube{order.quantite > 1 ? "s" : ""} · {order.volant_label || "Volants"}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase text-court-700">{order.statut}</span>
+                    <p className="mt-2 text-sm font-semibold text-court-900">
+                      {order.total != null ? `${Number(order.total).toFixed(2)} €` : "Total non renseigné"}
+                    </p>
+                    <p className="mt-1 text-xs text-ink-500">{new Date(order.created_at).toLocaleDateString("fr-FR")}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </AdminShell>
   );
 }
