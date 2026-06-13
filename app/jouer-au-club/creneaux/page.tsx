@@ -1,8 +1,11 @@
 import { PlanningExperience } from "@/components/planning/planning-experience";
 import { Card } from "@/components/ui/card";
+import { formatTime, slotTypeLabel } from "@/lib/utils";
 import { getUpcomingSlots } from "@/services/club.service";
 
 export default function CreneauxPage() {
+  const weeklySlots = getUpcomingSlots();
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-8 rounded-lg border border-court-200 bg-white p-6 shadow-soft">
@@ -14,25 +17,42 @@ export default function CreneauxPage() {
       </div>
 
       <Card className="mb-8 p-6">
-        <div className="grid gap-6 lg:grid-cols-[180px_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
           <div>
-            <p className="text-lg font-black text-court-900">Octobre</p>
-            <p className="mt-1 text-sm font-semibold text-ink-500">Créneaux réguliers</p>
+            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Semaine type</p>
+            <h2 className="mt-2 text-2xl font-black text-court-900">Créneaux habituels</h2>
+            <p className="mt-3 text-sm leading-6 text-ink-500">
+              Tous les créneaux ont lieu au Gymnase des Aigremonts. Responsable créneaux : Didier Remule.
+            </p>
           </div>
-          <div>
-            <h2 className="text-lg font-black text-danger">Créneaux d'entraînements</h2>
-            <ul className="mt-4 list-disc space-y-2 pl-5 text-base leading-7 text-ink-700">
-              <li>Mardi : 19h30 à 22h30</li>
-              <li>Mercredi : 18h30 à 20h30</li>
-              <li>Jeudi : 19h30 à 22h30</li>
-              <li>Vendredi : sur réservation selon le nombre de participants</li>
-            </ul>
-            <p className="mt-5 text-base text-ink-600">Le CFVV41</p>
+          <div className="grid gap-3">
+            {weeklySlots.map((slot) => {
+              const dayLabel = new Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(new Date(slot.startsAt));
+
+              return (
+                <div
+                  key={slot.id}
+                  className="grid gap-3 rounded-lg border border-court-200 bg-court-50 p-4 md:grid-cols-[120px_150px_1fr_150px]"
+                >
+                  <p className="font-black capitalize text-court-900">{dayLabel}</p>
+                  <p className="font-semibold text-ink-700">
+                    {formatTime(slot.startsAt)} - {formatTime(slot.endsAt)}
+                  </p>
+                  <div>
+                    <p className="font-black text-court-900">{slot.title}</p>
+                    <p className="mt-1 text-sm text-ink-500">{slotTypeLabel(slot.type)} · {slot.audience}</p>
+                  </div>
+                  <p className="rounded-lg bg-white px-3 py-2 text-center text-sm font-black text-court-700">
+                    {slot.capacityMax} places disponibles
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </Card>
 
-      <PlanningExperience slots={getUpcomingSlots()} />
+      <PlanningExperience slots={weeklySlots} />
     </div>
   );
 }

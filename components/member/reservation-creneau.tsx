@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { createReservation, fetchCreneaux, type CreneauRow } from "@/services/supabase-data.service";
 
+function publicReservationMessage(value: string) {
+  return value === "Configuration Supabase manquante."
+    ? "Le service de réservation n’est pas encore disponible. Contacte le club si tu veux réserver."
+    : value;
+}
+
 export function ReservationCreneau() {
   return (
     <ProtectedRoute>
@@ -24,7 +30,7 @@ function ReservationCreneauContent() {
   useEffect(() => {
     fetchCreneaux().then((result) => {
       setCreneaux(result.data.filter((creneau) => creneau.actif));
-      if (result.error) setMessage(result.error);
+      if (result.error) setMessage(publicReservationMessage(result.error));
     });
   }, []);
 
@@ -35,7 +41,7 @@ function ReservationCreneauContent() {
     }
 
     const result = await createReservation(user.id, creneauId, dateReservation);
-    setMessage(result.message);
+    setMessage(publicReservationMessage(result.message));
   }
 
   return (
@@ -63,7 +69,7 @@ function ReservationCreneauContent() {
             <p className="mt-2 text-sm text-ink-500">{creneau.heure_debut.slice(0, 5)} - {creneau.heure_fin.slice(0, 5)}</p>
             <p className="mt-1 text-sm text-ink-500">{creneau.gymnase}</p>
             <p className="mt-1 text-sm text-ink-500">{creneau.public} · {creneau.niveau}</p>
-            <p className="mt-1 text-sm font-semibold text-court-700">Responsable : {creneau.responsable || "À renseigner"}</p>
+            <p className="mt-1 text-sm font-semibold text-court-700">Responsable : {creneau.responsable || "Responsable non précisé"}</p>
             <Button className="mt-5 w-full" onClick={() => reserve(creneau.id)}>
               Réserver
             </Button>

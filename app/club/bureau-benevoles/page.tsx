@@ -5,31 +5,31 @@ import { Card } from "@/components/ui/card";
 const bureau = [
   {
     role: "Présidence",
-    name: "À renseigner",
+    name: "Bureau du club",
     mission: "Coordination générale du club, relations avec les partenaires, la mairie et les instances sportives.",
     icon: ShieldCheck
   },
   {
     role: "Trésorerie",
-    name: "À renseigner",
+    name: "Bureau du club",
     mission: "Suivi du budget, cotisations, commandes et dépenses liées au fonctionnement du club.",
     icon: WalletCards
   },
   {
     role: "Secrétariat",
-    name: "À renseigner",
+    name: "Bureau du club",
     mission: "Inscriptions, licences, documents administratifs et communication avec les adhérents.",
     icon: Mail
   },
   {
     role: "Responsables créneaux",
-    name: "Bureau CFVV41",
+    name: "Didier Remule",
     mission: "Accueil des joueurs, suivi des présences, annulations exceptionnelles et organisation des terrains.",
     icon: CalendarCheck
   },
   {
     role: "Communication",
-    name: "À renseigner",
+    name: "Bureau du club",
     mission: "Actualités, événements, informations de dernière minute et mise à jour du site.",
     icon: Megaphone
   },

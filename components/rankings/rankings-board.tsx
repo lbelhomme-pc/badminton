@@ -89,57 +89,65 @@ export function RankingsBoard({ fallbackRankings }: RankingsBoardProps) {
         </p>
       ) : null}
 
-      <Card className="overflow-hidden">
-        <div className="hidden overflow-x-auto md:block">
-          <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="bg-court-50 text-xs uppercase text-ink-500">
-              <tr>
-                <th className="px-5 py-4">Joueur</th>
-                <th className="px-5 py-4">Catégorie</th>
-                <th className="px-5 py-4">Simple</th>
-                <th className="px-5 py-4">Double</th>
-                <th className="px-5 py-4">Mixte</th>
-                <th className="px-5 py-4">Progression</th>
-                <th className="px-5 py-4">Équipe</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-court-200">
-              {filteredRankings.map((ranking) => (
-                <tr key={ranking.id}>
-                  <td className="px-5 py-4 font-black text-court-900">{ranking.display_name}</td>
-                  <td className="px-5 py-4 text-ink-500">{ranking.categorie || "-"}</td>
-                  <td className="px-5 py-4 font-semibold text-court-900">{ranking.classement_simple || "NC"}</td>
-                  <td className="px-5 py-4 font-semibold text-court-900">{ranking.classement_double || "NC"}</td>
-                  <td className="px-5 py-4 font-semibold text-court-900">{ranking.classement_mixte || "NC"}</td>
-                  <td className="px-5 py-4">
-                    <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">{ranking.progression || "À jour"}</Badge>
-                  </td>
-                  <td className="px-5 py-4 text-ink-500">{ranking.equipe || "-"}</td>
+      {filteredRankings.length === 0 ? (
+        <Card className="p-6 text-sm leading-6 text-ink-500">
+          {rankings.length === 0
+            ? "Aucun classement n’est publié pour le moment. Le tableau sera alimenté par les données validées du club."
+            : "Aucun joueur ne correspond à cette recherche."}
+        </Card>
+      ) : (
+        <Card className="overflow-hidden">
+          <div className="hidden overflow-x-auto md:block">
+            <table className="w-full min-w-[760px] text-left text-sm">
+              <thead className="bg-court-50 text-xs uppercase text-ink-500">
+                <tr>
+                  <th className="px-5 py-4">Joueur</th>
+                  <th className="px-5 py-4">Catégorie</th>
+                  <th className="px-5 py-4">Simple</th>
+                  <th className="px-5 py-4">Double</th>
+                  <th className="px-5 py-4">Mixte</th>
+                  <th className="px-5 py-4">Progression</th>
+                  <th className="px-5 py-4">Équipe</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-court-200">
+                {filteredRankings.map((ranking) => (
+                  <tr key={ranking.id}>
+                    <td className="px-5 py-4 font-black text-court-900">{ranking.display_name}</td>
+                    <td className="px-5 py-4 text-ink-500">{ranking.categorie || "-"}</td>
+                    <td className="px-5 py-4 font-semibold text-court-900">{ranking.classement_simple || "NC"}</td>
+                    <td className="px-5 py-4 font-semibold text-court-900">{ranking.classement_double || "NC"}</td>
+                    <td className="px-5 py-4 font-semibold text-court-900">{ranking.classement_mixte || "NC"}</td>
+                    <td className="px-5 py-4">
+                      <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">{ranking.progression || "À jour"}</Badge>
+                    </td>
+                    <td className="px-5 py-4 text-ink-500">{ranking.equipe || "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        <div className="grid gap-3 p-4 md:hidden">
-          {filteredRankings.map((ranking) => (
-            <div key={ranking.id} className="rounded-lg bg-court-50 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-lg font-black text-court-900">{ranking.display_name}</p>
-                  <p className="text-sm text-ink-500">{ranking.categorie || "-"} · {ranking.equipe || "-"}</p>
+          <div className="grid gap-3 p-4 md:hidden">
+            {filteredRankings.map((ranking) => (
+              <div key={ranking.id} className="rounded-lg bg-court-50 p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-lg font-black text-court-900">{ranking.display_name}</p>
+                    <p className="text-sm text-ink-500">{ranking.categorie || "-"} · {ranking.equipe || "-"}</p>
+                  </div>
+                  <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">{ranking.progression || "À jour"}</Badge>
                 </div>
-                <Badge className="border-emerald-200 bg-emerald-50 text-emerald-700">{ranking.progression || "À jour"}</Badge>
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
+                  <div className="rounded-lg bg-white p-3"><p className="text-ink-500">Simple</p><p className="font-black">{ranking.classement_simple || "NC"}</p></div>
+                  <div className="rounded-lg bg-white p-3"><p className="text-ink-500">Double</p><p className="font-black">{ranking.classement_double || "NC"}</p></div>
+                  <div className="rounded-lg bg-white p-3"><p className="text-ink-500">Mixte</p><p className="font-black">{ranking.classement_mixte || "NC"}</p></div>
+                </div>
               </div>
-              <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm">
-                <div className="rounded-lg bg-white p-3"><p className="text-ink-500">Simple</p><p className="font-black">{ranking.classement_simple || "NC"}</p></div>
-                <div className="rounded-lg bg-white p-3"><p className="text-ink-500">Double</p><p className="font-black">{ranking.classement_double || "NC"}</p></div>
-                <div className="rounded-lg bg-white p-3"><p className="text-ink-500">Mixte</p><p className="font-black">{ranking.classement_mixte || "NC"}</p></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </Card>
+            ))}
+          </div>
+        </Card>
+      )}
     </>
   );
 }

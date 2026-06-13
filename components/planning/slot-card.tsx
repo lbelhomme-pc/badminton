@@ -2,11 +2,8 @@
 
 import Link from "next/link";
 import { CalendarDays, Clock, MapPin, UserRound, UsersRound } from "lucide-react";
-import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useClub } from "@/hooks/use-club-store";
 import { formatDate, formatTime, slotStatusClass, slotStatusLabel, slotTypeLabel } from "@/lib/utils";
 import type { SlotOccurrence } from "@/types/domain";
 
@@ -16,17 +13,9 @@ interface SlotCardProps {
 }
 
 export function SlotCard({ slot, compact = false }: SlotCardProps) {
-  const { reserveSlot, placesTakenForSlot } = useClub();
-  const [message, setMessage] = useState<string | null>(null);
-  const localTaken = placesTakenForSlot(slot.id);
-  const taken = slot.registeredCount + localTaken;
+  const taken = slot.registeredCount;
   const remaining = Math.max(slot.capacityMax - taken, 0);
   const canReserve = slot.status === "open" && remaining > 0;
-
-  function onReserve() {
-    const result = reserveSlot(slot);
-    setMessage(result.ok ? "Réservation confirmée." : result.message);
-  }
 
   return (
     <Card className="group flex h-full flex-col p-4">
@@ -71,16 +60,19 @@ export function SlotCard({ slot, compact = false }: SlotCardProps) {
         ) : null}
       </div>
 
-      {message ? (
-        <p className="mt-4 rounded-lg bg-court-100 px-3 py-2 text-sm font-semibold text-court-900" aria-live="polite">
-          {message}
-        </p>
-      ) : null}
-
       <div className="mt-auto flex flex-col gap-2 pt-5 sm:flex-row">
-        <Button className="w-full" disabled={!canReserve} onClick={onReserve}>
-          {canReserve ? "Réserver ma place" : "Indisponible"}
-        </Button>
+        {canReserve ? (
+          <Link
+            href="/reservation-creneau"
+            className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-court-500 px-4 text-sm font-semibold text-white shadow-soft transition hover:bg-court-600"
+          >
+            Réserver ma place
+          </Link>
+        ) : (
+          <span className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-ink-100 px-4 text-sm font-semibold text-ink-500">
+            Indisponible
+          </span>
+        )}
         <Link
           href={`/planning/${slot.id}`}
           className="inline-flex h-11 w-full items-center justify-center rounded-lg border border-court-200 bg-white px-4 text-sm font-semibold text-court-900 transition hover:bg-court-100 sm:w-auto"

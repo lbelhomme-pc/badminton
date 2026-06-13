@@ -36,11 +36,11 @@ function isoDateForWeekday(weekday: number) {
 }
 
 export const demoMember: UserProfile = {
-  id: "user-camille",
-  email: "camille@cfvv41.fr",
-  firstName: "Camille",
-  lastName: "Martin",
-  displayName: "Camille M.",
+  id: "user-adherent",
+  email: "adherent@example.com",
+  firstName: "Adhérent",
+  lastName: "CFVV41",
+  displayName: "Adhérent CFVV41",
   roles: ["member"],
   membershipStatus: "active",
   consentShowName: true
@@ -48,10 +48,10 @@ export const demoMember: UserProfile = {
 
 export const demoAdmin: UserProfile = {
   id: "user-admin",
-  email: "bureau@cfvv41.fr",
-  firstName: "Véronique",
-  lastName: "David",
-  displayName: "Véronique D.",
+  email: "responsable@example.com",
+  firstName: "Responsable",
+  lastName: "CFVV41",
+  displayName: "Responsable CFVV41",
   roles: ["member", "admin", "slot_manager", "shuttle_manager"],
   membershipStatus: "active",
   consentShowName: true
@@ -85,7 +85,7 @@ export const slots: SlotOccurrence[] = [
     audience: "Jeunes",
     courtsCount: 7,
     capacityMax: 28,
-    registeredCount: 12,
+    registeredCount: 0,
     status: "open"
   },
   {
@@ -103,7 +103,7 @@ export const slots: SlotOccurrence[] = [
     audience: "Adultes",
     courtsCount: 7,
     capacityMax: 28,
-    registeredCount: 14,
+    registeredCount: 0,
     status: "open"
   },
   {
@@ -121,7 +121,7 @@ export const slots: SlotOccurrence[] = [
     audience: "Adultes",
     courtsCount: 7,
     capacityMax: 28,
-    registeredCount: 16,
+    registeredCount: 0,
     status: "open"
   },
   {
@@ -139,7 +139,7 @@ export const slots: SlotOccurrence[] = [
     audience: "Adultes",
     courtsCount: 7,
     capacityMax: 28,
-    registeredCount: 15,
+    registeredCount: 0,
     status: "open"
   },
   {
@@ -157,7 +157,7 @@ export const slots: SlotOccurrence[] = [
     audience: "Jeunes",
     courtsCount: 7,
     capacityMax: 28,
-    registeredCount: 11,
+    registeredCount: 0,
     status: "open"
   },
   {
@@ -175,7 +175,7 @@ export const slots: SlotOccurrence[] = [
     audience: "Adultes",
     courtsCount: 7,
     capacityMax: 28,
-    registeredCount: 18,
+    registeredCount: 0,
     status: "open"
   },
   {
@@ -193,7 +193,7 @@ export const slots: SlotOccurrence[] = [
     audience: "Adultes / Jeunes",
     courtsCount: 7,
     capacityMax: 28,
-    registeredCount: 10,
+    registeredCount: 0,
     status: "open"
   }
 ];
@@ -221,84 +221,31 @@ export const shuttleProducts: ShuttleProduct[] = [
   }
 ];
 
-export const rankings: Ranking[] = [
-  {
-    id: "rank-1",
-    displayName: "Camille M.",
-    category: "Senior",
-    singleRank: "D8",
-    doubleRank: "D7",
-    mixedRank: "D8",
-    progression: "+2 places",
-    team: "Interclubs",
-    visibility: "public"
-  },
-  {
-    id: "rank-2",
-    displayName: "Nadia B.",
-    category: "Senior",
-    singleRank: "R6",
-    doubleRank: "R5",
-    mixedRank: "R6",
-    progression: "Stable",
-    team: "Interclubs",
-    visibility: "public"
-  },
-  {
-    id: "rank-3",
-    displayName: "Thomas L.",
-    category: "Vétéran",
-    singleRank: "D7",
-    doubleRank: "D7",
-    mixedRank: "D9",
-    progression: "+1 série",
-    team: "Loisirs +",
-    visibility: "public"
-  },
-  {
-    id: "rank-4",
-    displayName: "Élodie R.",
-    category: "Senior",
-    singleRank: "P10",
-    doubleRank: "D9",
-    mixedRank: "D9",
-    progression: "+4 places",
-    team: "Loisirs",
-    visibility: "public"
-  }
-];
+export const rankings: Ranking[] = [];
 
-export const events: ClubEvent[] = [
-  {
-    id: "event-internal",
-    title: "Tournoi interne doubles surprises",
-    date: dateAt(10, 14, 0),
-    type: "Vie du club",
-    description: "Un après-midi convivial avec tirage des paires sur place."
-  },
-  {
-    id: "event-stage",
-    title: "Séance découverte jeunes",
-    date: dateAt(18, 18, 0),
-    type: "Jeunes",
-    description: "Accueil des familles, essai encadré et présentation du fonctionnement du club."
-  }
-];
+export const events: ClubEvent[] = [];
 
 export const news: NewsPost[] = [
   {
     id: "news-training",
-    title: "Créneaux d’entraînement de la saison",
+    title: "Créneaux hebdomadaires du club",
     category: "Créneaux",
-    excerpt: "Mardi jeunes puis adultes, mercredi jeu libre, jeudi jeunes puis adultes, vendredi jeu libre adultes / jeunes.",
+    excerpt: "Tous les créneaux ont lieu au Gymnase des Aigremonts, avec 28 places disponibles par créneau.",
     publishedAt: dateAt(-1, 9)
   },
   {
-    id: "news-shuttles",
-    title: "Volants plumes disponibles à la salle",
-    category: "Volants",
-    excerpt: "Les boîtes RSL sont disponibles auprès de Véronique avec règlement à la salle.",
+    id: "news-prices",
+    title: "Tarifs licences",
+    category: "Inscriptions",
+    excerpt: "Licence loisirs : 60 euros. Licence compétiteurs : 95 euros.",
     publishedAt: dateAt(-3, 11)
+  },
+  {
+    id: "news-trial",
+    title: "Séances d’essai possibles",
+    category: "Essai",
+    excerpt: "Jusqu’à 3 séances d’essai sont possibles sur inscription préalable avant de rejoindre le club.",
+    publishedAt: dateAt(-5, 10)
   }
 ];
 

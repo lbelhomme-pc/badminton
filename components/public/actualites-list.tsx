@@ -42,7 +42,7 @@ export function ActualitesList({ limit }: ActualitesListProps) {
   return (
     <>
       {message ? <p className="mb-5 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">{message}</p> : null}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {visibleItems.map((post) => (
           <Card key={post.id} className="overflow-hidden p-0">
             {post.imageUrl ? <img src={post.imageUrl} alt="" className="h-44 w-full object-cover" /> : null}

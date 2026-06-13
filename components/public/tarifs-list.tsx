@@ -55,7 +55,7 @@ function formatTarif(tarif: PublicTarif) {
     return "Gratuit";
   }
 
-  return "À renseigner";
+  return "Contacter le club";
 }
 
 export function TarifsList() {

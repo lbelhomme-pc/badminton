@@ -784,9 +784,9 @@ insert into public.actualites (titre, contenu, visible_public)
 select *
 from (
   values
-    ('Reprise des entrainements', 'Les creneaux de la saison sont ouverts. Consultez le planning avant de venir jouer.', true),
-    ('Tournoi interne', 'Un tournoi interne convivial sera organise prochainement au gymnase.', true),
-    ('Fermeture exceptionnelle du gymnase', 'Une fermeture ponctuelle peut modifier les creneaux. Consultez les actualites avant de vous deplacer.', true)
+    ('Creneaux hebdomadaires du club', 'Tous les creneaux ont lieu au Gymnase des Aigremonts, avec 28 places disponibles par creneau.', true),
+    ('Tarifs licences', 'Licence loisirs : 60 euros. Licence competiteurs : 95 euros.', true),
+    ('Seances d''essai possibles', 'Jusqu''a 3 seances d''essai sont possibles sur inscription prealable avant de rejoindre le club.', true)
 ) as seed(titre, contenu, visible_public)
 where not exists (select 1 from public.actualites);
 

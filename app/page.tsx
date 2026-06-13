@@ -109,6 +109,23 @@ export default function HomePage() {
         </div>
       </section>
 
+      <section className="border-b border-court-200 bg-court-50">
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Actualités du club</p>
+              <h2 className="mt-2 text-3xl font-black text-court-900">À retenir cette semaine</h2>
+            </div>
+            <Link className="text-sm font-bold text-court-600 hover:text-court-900" href="/vie-du-club/actualites">
+              Voir toutes les actualités
+            </Link>
+          </div>
+          <div className="mt-6">
+            <ActualitesList limit={3} />
+          </div>
+        </div>
+      </section>
+
       <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-10 sm:px-6 md:grid-cols-4 lg:px-8">
         {[
           { href: "/creneaux", label: "Créneaux", text: "Voir les prochains créneaux", icon: CalendarDays },
@@ -125,21 +142,6 @@ export default function HomePage() {
             </Link>
           );
         })}
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 pt-12 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Actualités</p>
-            <h2 className="mt-2 text-3xl font-black text-court-900">Infos utiles du club</h2>
-          </div>
-          <Link className="text-sm font-bold text-court-600 hover:text-court-900" href="/vie-du-club/actualites">
-            Voir toutes les actualités
-          </Link>
-        </div>
-        <div className="mt-6">
-          <ActualitesList limit={2} />
-        </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
@@ -196,22 +198,24 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="bg-court-100 py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Vie du club</p>
-          <h2 className="mt-2 text-3xl font-black text-court-900">Événements à venir</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {events.map((event) => (
-              <Card key={event.id} className="p-5">
-                <Badge className="border-blue-200 bg-blue-50 text-blue-700">{event.type}</Badge>
-                <h3 className="mt-3 text-xl font-black text-court-900">{event.title}</h3>
-                <p className="mt-1 text-sm font-semibold text-court-600">{formatDate(event.date)}</p>
-                <p className="mt-3 text-sm leading-6 text-ink-500">{event.description}</p>
-              </Card>
-            ))}
+      {events.length > 0 ? (
+        <section className="bg-court-100 py-16">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Vie du club</p>
+            <h2 className="mt-2 text-3xl font-black text-court-900">Événements à venir</h2>
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
+              {events.map((event) => (
+                <Card key={event.id} className="p-5">
+                  <Badge className="border-blue-200 bg-blue-50 text-blue-700">{event.type}</Badge>
+                  <h3 className="mt-3 text-xl font-black text-court-900">{event.title}</h3>
+                  <p className="mt-1 text-sm font-semibold text-court-600">{formatDate(event.date)}</p>
+                  <p className="mt-3 text-sm leading-6 text-ink-500">{event.description}</p>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
     </div>
   );
 }

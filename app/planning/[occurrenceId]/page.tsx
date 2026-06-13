@@ -63,12 +63,9 @@ export default async function SlotDetailPage({ params }: SlotDetailPageProps) {
             <p className="mt-2 text-sm leading-6 text-ink-500">
               Affichage limité : les noms complets sont visibles uniquement selon les droits et les consentements des adhérents.
             </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {["Camille M.", "Nadia B.", "Thomas L.", "Élodie R.", "Alex B."].map((name) => (
-                <span key={name} className="rounded-full bg-court-100 px-3 py-2 text-sm font-semibold text-court-900">
-                  {name}
-                </span>
-              ))}
+            <div className="mt-4 rounded-lg bg-court-50 p-4 text-sm font-semibold leading-6 text-ink-600">
+              Aucune liste nominative n’est affichée publiquement pour le moment. Les vraies réservations seront visibles
+              uniquement dans les espaces autorisés.
             </div>
           </section>
         </section>

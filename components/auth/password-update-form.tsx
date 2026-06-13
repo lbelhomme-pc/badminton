@@ -64,7 +64,7 @@ export function PasswordUpdateForm({
 
       {!configured ? (
         <p className="mt-4 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">
-          Configuration Supabase manquante. Le changement de mot de passe sera disponible une fois la connexion activée.
+          Le changement de mot de passe n’est pas encore disponible. Réessaie plus tard ou contacte le club.
         </p>
       ) : null}
 

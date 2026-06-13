@@ -57,7 +57,7 @@ export function SignupForm() {
       </p>
       {!configured ? (
         <p className="mt-4 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">
-          Configuration Supabase manquante. Renseigne `.env.local` pour activer la création de compte.
+          La création de compte n’est pas encore disponible. Réessaie plus tard ou contacte le club.
         </p>
       ) : null}
       <form className="mt-6 grid gap-4" onSubmit={onSubmit}>

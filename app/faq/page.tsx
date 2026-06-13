@@ -23,7 +23,7 @@ const faqItems = [
   },
   {
     question: "À partir de quel âge ?",
-    answer: "Les créneaux jeunes indiqués commencent à 7 ans, avec des groupes 7-11 ans et 11-17 ans."
+    answer: "L’âge d’accueil des jeunes est à confirmer auprès du club selon les groupes ouverts et les places disponibles."
   },
   {
     question: "Faut-il une raquette ?",
@@ -43,13 +43,13 @@ const faqItems = [
   },
   {
     question: "Quels sont les horaires ?",
-    answer: "Les horaires sont consultables dans le planning : mardi soir, mercredi parents/enfants, jeudi jeunes puis adultes, vendredi sur réservation.",
+    answer: "Les créneaux habituels sont le mardi de 18h à 22h30, le mercredi de 18h à 20h30, le jeudi de 18h à 22h30 et le vendredi de 18h à 22h30.",
     href: "/jouer-au-club/creneaux",
     cta: "Voir le planning"
   },
   {
     question: "Combien coûte l’inscription ?",
-    answer: "Les tarifs sont détaillés sur la page Tarifs. La page officielle d’inscription du club fait foi pour les montants de saison.",
+    answer: "La licence loisirs est à 60 euros et la licence compétiteurs à 95 euros. La page Tarifs récapitule les montants.",
     href: "/inscriptions/tarifs",
     cta: "Voir les tarifs"
   },
