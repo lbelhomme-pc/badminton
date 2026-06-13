@@ -9,16 +9,16 @@ import { Card } from "@/components/ui/card";
 import { createCreneau, fetchCreneaux, updateCreneau, type CreneauRow } from "@/services/supabase-data.service";
 
 const initialForm = {
-  jour: "Lundi",
-  heure_debut: "19:00",
-  heure_fin: "21:00",
-  gymnase: "Gymnase principal",
-  adresse: "",
+  jour: "Mardi",
+  heure_debut: "18:00",
+  heure_fin: "19:30",
+  gymnase: "Gymnase des Aigremonts",
+  adresse: "554 Rue de la Chappe, 41100 Vendôme",
   type: "jeu_libre",
   public: "adultes",
   niveau: "Tous niveaux",
-  places_max: "24",
-  responsable: ""
+  places_max: "28",
+  responsable: "Didier Remule"
 };
 
 export function AdminCreneaux() {
@@ -94,7 +94,7 @@ function AdminCreneauxContent() {
           <AdminSelect label="Type" value={form.type} onChange={(value) => update("type", value)} options={["jeu_libre", "entrainement", "competition", "jeunes", "adultes"]} />
           <AdminSelect label="Public" value={form.public} onChange={(value) => update("public", value)} options={["jeunes", "adultes", "loisirs", "competiteurs", "tous"]} />
           <AdminInput label="Niveau" required={false} value={form.niveau} onChange={(value) => update("niveau", value)} />
-          <AdminInput label="Responsable" required={false} value={form.responsable} onChange={(value) => update("responsable", value)} />
+          <AdminInput label="Responsable créneau" required={false} value={form.responsable} onChange={(value) => update("responsable", value)} />
           <Button type="submit" className="md:col-span-3">Créer le créneau</Button>
         </form>
       </Card>
@@ -109,6 +109,7 @@ function AdminCreneauxContent() {
                   {creneau.heure_debut.slice(0, 5)} - {creneau.heure_fin.slice(0, 5)} · {creneau.gymnase}
                 </p>
                 <p className="mt-1 text-sm text-ink-500">{creneau.public} · {creneau.niveau || "Niveau non précisé"}</p>
+                <p className="mt-1 text-sm font-semibold text-court-700">Responsable : {creneau.responsable || "À renseigner"}</p>
               </div>
               <span className={creneau.actif ? "rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-600" : "rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700"}>
                 {creneau.actif ? "Actif" : "Inactif"}

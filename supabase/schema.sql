@@ -748,6 +748,7 @@ values
       'name', 'CFVV41',
       'full_name', 'Club des fous du Volant Vendomois',
       'city', 'Vendome',
+      'registered_office', 'Naveil',
       'ffbad_url', ''
     ),
     'public'
@@ -769,10 +770,13 @@ insert into public.creneaux (jour, heure_debut, heure_fin, gymnase, adresse, typ
 select *
 from (
   values
-    ('Lundi', '19:00'::time, '21:00'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeu_libre', 'loisirs', 'Adultes loisirs', 28, 'Bureau CFVV41'),
-    ('Mercredi', '17:30'::time, '19:00'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeunes', 'jeunes', 'Jeunes debutants et confirmes', 20, 'Encadrants jeunes'),
-    ('Jeudi', '20:00'::time, '22:00'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'competition', 'competiteurs', 'Adultes competiteurs', 24, 'Capitaine interclubs'),
-    ('Samedi', '10:00'::time, '12:00'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeu_libre', 'tous', 'Tous niveaux', 28, 'Bureau CFVV41')
+    ('Mardi', '18:00'::time, '19:30'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeunes', 'jeunes', 'Entrainement jeunes', 28, 'Didier Remule'),
+    ('Mardi', '19:30'::time, '20:45'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'entrainement', 'adultes', 'Entrainement adultes', 28, 'Didier Remule'),
+    ('Mardi', '20:45'::time, '22:30'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeu_libre', 'adultes', 'Jeu libre adultes', 28, 'Didier Remule'),
+    ('Mercredi', '18:00'::time, '20:30'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeu_libre', 'adultes', 'Jeu libre adultes', 28, 'Didier Remule'),
+    ('Jeudi', '18:00'::time, '19:30'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeunes', 'jeunes', 'Entrainement jeunes', 28, 'Didier Remule'),
+    ('Jeudi', '19:30'::time, '22:30'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeu_libre', 'adultes', 'Jeu libre adultes', 28, 'Didier Remule'),
+    ('Vendredi', '18:00'::time, '22:30'::time, 'Gymnase des Aigremonts', '554 Rue de la Chappe, 41100 Vendome', 'jeu_libre', 'tous', 'Jeu libre adultes / jeunes', 28, 'Didier Remule')
 ) as seed(jour, heure_debut, heure_fin, gymnase, adresse, type, public, niveau, places_max, responsable)
 where not exists (select 1 from public.creneaux);
 
@@ -800,8 +804,8 @@ select *
 from (
   values
     ('Jeunes', 'Ecole de badminton, creneaux encadres et licence.', 0.00::numeric, 'Jeunes', 1, true),
-    ('Adultes loisirs', 'Acces aux creneaux de jeu libre adultes.', 0.00::numeric, 'Adultes', 2, true),
-    ('Competition', 'Licence adaptee aux tournois et interclubs.', 0.00::numeric, 'Competiteurs', 3, true),
+    ('Licence loisirs', 'Acces aux creneaux loisirs et jeu libre adultes.', 60.00::numeric, 'Loisirs', 2, true),
+    ('Licence competiteurs', 'Licence adaptee aux tournois, interclubs et creneaux competiteurs.', 95.00::numeric, 'Competiteurs', 3, true),
     ('Essai', 'Jusqu''a 3 seances gratuites pour decouvrir.', 0.00::numeric, 'Decouverte', 4, true)
 ) as seed(titre, description, montant, public, ordre, actif)
 where not exists (select 1 from public.tarifs);

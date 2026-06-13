@@ -63,6 +63,7 @@ function ReservationCreneauContent() {
             <p className="mt-2 text-sm text-ink-500">{creneau.heure_debut.slice(0, 5)} - {creneau.heure_fin.slice(0, 5)}</p>
             <p className="mt-1 text-sm text-ink-500">{creneau.gymnase}</p>
             <p className="mt-1 text-sm text-ink-500">{creneau.public} · {creneau.niveau}</p>
+            <p className="mt-1 text-sm font-semibold text-court-700">Responsable : {creneau.responsable || "À renseigner"}</p>
             <Button className="mt-5 w-full" onClick={() => reserve(creneau.id)}>
               Réserver
             </Button>

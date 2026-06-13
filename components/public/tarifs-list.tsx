@@ -19,18 +19,18 @@ const fallbackTarifs: PublicTarif[] = [
   },
   {
     id: "adultes-loisirs",
-    titre: "Adultes loisirs",
-    description: "Accès aux créneaux de jeu libre adultes.",
-    montant: 0,
-    public: "Adultes",
+    titre: "Licence loisirs",
+    description: "Accès aux créneaux loisirs et jeu libre adultes.",
+    montant: 60,
+    public: "Loisirs",
     ordre: 2,
     actif: true
   },
   {
     id: "competition",
-    titre: "Compétition",
-    description: "Licence adaptée aux tournois et interclubs.",
-    montant: 0,
+    titre: "Licence compétiteurs",
+    description: "Licence adaptée aux tournois, interclubs et créneaux compétiteurs.",
+    montant: 95,
     public: "Compétiteurs",
     ordre: 3,
     actif: true

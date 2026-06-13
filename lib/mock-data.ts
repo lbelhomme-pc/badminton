@@ -17,8 +17,22 @@ function dateAt(daysFromToday: number, hour: number, minute = 0) {
   return date.toISOString();
 }
 
-function isoDate(daysFromToday: number) {
-  return dateAt(daysFromToday, 12).slice(0, 10);
+function nextWeekdayAt(weekday: number, hour: number, minute = 0) {
+  const now = new Date();
+  const date = new Date();
+  const daysUntilWeekday = (weekday - now.getDay() + 7) % 7;
+  date.setDate(now.getDate() + daysUntilWeekday);
+  date.setHours(hour, minute, 0, 0);
+
+  if (date <= now) {
+    date.setDate(date.getDate() + 7);
+  }
+
+  return date.toISOString();
+}
+
+function isoDateForWeekday(weekday: number) {
+  return nextWeekdayAt(weekday, 12).slice(0, 10);
 }
 
 export const demoMember: UserProfile = {
@@ -57,111 +71,129 @@ export const venues: Venue[] = [
 
 export const slots: SlotOccurrence[] = [
   {
-    id: "slot-tuesday-free",
-    title: "Jeu libre adultes",
-    type: "free_play",
-    date: isoDate(1),
-    startsAt: dateAt(1, 19, 30),
-    endsAt: dateAt(1, 22, 30),
+    id: "slot-tuesday-youth-training",
+    title: "Entraînement jeunes",
+    type: "youth_training",
+    date: isoDateForWeekday(2),
+    startsAt: nextWeekdayAt(2, 18, 0),
+    endsAt: nextWeekdayAt(2, 19, 30),
     venueId: "venue-aigremonts",
     venueName: "Gymnase des Aigremonts",
     address: "554 Rue de la Chappe, 41100 Vendôme",
-    managerName: "Véronique",
-    recommendedLevel: "Tous niveaux",
-    audience: "Adultes loisirs et compétiteurs",
+    managerName: "Didier Remule",
+    recommendedLevel: "Jeunes, tous niveaux",
+    audience: "Jeunes",
+    courtsCount: 7,
+    capacityMax: 28,
+    registeredCount: 12,
+    status: "open"
+  },
+  {
+    id: "slot-tuesday-adult-training",
+    title: "Entraînement adultes",
+    type: "adult_training",
+    date: isoDateForWeekday(2),
+    startsAt: nextWeekdayAt(2, 19, 30),
+    endsAt: nextWeekdayAt(2, 20, 45),
+    venueId: "venue-aigremonts",
+    venueName: "Gymnase des Aigremonts",
+    address: "554 Rue de la Chappe, 41100 Vendôme",
+    managerName: "Didier Remule",
+    recommendedLevel: "Adultes, tous niveaux",
+    audience: "Adultes",
+    courtsCount: 7,
+    capacityMax: 28,
+    registeredCount: 14,
+    status: "open"
+  },
+  {
+    id: "slot-tuesday-adult-free-play",
+    title: "Jeu libre adultes",
+    type: "free_play",
+    date: isoDateForWeekday(2),
+    startsAt: nextWeekdayAt(2, 20, 45),
+    endsAt: nextWeekdayAt(2, 22, 30),
+    venueId: "venue-aigremonts",
+    venueName: "Gymnase des Aigremonts",
+    address: "554 Rue de la Chappe, 41100 Vendôme",
+    managerName: "Didier Remule",
+    recommendedLevel: "Adultes loisirs et compétiteurs",
+    audience: "Adultes",
+    courtsCount: 7,
+    capacityMax: 28,
+    registeredCount: 16,
+    status: "open"
+  },
+  {
+    id: "slot-wednesday-adult-free-play",
+    title: "Jeu libre adultes",
+    type: "free_play",
+    date: isoDateForWeekday(3),
+    startsAt: nextWeekdayAt(3, 18, 0),
+    endsAt: nextWeekdayAt(3, 20, 30),
+    venueId: "venue-aigremonts",
+    venueName: "Gymnase des Aigremonts",
+    address: "554 Rue de la Chappe, 41100 Vendôme",
+    managerName: "Didier Remule",
+    recommendedLevel: "Adultes, tous niveaux",
+    audience: "Adultes",
+    courtsCount: 7,
+    capacityMax: 28,
+    registeredCount: 15,
+    status: "open"
+  },
+  {
+    id: "slot-thursday-youth-training",
+    title: "Entraînement jeunes",
+    type: "youth_training",
+    date: isoDateForWeekday(4),
+    startsAt: nextWeekdayAt(4, 18, 0),
+    endsAt: nextWeekdayAt(4, 19, 30),
+    venueId: "venue-aigremonts",
+    venueName: "Gymnase des Aigremonts",
+    address: "554 Rue de la Chappe, 41100 Vendôme",
+    managerName: "Didier Remule",
+    recommendedLevel: "Jeunes, tous niveaux",
+    audience: "Jeunes",
+    courtsCount: 7,
+    capacityMax: 28,
+    registeredCount: 11,
+    status: "open"
+  },
+  {
+    id: "slot-thursday-adult-free-play",
+    title: "Jeu libre adultes",
+    type: "free_play",
+    date: isoDateForWeekday(4),
+    startsAt: nextWeekdayAt(4, 19, 30),
+    endsAt: nextWeekdayAt(4, 22, 30),
+    venueId: "venue-aigremonts",
+    venueName: "Gymnase des Aigremonts",
+    address: "554 Rue de la Chappe, 41100 Vendôme",
+    managerName: "Didier Remule",
+    recommendedLevel: "Adultes, tous niveaux",
+    audience: "Adultes",
     courtsCount: 7,
     capacityMax: 28,
     registeredCount: 18,
     status: "open"
   },
   {
-    id: "slot-wednesday-family",
-    title: "Parents / enfants",
+    id: "slot-friday-free-play",
+    title: "Jeu libre adultes / jeunes",
     type: "free_play",
-    date: isoDate(2),
-    startsAt: dateAt(2, 18, 30),
-    endsAt: dateAt(2, 20, 30),
+    date: isoDateForWeekday(5),
+    startsAt: nextWeekdayAt(5, 18, 0),
+    endsAt: nextWeekdayAt(5, 22, 30),
     venueId: "venue-aigremonts",
     venueName: "Gymnase des Aigremonts",
     address: "554 Rue de la Chappe, 41100 Vendôme",
-    managerName: "Valérian",
-    recommendedLevel: "Découverte à loisir",
-    audience: "Parents et enfants",
-    courtsCount: 7,
-    capacityMax: 24,
-    registeredCount: 12,
-    status: "open"
-  },
-  {
-    id: "slot-thursday-youth-7-11",
-    title: "Jeunes 7-11 ans",
-    type: "youth_training",
-    date: isoDate(3),
-    startsAt: dateAt(3, 18, 0),
-    endsAt: dateAt(3, 19, 15),
-    venueId: "venue-aigremonts",
-    venueName: "Gymnase des Aigremonts",
-    address: "554 Rue de la Chappe, 41100 Vendôme",
-    managerName: "Valérian",
-    recommendedLevel: "Débutant à confirmé",
-    audience: "Jeunes 7-11 ans",
-    courtsCount: 4,
-    capacityMax: 20,
-    registeredCount: 14,
-    status: "open"
-  },
-  {
-    id: "slot-thursday-youth-11-17",
-    title: "Jeunes 11-17 ans",
-    type: "youth_training",
-    date: isoDate(3),
-    startsAt: dateAt(3, 18, 0),
-    endsAt: dateAt(3, 19, 30),
-    venueId: "venue-aigremonts",
-    venueName: "Gymnase des Aigremonts",
-    address: "554 Rue de la Chappe, 41100 Vendôme",
-    managerName: "Véronique",
-    recommendedLevel: "Débutant à confirmé",
-    audience: "Jeunes 11-17 ans",
-    courtsCount: 3,
-    capacityMax: 18,
-    registeredCount: 13,
-    status: "open"
-  },
-  {
-    id: "slot-thursday-adults",
-    title: "Jeu libre adultes",
-    type: "adult_training",
-    date: isoDate(3),
-    startsAt: dateAt(3, 19, 30),
-    endsAt: dateAt(3, 22, 30),
-    venueId: "venue-aigremonts",
-    venueName: "Gymnase des Aigremonts",
-    address: "554 Rue de la Chappe, 41100 Vendôme",
-    managerName: "Véronique",
-    recommendedLevel: "Tous niveaux",
-    audience: "Adultes",
+    managerName: "Didier Remule",
+    recommendedLevel: "Adultes et jeunes, tous niveaux",
+    audience: "Adultes / Jeunes",
     courtsCount: 7,
     capacityMax: 28,
-    registeredCount: 28,
-    status: "full"
-  },
-  {
-    id: "slot-friday-booking",
-    title: "Jeu libre sur réservation",
-    type: "free_play",
-    date: isoDate(4),
-    startsAt: dateAt(4, 19, 0),
-    endsAt: dateAt(4, 22, 0),
-    venueId: "venue-aigremonts",
-    venueName: "Gymnase des Aigremonts",
-    address: "554 Rue de la Chappe, 41100 Vendôme",
-    managerName: "Bureau CFVV41",
-    recommendedLevel: "Tous niveaux",
-    audience: "Adultes et parents/enfants selon participants",
-    courtsCount: 7,
-    capacityMax: 28,
-    registeredCount: 9,
+    registeredCount: 10,
     status: "open"
   }
 ];
@@ -258,7 +290,7 @@ export const news: NewsPost[] = [
     id: "news-training",
     title: "Créneaux d’entraînement de la saison",
     category: "Créneaux",
-    excerpt: "Mardi 19h30-22h30, mercredi 18h30-20h30, jeudi jeunes puis adultes, vendredi sur réservation.",
+    excerpt: "Mardi jeunes puis adultes, mercredi jeu libre, jeudi jeunes puis adultes, vendredi jeu libre adultes / jeunes.",
     publishedAt: dateAt(-1, 9)
   },
   {
@@ -273,7 +305,7 @@ export const news: NewsPost[] = [
 export const clubStats = [
   { label: "Terrains dédiés", value: "7" },
   { label: "Séances d’essai", value: "3" },
-  { label: "Créneaux/semaine", value: "5" },
+  { label: "Créneaux/semaine", value: "7" },
   { label: "Ville", value: "Vendôme" }
 ];
 
