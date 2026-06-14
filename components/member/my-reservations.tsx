@@ -4,7 +4,13 @@ import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { fetchMyReservations, updateReservationStatus, type ReservationRow } from "@/services/supabase-data.service";
+import {
+  cancelReservation,
+  fetchMyReservations,
+  fetchMyWaitingList,
+  type ReservationRow,
+  type WaitingListRow
+} from "@/services/supabase-data.service";
 
 export function MyReservations() {
   return (
@@ -16,12 +22,15 @@ export function MyReservations() {
 
 function MyReservationsContent() {
   const [reservations, setReservations] = useState<ReservationRow[]>([]);
+  const [waitingList, setWaitingList] = useState<WaitingListRow[]>([]);
   const [message, setMessage] = useState<string | null>(null);
 
   async function load() {
-    const result = await fetchMyReservations();
+    const [result, waitingResult] = await Promise.all([fetchMyReservations(), fetchMyWaitingList()]);
     setReservations(result.data);
+    setWaitingList(waitingResult.data);
     if (result.error) setMessage(result.error);
+    if (waitingResult.error && !waitingResult.error.includes("nouvelles règles")) setMessage(waitingResult.error);
   }
 
   useEffect(() => {
@@ -29,7 +38,7 @@ function MyReservationsContent() {
   }, []);
 
   async function cancel(id: number) {
-    const result = await updateReservationStatus(id, "annulee");
+    const result = await cancelReservation(id);
     setMessage(result.message);
     await load();
   }
@@ -37,7 +46,9 @@ function MyReservationsContent() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-black text-court-900">Mes réservations</h1>
-      <p className="mt-3 text-ink-500">Consulte et annule tes réservations si nécessaire.</p>
+      <p className="mt-3 text-ink-500">
+        Consulte tes réservations. L'annulation adhérent est bloquée moins de 2 heures avant le début du créneau.
+      </p>
       {message ? <p className="mt-5 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
       <div className="mt-6 grid gap-4">
         {reservations.map((reservation) => (
@@ -57,6 +68,28 @@ function MyReservationsContent() {
         ))}
         {reservations.length === 0 ? <Card className="p-5 text-ink-500">Aucune réservation.</Card> : null}
       </div>
+
+      <section className="mt-10">
+        <h2 className="text-2xl font-black text-court-900">Liste d'attente</h2>
+        <div className="mt-4 grid gap-4">
+          {waitingList.map((waiting) => (
+            <Card key={waiting.id} className="p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="font-black text-court-900">{waiting.creneaux?.jour} · {waiting.creneaux?.gymnase}</p>
+                  <p className="text-sm text-ink-500">
+                    {waiting.date_reservation} · {waiting.statut === "notifiee" ? "place à confirmer avec le club" : waiting.statut}
+                  </p>
+                </div>
+                <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-black text-yellow-800">
+                  En attente
+                </span>
+              </div>
+            </Card>
+          ))}
+          {waitingList.length === 0 ? <Card className="p-5 text-ink-500">Aucune inscription en liste d'attente.</Card> : null}
+        </div>
+      </section>
     </div>
   );
 }

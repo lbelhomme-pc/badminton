@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Medal, Sparkles, Trophy, UsersRound } from "lucide-react";
-import { SlotCard } from "@/components/planning/slot-card";
 import { ActualitesList } from "@/components/public/actualites-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -9,14 +8,13 @@ import { formatDate, formatTime, slotTypeLabel } from "@/lib/utils";
 import { getEvents, getOpenSlots } from "@/services/club.service";
 
 export default function HomePage() {
-  const openSlots = getOpenSlots().slice(0, 3);
-  const nextSlot = openSlots[0];
+  const nextSlot = getOpenSlots()[0];
   const events = getEvents();
 
   return (
     <div>
       <section className="border-b border-court-200 bg-white">
-        <div className="mx-auto grid min-h-[560px] max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+        <div className="mx-auto grid min-h-[460px] max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <div>
             <h1 className="max-w-3xl text-4xl font-black leading-tight text-court-900 sm:text-6xl">
               Club des fous du Volant Vendômois
@@ -41,36 +39,6 @@ export default function HomePage() {
             </div>
           </div>
           <div className="grid gap-4">
-            <Card className="border-court-800 bg-court-900 p-5 text-white shadow-lift">
-              <div className="flex items-center gap-2">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-court-500/20 text-court-200">
-                  <Sparkles className="h-5 w-5" aria-hidden="true" />
-                </span>
-                <p className="text-sm font-semibold uppercase tracking-wide text-court-200">Séance d'essai</p>
-              </div>
-              <h2 className="mt-4 text-2xl font-black leading-tight">Envie d'essayer le badminton ?</h2>
-              <p className="mt-3 text-sm leading-6 text-court-50">
-                Une séance d'essai est possible pour découvrir l'ambiance du CFVV41 avant de s'inscrire. Consulte les
-                créneaux puis contacte le club pour choisir le bon moment selon ton profil.
-              </p>
-              <p className="mt-4 rounded-lg bg-white/10 p-3 text-sm font-semibold leading-6 text-white">
-                Pas besoin d'être déjà bon : viens simplement avec une tenue de sport, on t'explique le reste.
-              </p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                <Link
-                  href="/creneaux"
-                  className="inline-flex h-11 items-center justify-center rounded-lg bg-white px-4 text-sm font-black text-court-900 transition hover:bg-court-50"
-                >
-                  Voir les créneaux
-                </Link>
-                <Link
-                  href="/inscriptions/seance-essai"
-                  className="inline-flex h-11 items-center justify-center rounded-lg bg-court-500 px-4 text-sm font-black text-white transition hover:bg-court-600"
-                >
-                  Demander une séance d'essai
-                </Link>
-              </div>
-            </Card>
             {nextSlot ? (
               <Link
                 href={`/planning/${nextSlot.id}`}
@@ -128,10 +96,10 @@ export default function HomePage() {
 
       <section className="mx-auto grid max-w-7xl gap-4 px-4 pt-10 sm:px-6 md:grid-cols-4 lg:px-8">
         {[
-          { href: "/creneaux", label: "Créneaux", text: "Voir les prochains créneaux", icon: CalendarDays },
-          { href: "/reservation-creneau", label: "Réserver", text: "Choisir une place ouverte", icon: UsersRound },
+          { href: "/inscriptions/seance-essai", label: "Essai", text: "Tester le club avant de s'inscrire", icon: CalendarDays },
           { href: "/commande-volants", label: "Volants", text: "Réserver un tube", icon: Sparkles },
-          { href: "/inscription", label: "Inscriptions", text: "Accéder au lien FFBaD", icon: Trophy }
+          { href: "/inscription", label: "Inscriptions", text: "Tarifs, licence et documents", icon: Trophy },
+          { href: "/contact", label: "Contact", text: "Poser une question au club", icon: UsersRound }
         ].map((item) => {
           const Icon = item.icon;
           return (
@@ -142,34 +110,6 @@ export default function HomePage() {
             </Link>
           );
         })}
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Réserver vite</p>
-            <h2 className="mt-2 text-3xl font-black text-court-900">Prochains créneaux ouverts</h2>
-          </div>
-          <Link className="text-sm font-bold text-court-600 hover:text-court-900" href="/creneaux">
-            Voir tout le planning
-          </Link>
-        </div>
-        <div className="mt-6 grid gap-4 md:grid-cols-3">
-          {openSlots.map((slot) => (
-            <SlotCard key={slot.id} slot={slot} compact />
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-white py-14">
-        <div className="mx-auto grid max-w-7xl gap-4 px-4 sm:px-6 md:grid-cols-4 lg:px-8">
-          {clubStats.map((stat) => (
-            <div key={stat.label} className="rounded-lg border border-court-200 bg-court-50 p-5">
-              <p className="text-4xl font-black text-court-900">{stat.value}</p>
-              <p className="mt-1 text-sm font-semibold text-ink-500">{stat.label}</p>
-            </div>
-          ))}
-        </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">

@@ -1,4 +1,4 @@
--- Row Level Security pour le site du CFVV41.
+﻿-- Row Level Security pour le site du CF2V41.
 -- A executer apres supabase/schema.sql.
 
 create or replace function public.has_role(role_name text)

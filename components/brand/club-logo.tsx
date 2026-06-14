@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils";
+﻿import { cn } from "@/lib/utils";
 
 interface ClubLogoProps {
   className?: string;
@@ -18,7 +18,7 @@ export function ClubLogo({ className, markOnly = false }: ClubLogoProps) {
       </span>
       {markOnly ? null : (
         <span className="hidden sm:block">
-          <span className="block text-sm font-black uppercase tracking-wide text-court-900">CFVV41</span>
+          <span className="block text-sm font-black uppercase tracking-wide text-court-900">CF2V41</span>
           <span className="block text-xs font-medium text-ink-500">Club des fous du Volant Vendômois</span>
         </span>
       )}

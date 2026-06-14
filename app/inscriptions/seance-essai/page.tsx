@@ -1,12 +1,12 @@
-import { InfoPage } from "@/components/public/info-page";
+﻿import { InfoPage } from "@/components/public/info-page";
 import { RequestForm } from "@/components/public/request-form";
 
 export default function SeanceEssaiPage() {
   return (
     <InfoPage
       eyebrow="Inscriptions"
-      title="Séance d’essai"
-      intro="Le CFVV41 propose jusqu’à 3 séances d’essai gratuites pour découvrir le club, le gymnase, l’ambiance et le bon créneau selon votre profil."
+      title="Séance d'essai"
+      intro="Le CF2V41 propose jusqu'à 3 séances d'essai gratuites pour découvrir le club, le gymnase, l'ambiance et le bon créneau selon votre profil."
       cards={[
         { title: "Pour qui ?", text: "Jeunes, adultes débutants, joueurs loisirs ou personnes qui arrivent dans la région." },
         { title: "Matériel", text: "Tenue sportive, chaussures propres et raquette si possible. Le club peut aider à dépanner pour une première séance." },
@@ -15,8 +15,8 @@ export default function SeanceEssaiPage() {
     >
       <RequestForm
         title="Demander un essai"
-        defaultType="Séance d’essai"
-        messagePlaceholder="Indiquez l’âge du joueur, son niveau approximatif et les créneaux qui vous arrangent."
+        defaultType="Séance d'essai"
+        messagePlaceholder="Indiquez l'âge du joueur, son niveau approximatif et les créneaux qui vous arrangent."
       />
     </InfoPage>
   );

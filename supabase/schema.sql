@@ -1,4 +1,4 @@
--- Schema Supabase pour le site du CFVV41.
+﻿-- Schema Supabase pour le site du CF2V41.
 -- A executer dans l'editeur SQL Supabase avant rls.sql.
 
 create extension if not exists "pgcrypto";
@@ -745,7 +745,7 @@ values
   (
     'club',
     jsonb_build_object(
-      'name', 'CFVV41',
+      'name', 'CF2V41',
       'full_name', 'Club des fous du Volant Vendomois',
       'city', 'Vendome',
       'registered_office', 'Naveil',
@@ -756,13 +756,31 @@ values
   (
     'contact',
     jsonb_build_object(
-      'email', '',
+      'email', 'cfvv41@gmail.com',
       'phone', '',
       'facebook_url', '',
       'instagram_url', ''
     ),
     'public'
   )
+on conflict (key) do nothing;
+
+insert into public.settings_site (key, value, visibility)
+values (
+  'bureau',
+  jsonb_build_object(
+    'members',
+    jsonb_build_array(
+      jsonb_build_object('key', 'presidence', 'role', 'Presidence', 'name', 'Didier Remule', 'mission', 'Coordination generale du club, relations avec les partenaires, la mairie et les instances sportives.', 'email', '', 'phone', ''),
+      jsonb_build_object('key', 'tresorerie', 'role', 'Tresorerie', 'name', 'Yeliz Ozogul', 'mission', 'Suivi du budget, cotisations, commandes et depenses liees au fonctionnement du club.', 'email', '', 'phone', ''),
+      jsonb_build_object('key', 'secretariat', 'role', 'Secretariat', 'name', 'Ludovic Belhomme', 'mission', 'Inscriptions, licences, documents administratifs et communication avec les adherents.', 'email', '', 'phone', ''),
+      jsonb_build_object('key', 'creneaux', 'role', 'Responsables creneaux', 'name', 'Didier Remule', 'mission', 'Accueil des joueurs, suivi des presences, annulations exceptionnelles et organisation des terrains.', 'email', '', 'phone', ''),
+      jsonb_build_object('key', 'communication', 'role', 'Communication', 'name', 'Julie Remule', 'mission', 'Actualites, evenements, informations de derniere minute et mise a jour du site.', 'email', '', 'phone', ''),
+      jsonb_build_object('key', 'benevoles', 'role', 'Benevoles', 'name', 'Tous les coups de main comptent', 'mission', 'Tournois, stages, buvette, installation, rangement et accueil des nouveaux joueurs.', 'email', '', 'phone', '')
+    )
+  ),
+  'public'
+)
 on conflict (key) do nothing;
 
 -- Donnees de demonstration publiques. Elles ne sont inserees que si la table est vide.
@@ -785,7 +803,7 @@ select *
 from (
   values
     ('Creneaux hebdomadaires du club', 'Tous les creneaux ont lieu au Gymnase des Aigremonts, avec 28 places disponibles par creneau.', true),
-    ('Tarifs licences', 'Licence loisirs : 60 euros. Licence competiteurs : 95 euros.', true),
+    ('Tarifs licences', 'Adultes : loisirs 60 euros, competiteurs 95 euros. Enfants : loisirs 50 euros, competiteurs 85 euros.', true),
     ('Seances d''essai possibles', 'Jusqu''a 3 seances d''essai sont possibles sur inscription prealable avant de rejoindre le club.', true)
 ) as seed(titre, contenu, visible_public)
 where not exists (select 1 from public.actualites);
@@ -803,9 +821,10 @@ insert into public.tarifs (titre, description, montant, public, ordre, actif)
 select *
 from (
   values
-    ('Jeunes', 'Ecole de badminton, creneaux encadres et licence.', 0.00::numeric, 'Jeunes', 1, true),
-    ('Licence loisirs', 'Acces aux creneaux loisirs et jeu libre adultes.', 60.00::numeric, 'Loisirs', 2, true),
-    ('Licence competiteurs', 'Licence adaptee aux tournois, interclubs et creneaux competiteurs.', 95.00::numeric, 'Competiteurs', 3, true),
-    ('Essai', 'Jusqu''a 3 seances gratuites pour decouvrir.', 0.00::numeric, 'Decouverte', 4, true)
+    ('Licence enfants loisirs', 'Licence jeune pour jouer en loisir sur les creneaux adaptes.', 50.00::numeric, 'Jeunes', 1, true),
+    ('Licence enfants competiteurs', 'Licence jeune pour les enfants qui participent aux competitions.', 85.00::numeric, 'Jeunes competiteurs', 2, true),
+    ('Licence loisirs', 'Acces aux creneaux loisirs et jeu libre adultes.', 60.00::numeric, 'Loisirs', 3, true),
+    ('Licence competiteurs', 'Licence adaptee aux tournois, interclubs et creneaux competiteurs.', 95.00::numeric, 'Competiteurs', 4, true),
+    ('Essai', 'Jusqu''a 3 seances gratuites pour decouvrir.', 0.00::numeric, 'Decouverte', 5, true)
 ) as seed(titre, description, montant, public, ordre, actif)
 where not exists (select 1 from public.tarifs);

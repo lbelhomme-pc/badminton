@@ -1,14 +1,31 @@
--- Migration ponctuelle CFVV41 : creneaux, responsable, siege social et tarifs.
+﻿-- Migration ponctuelle CF2V41 : creneaux, responsable, siege social et tarifs.
 -- A executer dans Supabase SQL Editor sur la base deja en ligne.
 
 insert into public.settings_site (key, value, visibility)
 values (
   'club',
   jsonb_build_object(
-    'name', 'CFVV41',
+    'name', 'CF2V41',
     'full_name', 'Club des fous du Volant Vendomois',
     'city', 'Vendome',
     'registered_office', 'Naveil'
+  ),
+  'public'
+)
+on conflict (key) do update
+set
+  value = public.settings_site.value || excluded.value,
+  visibility = 'public',
+  updated_at = now();
+
+insert into public.settings_site (key, value, visibility)
+values (
+  'contact',
+  jsonb_build_object(
+    'email', 'cfvv41@gmail.com',
+    'phone', '',
+    'facebook_url', '',
+    'instagram_url', ''
   ),
   'public'
 )
@@ -77,17 +94,59 @@ set titre = 'Licence loisirs',
     description = 'Acces aux creneaux loisirs et jeu libre adultes.',
     montant = 60.00,
     public = 'Loisirs',
+    ordre = 3,
+    actif = true,
+    updated_at = now()
+where (
+    lower(titre) like '%loisir%'
+    and lower(titre) not like '%enfant%'
+    and lower(titre) not like '%jeune%'
+  )
+  or lower(coalesce(public, '')) = 'loisirs'
+  or lower(coalesce(public, '')) = 'adultes';
+
+insert into public.tarifs (titre, description, montant, public, ordre, actif)
+select 'Licence loisirs', 'Acces aux creneaux loisirs et jeu libre adultes.', 60.00::numeric, 'Loisirs', 3, true
+where not exists (
+  select 1 from public.tarifs where lower(titre) = 'licence loisirs'
+);
+
+update public.tarifs
+set titre = 'Licence enfants loisirs',
+    description = 'Licence jeune pour jouer en loisir sur les creneaux adaptes.',
+    montant = 50.00,
+    public = 'Jeunes',
+    ordre = 1,
+    actif = true,
+    updated_at = now()
+where lower(titre) like '%enfant%loisir%'
+   or lower(titre) like '%jeune%loisir%';
+
+insert into public.tarifs (titre, description, montant, public, ordre, actif)
+select 'Licence enfants loisirs', 'Licence jeune pour jouer en loisir sur les creneaux adaptes.', 50.00::numeric, 'Jeunes', 1, true
+where not exists (
+  select 1 from public.tarifs
+  where lower(titre) like '%enfant%loisir%'
+     or lower(titre) like '%jeune%loisir%'
+);
+
+update public.tarifs
+set titre = 'Licence enfants competiteurs',
+    description = 'Licence jeune pour les enfants qui participent aux competitions.',
+    montant = 85.00,
+    public = 'Jeunes competiteurs',
     ordre = 2,
     actif = true,
     updated_at = now()
-where lower(titre) like '%loisir%'
-   or lower(coalesce(public, '')) like '%loisir%'
-   or lower(coalesce(public, '')) = 'adultes';
+where lower(titre) like '%enfant%comp%'
+   or lower(titre) like '%jeune%comp%';
 
 insert into public.tarifs (titre, description, montant, public, ordre, actif)
-select 'Licence loisirs', 'Acces aux creneaux loisirs et jeu libre adultes.', 60.00::numeric, 'Loisirs', 2, true
+select 'Licence enfants competiteurs', 'Licence jeune pour les enfants qui participent aux competitions.', 85.00::numeric, 'Jeunes competiteurs', 2, true
 where not exists (
-  select 1 from public.tarifs where lower(titre) like '%loisir%'
+  select 1 from public.tarifs
+  where lower(titre) like '%enfant%comp%'
+     or lower(titre) like '%jeune%comp%'
 );
 
 update public.tarifs
@@ -95,26 +154,29 @@ set titre = 'Licence competiteurs',
     description = 'Licence adaptee aux tournois, interclubs et creneaux competiteurs.',
     montant = 95.00,
     public = 'Competiteurs',
-    ordre = 3,
+    ordre = 4,
     actif = true,
     updated_at = now()
-where lower(titre) like '%comp%'
-   or lower(coalesce(public, '')) like '%comp%';
+where (
+    lower(titre) like '%comp%'
+    and lower(titre) not like '%enfant%'
+    and lower(titre) not like '%jeune%'
+  )
+  or lower(coalesce(public, '')) = 'competiteurs';
 
 insert into public.tarifs (titre, description, montant, public, ordre, actif)
-select 'Licence competiteurs', 'Licence adaptee aux tournois, interclubs et creneaux competiteurs.', 95.00::numeric, 'Competiteurs', 3, true
+select 'Licence competiteurs', 'Licence adaptee aux tournois, interclubs et creneaux competiteurs.', 95.00::numeric, 'Competiteurs', 4, true
 where not exists (
-  select 1 from public.tarifs where lower(titre) like '%comp%'
+  select 1 from public.tarifs where lower(titre) = 'licence competiteurs'
 );
 
 update public.tarifs
-set ordre = 1,
-    actif = true,
+set actif = false,
     updated_at = now()
-where lower(titre) like '%jeune%';
+where lower(titre) = 'jeunes';
 
 update public.tarifs
-set ordre = 4,
+set ordre = 5,
     actif = true,
     updated_at = now()
 where lower(titre) like '%essai%';

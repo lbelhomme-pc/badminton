@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { ShuttleShop } from "@/components/shuttles/shuttle-shop";
 import { getShuttleProducts } from "@/services/club.service";
 
 export const metadata: Metadata = {
-  title: "Volants - CFVV41",
+  title: "Volants - CF2V41",
   description: "Réservez des tubes de volants avec paiement sur place."
 };
 

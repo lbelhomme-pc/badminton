@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
-  title: "Connexion - CFVV41",
+  title: "Connexion - CF2V41",
   description: "Connexion à l'espace adhérent du Club des fous du Volant Vendômois."
 };
 

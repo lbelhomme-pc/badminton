@@ -24,6 +24,8 @@ export interface ReservationRow {
   statut: string;
   commentaire: string | null;
   creneaux?: CreneauRow | null;
+  member_name?: string | null;
+  member_email?: string | null;
 }
 
 export interface ActualiteRow {
@@ -59,10 +61,73 @@ export interface ShuttleOrderAdminRow {
   created_at: string;
 }
 
+export interface ShuttleOrderMemberRow {
+  id: number;
+  volant_id: number;
+  quantite: number;
+  statut: string;
+  total: number | null;
+  created_at: string;
+  volants?: VolantRow | null;
+}
+
 export interface MemberChoiceRow {
   id: string;
   display_name: string | null;
   email: string | null;
+}
+
+export interface WaitingListRow {
+  id: number;
+  user_id: string;
+  creneau_id: number;
+  date_reservation: string;
+  statut: string;
+  notified_at: string | null;
+  created_at: string;
+  creneaux?: CreneauRow | null;
+}
+
+export interface CreneauCancellationRow {
+  id: number;
+  creneau_id: number;
+  date_reservation: string;
+  reason: string | null;
+  created_at: string;
+  creneaux?: CreneauRow | null;
+}
+
+export interface CreneauAvailabilityRow extends CreneauRow {
+  occurrence_date: string;
+  reserved_count: number;
+  waiting_count: number;
+  places_left: number | null;
+  is_cancelled: boolean;
+  cancellation_reason: string | null;
+  user_reservation_status: string | null;
+  user_waiting_status: string | null;
+}
+
+interface ReservationManagerRpcRow {
+  id: number;
+  user_id: string;
+  member_name: string | null;
+  member_email: string | null;
+  creneau_id: number;
+  date_reservation: string;
+  statut: string;
+  commentaire: string | null;
+  creneau_jour: string | null;
+  creneau_heure_debut: string | null;
+  creneau_heure_fin: string | null;
+  creneau_gymnase: string | null;
+  creneau_adresse: string | null;
+  creneau_type: string | null;
+  creneau_public: string | null;
+  creneau_niveau: string | null;
+  creneau_places_max: number | null;
+  creneau_responsable: string | null;
+  creneau_actif: boolean | null;
 }
 
 export interface TarifRow {
@@ -126,6 +191,19 @@ function friendlyDatabaseError(error: { message: string; code?: string } | null 
     return "La vente rapide des volants doit être activée dans Supabase. Exécute le script supabase/volants-vente-rapide.sql puis réessaie.";
   }
 
+  if (
+    message.includes("list_creneaux_availability") ||
+    message.includes("reserve_creneau") ||
+    message.includes("cancel_reservation") ||
+    message.includes("list_reservations_for_manager") ||
+    message.includes("create_creneau_cancellation") ||
+    message.includes("delete_creneau_cancellation") ||
+    message.includes("waiting_list") ||
+    message.includes("creneau_annulations")
+  ) {
+    return "Les nouvelles règles de réservation doivent être activées dans Supabase. Exécute le script supabase/reservations-ameliorations-2026.sql puis réessaie.";
+  }
+
   if (message.includes("schema cache")) {
     return "La structure Supabase vient de changer. Attends quelques secondes puis réessaie.";
   }
@@ -133,11 +211,11 @@ function friendlyDatabaseError(error: { message: string; code?: string } | null 
   return error.message;
 }
 
-export type SiteSettingKey = "club" | "contact";
+export type SiteSettingKey = "club" | "contact" | "bureau";
 
 export interface SiteSettingRow {
   key: SiteSettingKey;
-  value: Record<string, string>;
+  value: Record<string, unknown>;
   visibility: "public" | "internal" | "admin";
 }
 
@@ -164,6 +242,18 @@ export async function fetchCreneaux() {
   return { data: (data ?? []) as CreneauRow[], error: friendlyDatabaseError(error) };
 }
 
+export async function fetchCreneauAvailability(startDate: string, endDate: string) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as CreneauAvailabilityRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase.rpc("list_creneaux_availability", {
+    start_date: startDate,
+    end_date: endDate
+  });
+
+  return { data: (data ?? []) as CreneauAvailabilityRow[], error: friendlyDatabaseError(error) };
+}
+
 export async function createCreneau(input: Omit<CreneauRow, "id">) {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
@@ -178,6 +268,79 @@ export async function updateCreneau(id: number, input: Partial<CreneauRow>) {
 
   const { error } = await supabase.from("creneaux").update(input).eq("id", id);
   return { ok: !error, message: friendlyDatabaseError(error) ?? "Créneau mis à jour." };
+}
+
+export async function fetchCreneauCancellations(startDate?: string, endDate?: string) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as CreneauCancellationRow[], error: "Configuration Supabase manquante." };
+
+  let query = supabase
+    .from("creneau_annulations")
+    .select("*, creneaux(*)")
+    .order("date_reservation", { ascending: true });
+
+  if (startDate) {
+    query = query.gte("date_reservation", startDate);
+  }
+
+  if (endDate) {
+    query = query.lte("date_reservation", endDate);
+  }
+
+  const { data, error } = await query;
+  return { data: (data ?? []) as CreneauCancellationRow[], error: friendlyDatabaseError(error) };
+}
+
+export async function createCreneauCancellation(input: { creneauId: number; dateReservation: string; reason?: string }) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.rpc("create_creneau_cancellation", {
+    target_creneau_id: input.creneauId,
+    target_date: input.dateReservation,
+    target_reason: input.reason?.trim() || null
+  });
+
+  if (!error) {
+    return { ok: true, message: "Créneau annulé pour cette date." };
+  }
+
+  const rpcMessage = friendlyDatabaseError(error);
+  if (rpcMessage && !rpcMessage.includes("nouvelles règles")) {
+    return { ok: false, message: rpcMessage };
+  }
+
+  const fallback = await supabase.from("creneau_annulations").upsert(
+    {
+      creneau_id: input.creneauId,
+      date_reservation: input.dateReservation,
+      reason: input.reason?.trim() || null
+    },
+    { onConflict: "creneau_id,date_reservation" }
+  );
+
+  return { ok: !fallback.error, message: friendlyDatabaseError(fallback.error) ?? "Créneau annulé pour cette date." };
+}
+
+export async function deleteCreneauCancellation(id: number) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.rpc("delete_creneau_cancellation", {
+    target_cancellation_id: id
+  });
+
+  if (!error) {
+    return { ok: true, message: "Annulation exceptionnelle retirée." };
+  }
+
+  const rpcMessage = friendlyDatabaseError(error);
+  if (rpcMessage && !rpcMessage.includes("nouvelles règles")) {
+    return { ok: false, message: rpcMessage };
+  }
+
+  const fallback = await supabase.from("creneau_annulations").delete().eq("id", id);
+  return { ok: !fallback.error, message: friendlyDatabaseError(fallback.error) ?? "Annulation exceptionnelle retirée." };
 }
 
 export async function fetchMyReservations() {
@@ -196,6 +359,46 @@ export async function fetchAllReservations() {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { data: [] as ReservationRow[], error: "Configuration Supabase manquante." };
 
+  const { data: managerRows, error: managerError } = await supabase.rpc("list_reservations_for_manager");
+
+  if (!managerError) {
+    const rows = (managerRows ?? []) as ReservationManagerRpcRow[];
+    return {
+      data: rows.map((row) => ({
+        id: row.id,
+        user_id: row.user_id,
+        member_name: row.member_name,
+        member_email: row.member_email,
+        creneau_id: row.creneau_id,
+        date_reservation: row.date_reservation,
+        statut: row.statut,
+        commentaire: row.commentaire,
+        creneaux: row.creneau_jour
+          ? {
+              id: row.creneau_id,
+              jour: row.creneau_jour,
+              heure_debut: row.creneau_heure_debut ?? "00:00:00",
+              heure_fin: row.creneau_heure_fin ?? "00:00:00",
+              gymnase: row.creneau_gymnase ?? "Gymnase",
+              adresse: row.creneau_adresse,
+              type: row.creneau_type ?? "jeu_libre",
+              public: row.creneau_public ?? "tous",
+              niveau: row.creneau_niveau,
+              places_max: row.creneau_places_max,
+              responsable: row.creneau_responsable,
+              actif: row.creneau_actif ?? true
+            }
+          : null
+      })),
+      error: null
+    };
+  }
+
+  const managerMessage = friendlyDatabaseError(managerError);
+  if (managerMessage && !managerMessage.includes("nouvelles règles")) {
+    return { data: [] as ReservationRow[], error: managerMessage };
+  }
+
   const { data, error } = await supabase
     .from("reservations")
     .select("*, creneaux(*)")
@@ -207,6 +410,28 @@ export async function fetchAllReservations() {
 export async function createReservation(userId: string, creneauId: number, dateReservation: string) {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { data: reserveData, error: reserveError } = await supabase.rpc("reserve_creneau", {
+    target_creneau_id: creneauId,
+    target_date: dateReservation
+  });
+
+  if (!reserveError) {
+    const first = Array.isArray(reserveData) ? reserveData[0] : reserveData;
+    return {
+      ok: true,
+      message:
+        first?.message ??
+        (first?.status === "liste_attente"
+          ? "Créneau complet : tu es inscrit sur la liste d'attente."
+          : "Réservation confirmée.")
+    };
+  }
+
+  const reserveMessage = friendlyDatabaseError(reserveError);
+  if (reserveMessage && !reserveMessage.includes("nouvelles règles")) {
+    return { ok: false, message: reserveMessage };
+  }
 
   const { error } = await supabase.from("reservations").insert({
     user_id: userId,
@@ -228,6 +453,39 @@ export async function updateReservationStatus(id: number, statut: string) {
 
   const { error } = await supabase.from("reservations").update({ statut }).eq("id", id);
   return { ok: !error, message: friendlyDatabaseError(error) ?? "Réservation mise à jour." };
+}
+
+export async function cancelReservation(id: number) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase.rpc("cancel_reservation", {
+    target_reservation_id: id
+  });
+
+  if (!error) {
+    const first = Array.isArray(data) ? data[0] : data;
+    return { ok: true, message: first?.message ?? "Réservation annulée." };
+  }
+
+  const cancelMessage = friendlyDatabaseError(error);
+  if (cancelMessage && !cancelMessage.includes("nouvelles règles")) {
+    return { ok: false, message: cancelMessage };
+  }
+
+  return updateReservationStatus(id, "annulee");
+}
+
+export async function fetchMyWaitingList() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as WaitingListRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase
+    .from("waiting_list")
+    .select("*, creneaux(*)")
+    .order("date_reservation", { ascending: true });
+
+  return { data: (data ?? []) as WaitingListRow[], error: friendlyDatabaseError(error) };
 }
 
 export async function fetchActualites(includeInternal = false) {
@@ -321,7 +579,7 @@ export async function fetchSiteSettings() {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { data: [] as SiteSettingRow[], error: "Configuration Supabase manquante." };
 
-  const { data, error } = await supabase.from("settings_site").select("key, value, visibility").in("key", ["club", "contact"]);
+  const { data, error } = await supabase.from("settings_site").select("key, value, visibility").in("key", ["club", "contact", "bureau"]);
 
   return { data: (data ?? []) as SiteSettingRow[], error: friendlyDatabaseError(error) };
 }
@@ -373,6 +631,26 @@ export async function createCommandeVolants(userId: string, volant: VolantRow, q
   return {
     ok: !error,
     message: friendlyDatabaseError(error) ?? `Commande de ${quantite} tube${quantite > 1 ? "s" : ""} envoyée. Le stock a été mis à jour.`
+  };
+}
+
+export async function fetchMyShuttleOrders() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as ShuttleOrderMemberRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase
+    .from("commandes_volants")
+    .select("id, volant_id, quantite, statut, total, created_at, volants(*)")
+    .order("created_at", { ascending: false });
+
+  const rows = (data ?? []) as unknown as Array<Omit<ShuttleOrderMemberRow, "volants"> & { volants?: VolantRow | VolantRow[] | null }>;
+
+  return {
+    data: rows.map((row) => ({
+      ...row,
+      volants: Array.isArray(row.volants) ? (row.volants[0] ?? null) : (row.volants ?? null)
+    })),
+    error: friendlyDatabaseError(error)
   };
 }
 

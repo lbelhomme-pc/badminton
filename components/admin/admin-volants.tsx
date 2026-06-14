@@ -162,6 +162,13 @@ function AdminVolantsContent() {
 
   return (
     <AdminShell title="Gestion des volants" intro="Ajouter un modèle, corriger un écart ou saisir un réassort quand le club achète des tubes.">
+      <a
+        href="#vente-rapide-volants"
+        className="fixed bottom-20 left-4 right-4 z-40 inline-flex h-12 items-center justify-center rounded-lg bg-court-500 text-sm font-black text-white shadow-soft md:hidden"
+      >
+        Vente rapide sur place
+      </a>
+
       <Card className="p-5">
         <h2 className="text-xl font-black text-court-900">Nouveau volant</h2>
         <form className="mt-5 grid gap-4 md:grid-cols-5" onSubmit={onSubmit}>
@@ -187,7 +194,7 @@ function AdminVolantsContent() {
 
       <AdminFeedback feedback={feedback} className="mt-6" />
 
-      <Card className="mt-8 p-5">
+      <Card id="vente-rapide-volants" className="mt-8 scroll-mt-24 p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h2 className="text-xl font-black text-court-900">Vente rapide sur place</h2>
@@ -234,6 +241,19 @@ function AdminVolantsContent() {
             value={quickSale.quantite}
             onChange={(value) => setQuickSale((current) => ({ ...current, quantite: value }))}
           />
+          <div className="flex items-end gap-2 lg:hidden">
+            {[1, 2, 3].map((quantity) => (
+              <Button
+                key={quantity}
+                type="button"
+                variant={quickSale.quantite === String(quantity) ? "primary" : "outline"}
+                className="flex-1"
+                onClick={() => setQuickSale((current) => ({ ...current, quantite: String(quantity) }))}
+              >
+                {quantity}
+              </Button>
+            ))}
+          </div>
           <Button type="submit" className="self-end">
             Enregistrer la vente
           </Button>

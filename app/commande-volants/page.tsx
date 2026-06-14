@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { CommandeVolants } from "@/components/member/commande-volants";
 
 export const metadata: Metadata = {
-  title: "Commander des volants - CFVV41",
-  description: "Réservation simple de volants pour les adhérents du CFVV41."
+  title: "Commander des volants - CF2V41",
+  description: "Réservation simple de volants pour les adhérents du CF2V41."
 };
 
 export default function CommandeVolantsPage() {

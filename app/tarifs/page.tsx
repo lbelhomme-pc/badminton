@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import TarifsPage from "@/app/inscriptions/tarifs/page";
 
 export const metadata: Metadata = {
-  title: "Tarifs - CFVV41",
-  description: "Tarifs et formules d'inscription du CFVV41."
+  title: "Tarifs - CF2V41",
+  description: "Tarifs et formules d'inscription du CF2V41."
 };
 
 export default TarifsPage;

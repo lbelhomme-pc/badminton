@@ -1,4 +1,4 @@
-import type {
+﻿import type {
   ClubEvent,
   NewsPost,
   Ranking,
@@ -39,8 +39,8 @@ export const demoMember: UserProfile = {
   id: "user-adherent",
   email: "adherent@example.com",
   firstName: "Adhérent",
-  lastName: "CFVV41",
-  displayName: "Adhérent CFVV41",
+  lastName: "CF2V41",
+  displayName: "Adhérent CF2V41",
   roles: ["member"],
   membershipStatus: "active",
   consentShowName: true
@@ -50,8 +50,8 @@ export const demoAdmin: UserProfile = {
   id: "user-admin",
   email: "responsable@example.com",
   firstName: "Responsable",
-  lastName: "CFVV41",
-  displayName: "Responsable CFVV41",
+  lastName: "CF2V41",
+  displayName: "Responsable CF2V41",
   roles: ["member", "admin", "slot_manager", "shuttle_manager"],
   membershipStatus: "active",
   consentShowName: true
@@ -65,7 +65,7 @@ export const venues: Venue[] = [
     city: "Vendôme",
     postalCode: "41100",
     mapUrl: "https://www.google.com/maps/search/?api=1&query=Gymnase%20des%20Aigremonts%20554%20Rue%20de%20la%20Chappe%2041100%20Vendome",
-    accessNotes: "7 terrains dédiés, gymnase chauffé l’hiver. Accès par le secteur des Aigremonts, stationnement à proximité du gymnase."
+    accessNotes: "7 terrains dédiés, gymnase chauffé l'hiver. Accès par le secteur des Aigremonts, stationnement à proximité du gymnase."
   }
 ];
 
@@ -213,7 +213,7 @@ export const shuttleProducts: ShuttleProduct[] = [
     id: "shuttle-rsl-training-a9",
     brand: "RSL",
     model: "Training A9",
-    description: "Volants plumes d’entraînement, bon équilibre entre coût et régularité.",
+    description: "Volants plumes d'entraînement, bon équilibre entre coût et régularité.",
     priceCents: 1500,
     stockQuantity: 8,
     lowStockThreshold: 4,
@@ -237,21 +237,21 @@ export const news: NewsPost[] = [
     id: "news-prices",
     title: "Tarifs licences",
     category: "Inscriptions",
-    excerpt: "Licence loisirs : 60 euros. Licence compétiteurs : 95 euros.",
+    excerpt: "Adultes : loisirs 60 euros, compétiteurs 95 euros. Enfants : loisirs 50 euros, compétiteurs 85 euros.",
     publishedAt: dateAt(-3, 11)
   },
   {
     id: "news-trial",
-    title: "Séances d’essai possibles",
+    title: "Séances d'essai possibles",
     category: "Essai",
-    excerpt: "Jusqu’à 3 séances d’essai sont possibles sur inscription préalable avant de rejoindre le club.",
+    excerpt: "Jusqu'à 3 séances d'essai sont possibles sur inscription préalable avant de rejoindre le club.",
     publishedAt: dateAt(-5, 10)
   }
 ];
 
 export const clubStats = [
   { label: "Terrains dédiés", value: "7" },
-  { label: "Séances d’essai", value: "3" },
+  { label: "Séances d'essai", value: "3" },
   { label: "Créneaux/semaine", value: "7" },
   { label: "Ville", value: "Vendôme" }
 ];

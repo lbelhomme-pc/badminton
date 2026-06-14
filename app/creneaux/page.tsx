@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import CreneauxPage from "@/app/jouer-au-club/creneaux/page";
 
 export const metadata: Metadata = {
-  title: "Créneaux - CFVV41",
+  title: "Créneaux - CF2V41",
   description: "Horaires et créneaux publics du Club des fous du Volant Vendômois."
 };
 

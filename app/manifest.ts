@@ -1,10 +1,10 @@
-import type { MetadataRoute } from "next";
+﻿import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CFVV41 - Club des fous du Volant Vendômois",
-    short_name: "CFVV41",
-    description: "Planning, réservations et espace adhérent du CFVV41.",
+    name: "CF2V41 - Club des fous du Volant Vendômois",
+    short_name: "CF2V41",
+    description: "Planning, réservations et espace adhérent du CF2V41.",
     start_url: "/",
     scope: "/",
     display: "standalone",

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -17,13 +17,13 @@ import {
 } from "@/services/supabase-data.service";
 
 const adminLinks = [
-  { href: "/admin/creneaux", label: "Gérer les créneaux", text: "Créer, activer ou désactiver les séances.", minRole: "manager" },
-  { href: "/admin/reservations", label: "Voir les réservations", text: "Suivre les demandes et modifier les statuts.", minRole: "manager" },
+  { href: "/admin/creneaux", label: "Gérer les créneaux", text: "Créer, modifier, désactiver ou annuler une date.", minRole: "manager" },
+  { href: "/admin/reservations", label: "Voir les réservations", text: "Suivre les demandes avec le nom des adhérents.", minRole: "manager" },
   { href: "/admin/actualites", label: "Publier une actualité", text: "Informer les adhérents et les visiteurs.", minRole: "manager" },
   { href: "/admin/volants", label: "Volants", text: "Suivre le stock et les demandes simples.", minRole: "manager" },
   { href: "/admin/tarifs", label: "Modifier les tarifs", text: "Mettre à jour les prix affichés sur le site.", minRole: "admin" },
   { href: "/admin/adherents", label: "Adhérents", text: "Consulter les profils utiles au club.", minRole: "admin" },
-  { href: "/admin/parametres", label: "Paramètres du site", text: "Modifier les informations publiques et les liens utiles.", minRole: "admin" }
+  { href: "/admin/parametres", label: "Paramètres du site", text: "Modifier contact, bureau, identité du club et liens utiles.", minRole: "admin" }
 ];
 
 export function AdminHome() {
@@ -83,7 +83,7 @@ function AdminHomeContent() {
 
   return (
     <AdminShell
-      title="Pilotage du CFVV41"
+      title="Pilotage du CF2V41"
       intro="Les actions sensibles restent protégées par les règles Supabase RLS, même si quelqu'un appelle la base directement."
     >
       <AdminFeedback feedback={feedback} className="mb-6" />

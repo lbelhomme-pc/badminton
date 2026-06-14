@@ -42,9 +42,10 @@ insert into public.tarifs (titre, description, montant, public, ordre, actif)
 select *
 from (
   values
-    ('Jeunes', 'Ecole de badminton, creneaux encadres et licence.', 0.00::numeric, 'Jeunes', 1, true),
-    ('Licence loisirs', 'Acces aux creneaux loisirs et jeu libre adultes.', 60.00::numeric, 'Loisirs', 2, true),
-    ('Licence competiteurs', 'Licence adaptee aux tournois, interclubs et creneaux competiteurs.', 95.00::numeric, 'Competiteurs', 3, true),
-    ('Essai', 'Jusqu''a 3 seances gratuites pour decouvrir.', 0.00::numeric, 'Decouverte', 4, true)
+    ('Licence enfants loisirs', 'Licence jeune pour jouer en loisir sur les creneaux adaptes.', 50.00::numeric, 'Jeunes', 1, true),
+    ('Licence enfants competiteurs', 'Licence jeune pour les enfants qui participent aux competitions.', 85.00::numeric, 'Jeunes competiteurs', 2, true),
+    ('Licence loisirs', 'Acces aux creneaux loisirs et jeu libre adultes.', 60.00::numeric, 'Loisirs', 3, true),
+    ('Licence competiteurs', 'Licence adaptee aux tournois, interclubs et creneaux competiteurs.', 95.00::numeric, 'Competiteurs', 4, true),
+    ('Essai', 'Jusqu''a 3 seances gratuites pour decouvrir.', 0.00::numeric, 'Decouverte', 5, true)
 ) as seed(titre, description, montant, public, ordre, actif)
 where not exists (select 1 from public.tarifs);

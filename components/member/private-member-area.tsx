@@ -7,7 +7,16 @@ import { PasswordUpdateForm } from "@/components/auth/password-update-form";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { fetchActualites, fetchMyReservations, type ActualiteRow, type ReservationRow } from "@/services/supabase-data.service";
+import {
+  fetchActualites,
+  fetchMyReservations,
+  fetchMyShuttleOrders,
+  fetchMyWaitingList,
+  type ActualiteRow,
+  type ReservationRow,
+  type ShuttleOrderMemberRow,
+  type WaitingListRow
+} from "@/services/supabase-data.service";
 
 export function PrivateMemberArea() {
   return (
@@ -20,10 +29,14 @@ export function PrivateMemberArea() {
 function MemberContent() {
   const { profile, user } = useAuth();
   const [reservations, setReservations] = useState<ReservationRow[]>([]);
+  const [waitingList, setWaitingList] = useState<WaitingListRow[]>([]);
+  const [orders, setOrders] = useState<ShuttleOrderMemberRow[]>([]);
   const [actualites, setActualites] = useState<ActualiteRow[]>([]);
 
   useEffect(() => {
     fetchMyReservations().then((result) => setReservations(result.data));
+    fetchMyWaitingList().then((result) => setWaitingList(result.data));
+    fetchMyShuttleOrders().then((result) => setOrders(result.data));
     fetchActualites(true).then((result) => setActualites(result.data));
   }, []);
 
@@ -46,7 +59,9 @@ function MemberContent() {
               {[
                 "Réserver un créneau ouvert",
                 "Voir et annuler tes réservations",
+                "Suivre ta liste d'attente",
                 "Commander des volants",
+                "Voir ton historique de volants",
                 "Retrouver les infos internes du club",
                 "Consulter ton profil adhérent",
                 "Modifier ton mot de passe"
@@ -78,6 +93,30 @@ function MemberContent() {
               <Link href="/commande-volants"><Button variant="outline">Commander des volants</Button></Link>
             </div>
           </Card>
+
+          <Card className="p-5">
+            <h2 className="text-2xl font-black text-court-900">Volants</h2>
+            {orders.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-500">Aucun achat ou commande de volants enregistré pour le moment.</p>
+            ) : (
+              <div className="mt-4 grid gap-3">
+                {orders.slice(0, 4).map((order) => (
+                  <div key={order.id} className="rounded-lg bg-court-50 p-4">
+                    <p className="font-semibold text-court-900">
+                      {order.quantite} tube{order.quantite > 1 ? "s" : ""} · {order.volants?.marque} {order.volants?.modele ?? ""}
+                    </p>
+                    <p className="text-sm text-ink-500">
+                      {new Date(order.created_at).toLocaleDateString("fr-FR")} · {order.statut}
+                      {order.total != null ? ` · ${Number(order.total).toFixed(2)} €` : ""}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <Link href="/commande-volants">
+              <Button className="mt-5" variant="outline">Voir les volants</Button>
+            </Link>
+          </Card>
         </section>
 
         <aside className="space-y-4">
@@ -94,6 +133,21 @@ function MemberContent() {
             title="Sécurité du compte"
             intro="Modifie ton mot de passe sans repasser par le lien de mot de passe oublié."
           />
+          <Card className="p-5">
+            <h2 className="text-xl font-black text-court-900">Liste d'attente</h2>
+            {waitingList.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-500">Aucun créneau en attente.</p>
+            ) : (
+              <div className="mt-3 grid gap-3">
+                {waitingList.slice(0, 3).map((waiting) => (
+                  <div key={waiting.id} className="rounded-lg bg-yellow-50 p-3">
+                    <p className="font-semibold text-court-900">{waiting.creneaux?.jour} · {waiting.date_reservation}</p>
+                    <p className="mt-1 text-sm text-ink-500">{waiting.statut}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
           <Card className="p-5">
             <h2 className="text-xl font-black text-court-900">Actualités internes</h2>
             {actualites.length === 0 ? (

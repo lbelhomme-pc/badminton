@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import "./globals.css";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -9,9 +9,9 @@ import { Providers } from "@/components/providers";
 export const revalidate = 60;
 
 export const metadata: Metadata = {
-  title: "CFVV41 - Planning, réservations et vie du club",
+  title: "CF2V41 - Planning, réservations et vie du club",
   description:
-    "Site moderne du Club des fous du Volant Vendômois (CFVV41) : créneaux, réservations, volants, inscriptions, classements et espace adhérent.",
+    "Site moderne du Club des fous du Volant Vendômois (CF2V41) : créneaux, réservations, volants, inscriptions, classements et espace adhérent.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/pwa-icon.svg",
@@ -19,12 +19,12 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    title: "CFVV41",
+    title: "CF2V41",
     statusBarStyle: "default"
   },
   openGraph: {
-    title: "CFVV41",
-    description: "Réservez vos créneaux et suivez la vie du CFVV41.",
+    title: "CF2V41",
+    description: "Réservez vos créneaux et suivez la vie du CF2V41.",
     type: "website"
   }
 };

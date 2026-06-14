@@ -1,12 +1,12 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { CheckCircle2, ExternalLink, FileText, HeartPulse, UserPlus } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { getPublicClubSettings } from "@/services/club.service";
 
 export const metadata: Metadata = {
-  title: "Inscription au club - CFVV41",
-  description: "Étapes d'inscription, séance d'essai, tarifs et licence FFBaD du CFVV41."
+  title: "Inscription au club - CF2V41",
+  description: "Étapes d'inscription, séance d'essai, tarifs et licence FFBaD du CF2V41."
 };
 
 export default async function InscriptionPage() {

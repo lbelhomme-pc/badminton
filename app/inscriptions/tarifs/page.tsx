@@ -1,4 +1,4 @@
-import { InfoPage } from "@/components/public/info-page";
+﻿import { InfoPage } from "@/components/public/info-page";
 import { TarifsList } from "@/components/public/tarifs-list";
 
 export default function TarifsPage() {
@@ -6,7 +6,7 @@ export default function TarifsPage() {
     <InfoPage
       eyebrow="Inscriptions"
       title="Tarifs"
-      intro="Les tarifs de saison sont confirmés chaque année par le bureau du CFVV41. La page officielle d’inscription fait foi pour le montant final."
+      intro="Les tarifs de saison sont confirmés chaque année par le bureau du CF2V41. La page officielle d'inscription fait foi pour le montant final."
       cards={[]}
     >
       <TarifsList />

@@ -6,7 +6,17 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { createCreneau, fetchCreneaux, updateCreneau, type CreneauRow } from "@/services/supabase-data.service";
+import { dateForFrenchDay, getCurrentClubWeek } from "@/lib/club-week";
+import {
+  createCreneau,
+  createCreneauCancellation,
+  deleteCreneauCancellation,
+  fetchCreneauCancellations,
+  fetchCreneaux,
+  updateCreneau,
+  type CreneauCancellationRow,
+  type CreneauRow
+} from "@/services/supabase-data.service";
 
 const initialForm = {
   jour: "Mardi",
@@ -21,6 +31,39 @@ const initialForm = {
   responsable: "Didier Remule"
 };
 
+type CreneauForm = typeof initialForm;
+
+function toCreneauInput(form: CreneauForm) {
+  return {
+    jour: form.jour.trim(),
+    heure_debut: form.heure_debut,
+    heure_fin: form.heure_fin,
+    gymnase: form.gymnase.trim(),
+    adresse: form.adresse.trim() || null,
+    type: form.type,
+    public: form.public,
+    niveau: form.niveau.trim() || null,
+    places_max: form.places_max ? Number(form.places_max) : null,
+    responsable: form.responsable.trim() || null,
+    actif: true
+  };
+}
+
+function formFromCreneau(creneau: CreneauRow): CreneauForm {
+  return {
+    jour: creneau.jour,
+    heure_debut: creneau.heure_debut.slice(0, 5),
+    heure_fin: creneau.heure_fin.slice(0, 5),
+    gymnase: creneau.gymnase,
+    adresse: creneau.adresse ?? "",
+    type: creneau.type,
+    public: creneau.public,
+    niveau: creneau.niveau ?? "",
+    places_max: creneau.places_max == null ? "" : String(creneau.places_max),
+    responsable: creneau.responsable ?? ""
+  };
+}
+
 export function AdminCreneaux() {
   return (
     <AdminRoute requiredRole="manager">
@@ -31,14 +74,21 @@ export function AdminCreneaux() {
 
 function AdminCreneauxContent() {
   const [creneaux, setCreneaux] = useState<CreneauRow[]>([]);
+  const [cancellations, setCancellations] = useState<CreneauCancellationRow[]>([]);
   const [form, setForm] = useState(initialForm);
+  const [editing, setEditing] = useState<Record<number, CreneauForm>>({});
+  const [cancelForms, setCancelForms] = useState<Record<number, { date: string; reason: string }>>({});
   const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
 
   async function load() {
-    const result = await fetchCreneaux();
+    const [result, cancellationResult] = await Promise.all([fetchCreneaux(), fetchCreneauCancellations()]);
     setCreneaux(result.data);
+    setCancellations(cancellationResult.data);
     if (result.error) {
       setFeedback(errorFeedback(result.error));
+    }
+    if (cancellationResult.error && !cancellationResult.error.includes("nouvelles règles")) {
+      setFeedback(errorFeedback(cancellationResult.error));
     }
   }
 
@@ -50,21 +100,37 @@ function AdminCreneauxContent() {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  function updateEdit(id: number, field: keyof CreneauForm, value: string) {
+    const creneau = creneaux.find((item) => item.id === id);
+    if (!creneau) return;
+
+    setEditing((current) => ({
+      ...current,
+      [id]: {
+        ...(current[id] ?? formFromCreneau(creneau)),
+        [field]: value
+      }
+    }));
+  }
+
+  function updateCancelForm(id: number, field: "date" | "reason", value: string) {
+    const creneau = creneaux.find((item) => item.id === id);
+    const week = getCurrentClubWeek();
+    const fallbackDate = creneau ? dateForFrenchDay(creneau.jour, week.start) : week.start;
+
+    setCancelForms((current) => ({
+      ...current,
+      [id]: {
+        date: current[id]?.date ?? fallbackDate,
+        reason: current[id]?.reason ?? "",
+        [field]: value
+      }
+    }));
+  }
+
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = await createCreneau({
-      jour: form.jour.trim(),
-      heure_debut: form.heure_debut,
-      heure_fin: form.heure_fin,
-      gymnase: form.gymnase.trim(),
-      adresse: form.adresse.trim() || null,
-      type: form.type,
-      public: form.public,
-      niveau: form.niveau.trim() || null,
-      places_max: form.places_max ? Number(form.places_max) : null,
-      responsable: form.responsable.trim() || null,
-      actif: true
-    });
+    const result = await createCreneau(toCreneauInput(form));
     setFeedback(actionFeedback(result));
     if (result.ok) {
       setForm(initialForm);
@@ -74,6 +140,44 @@ function AdminCreneauxContent() {
 
   async function toggleActive(creneau: CreneauRow) {
     const result = await updateCreneau(creneau.id, { actif: !creneau.actif });
+    setFeedback(actionFeedback(result));
+    if (result.ok) await load();
+  }
+
+  async function saveCreneau(creneau: CreneauRow) {
+    const current = editing[creneau.id] ?? formFromCreneau(creneau);
+    const result = await updateCreneau(creneau.id, { ...toCreneauInput(current), actif: creneau.actif });
+    setFeedback(actionFeedback(result));
+
+    if (result.ok) {
+      setEditing((state) => {
+        const next = { ...state };
+        delete next[creneau.id];
+        return next;
+      });
+      await load();
+    }
+  }
+
+  async function cancelOccurrence(creneau: CreneauRow) {
+    const week = getCurrentClubWeek();
+    const fallbackDate = dateForFrenchDay(creneau.jour, week.start);
+    const current = cancelForms[creneau.id] ?? { date: fallbackDate, reason: "" };
+    const result = await createCreneauCancellation({
+      creneauId: creneau.id,
+      dateReservation: current.date,
+      reason: current.reason
+    });
+
+    setFeedback(actionFeedback(result));
+    if (result.ok) {
+      setCancelForms((state) => ({ ...state, [creneau.id]: { date: fallbackDate, reason: "" } }));
+      await load();
+    }
+  }
+
+  async function removeCancellation(id: number) {
+    const result = await deleteCreneauCancellation(id);
     setFeedback(actionFeedback(result));
     if (result.ok) await load();
   }
@@ -100,7 +204,15 @@ function AdminCreneauxContent() {
       </Card>
 
       <section className="mt-8 grid gap-4 md:grid-cols-2">
-        {creneaux.map((creneau) => (
+        {creneaux.map((creneau) => {
+          const current = editing[creneau.id] ?? formFromCreneau(creneau);
+          const week = getCurrentClubWeek();
+          const cancelForm = cancelForms[creneau.id] ?? {
+            date: dateForFrenchDay(creneau.jour, week.start),
+            reason: ""
+          };
+
+          return (
           <Card key={creneau.id} className="p-5">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -118,9 +230,64 @@ function AdminCreneauxContent() {
             <Button variant="outline" className="mt-5" onClick={() => toggleActive(creneau)}>
               {creneau.actif ? "Désactiver" : "Réactiver"}
             </Button>
+
+            <div className="mt-5 rounded-lg border border-court-100 bg-court-50 p-4">
+              <h3 className="font-black text-court-900">Modifier ce créneau</h3>
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                <AdminInput label="Jour" value={current.jour} onChange={(value) => updateEdit(creneau.id, "jour", value)} />
+                <AdminInput label="Début" type="time" value={current.heure_debut} onChange={(value) => updateEdit(creneau.id, "heure_debut", value)} />
+                <AdminInput label="Fin" type="time" value={current.heure_fin} onChange={(value) => updateEdit(creneau.id, "heure_fin", value)} />
+                <AdminInput label="Places max" type="number" value={current.places_max} onChange={(value) => updateEdit(creneau.id, "places_max", value)} />
+                <AdminInput label="Gymnase" value={current.gymnase} onChange={(value) => updateEdit(creneau.id, "gymnase", value)} />
+                <AdminInput label="Responsable" required={false} value={current.responsable} onChange={(value) => updateEdit(creneau.id, "responsable", value)} />
+                <AdminSelect label="Type" value={current.type} onChange={(value) => updateEdit(creneau.id, "type", value)} options={["jeu_libre", "entrainement", "competition", "jeunes", "adultes"]} />
+                <AdminSelect label="Public" value={current.public} onChange={(value) => updateEdit(creneau.id, "public", value)} options={["jeunes", "adultes", "loisirs", "competiteurs", "tous"]} />
+                <AdminInput label="Niveau" required={false} value={current.niveau} onChange={(value) => updateEdit(creneau.id, "niveau", value)} />
+                <AdminInput label="Adresse" required={false} value={current.adresse} onChange={(value) => updateEdit(creneau.id, "adresse", value)} />
+              </div>
+              <Button className="mt-4 w-full" type="button" onClick={() => saveCreneau(creneau)}>
+                Enregistrer les modifications
+              </Button>
+            </div>
+
+            <div className="mt-5 rounded-lg border border-red-100 bg-red-50 p-4">
+              <h3 className="font-black text-red-900">Annulation exceptionnelle</h3>
+              <p className="mt-2 text-sm text-red-800">Annule uniquement cette date, sans supprimer le créneau habituel.</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-[180px_1fr]">
+                <AdminInput label="Date" type="date" value={cancelForm.date} onChange={(value) => updateCancelForm(creneau.id, "date", value)} />
+                <AdminInput label="Motif" required={false} value={cancelForm.reason} onChange={(value) => updateCancelForm(creneau.id, "reason", value)} />
+              </div>
+              <Button className="mt-4 w-full" variant="danger" type="button" onClick={() => cancelOccurrence(creneau)}>
+                Annuler cette date
+              </Button>
+            </div>
           </Card>
-        ))}
+        );
+        })}
       </section>
+
+      <Card className="mt-8 p-5">
+        <h2 className="text-xl font-black text-court-900">Annulations exceptionnelles prévues</h2>
+        {cancellations.length === 0 ? (
+          <p className="mt-3 text-sm text-ink-500">Aucune annulation exceptionnelle enregistrée.</p>
+        ) : (
+          <div className="mt-4 grid gap-3">
+            {cancellations.map((cancellation) => (
+              <div key={cancellation.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-court-50 p-4">
+                <div>
+                  <p className="font-black text-court-900">
+                    {cancellation.creneaux?.jour || "Créneau"} · {cancellation.date_reservation}
+                  </p>
+                  <p className="text-sm text-ink-500">{cancellation.reason || "Motif non renseigné"}</p>
+                </div>
+                <Button variant="outline" type="button" onClick={() => removeCancellation(cancellation.id)}>
+                  Retirer
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </AdminShell>
   );
 }

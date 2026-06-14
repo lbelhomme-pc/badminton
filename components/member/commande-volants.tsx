@@ -6,7 +6,13 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { createCommandeVolants, fetchVolants, type VolantRow } from "@/services/supabase-data.service";
+import {
+  createCommandeVolants,
+  fetchMyShuttleOrders,
+  fetchVolants,
+  type ShuttleOrderMemberRow,
+  type VolantRow
+} from "@/services/supabase-data.service";
 
 export function CommandeVolants() {
   return (
@@ -19,14 +25,17 @@ export function CommandeVolants() {
 function CommandeVolantsContent() {
   const { user } = useAuth();
   const [volants, setVolants] = useState<VolantRow[]>([]);
+  const [orders, setOrders] = useState<ShuttleOrderMemberRow[]>([]);
   const [quantities, setQuantities] = useState<Record<number, number>>({});
   const [message, setMessage] = useState<string | null>(null);
   const [pendingId, setPendingId] = useState<number | null>(null);
 
   async function load() {
-    const result = await fetchVolants();
+    const [result, orderResult] = await Promise.all([fetchVolants(), fetchMyShuttleOrders()]);
     setVolants(result.data.filter((volant) => volant.actif));
+    setOrders(orderResult.data);
     if (result.error) setMessage(result.error);
+    if (orderResult.error) setMessage(orderResult.error);
   }
 
   useEffect(() => {
@@ -130,6 +139,34 @@ function CommandeVolantsContent() {
           );
         })}
       </div>
+
+      <Card className="mt-8 p-5">
+        <h2 className="text-2xl font-black text-court-900">Mon historique volants</h2>
+        {orders.length === 0 ? (
+          <p className="mt-3 text-sm text-ink-500">Aucun achat ou commande enregistré.</p>
+        ) : (
+          <div className="mt-4 grid gap-3">
+            {orders.map((order) => (
+              <div key={order.id} className="flex flex-wrap items-start justify-between gap-3 rounded-lg bg-court-50 p-4">
+                <div>
+                  <p className="font-black text-court-900">
+                    {order.volants?.marque} {order.volants?.modele ?? ""}
+                  </p>
+                  <p className="mt-1 text-sm text-ink-500">
+                    {order.quantite} tube{order.quantite > 1 ? "s" : ""} · {new Date(order.created_at).toLocaleDateString("fr-FR")}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase text-court-700">{order.statut}</span>
+                  <p className="mt-2 text-sm font-semibold text-court-900">
+                    {order.total != null ? `${Number(order.total).toFixed(2)} €` : "Total non renseigné"}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

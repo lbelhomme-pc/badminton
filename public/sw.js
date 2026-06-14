@@ -1,5 +1,5 @@
-const CACHE_NAME = "cfvv41-static-v2";
-const STATIC_ASSETS = ["/", "/creneaux", "/inscription", "/pwa-icon.svg", "/logo-cfvv41.svg"];
+const CACHE_NAME = "cf2v41-static-v3";
+const STATIC_ASSETS = ["/", "/creneaux", "/inscription", "/pwa-icon.svg", "/logo-cfvv41.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

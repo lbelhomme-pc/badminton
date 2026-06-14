@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { ExternalLink, MapPin, Navigation, ParkingCircle, ThermometerSun } from "lucide-react";
 import { InfoPage } from "@/components/public/info-page";
 import { Card } from "@/components/ui/card";
@@ -15,7 +15,7 @@ export default function GymnasesAccesPage() {
     <InfoPage
       eyebrow="Le club"
       title="Notre gymnase"
-      intro="Le CFVV41 joue au Gymnase des Aigremonts à Vendôme. Les créneaux indiquent toujours le lieu, l'horaire et le public concerné."
+      intro="Le CF2V41 joue au Gymnase des Aigremonts à Vendôme. Les créneaux indiquent toujours le lieu, l'horaire et le public concerné."
       cards={[]}
     >
       <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr]">

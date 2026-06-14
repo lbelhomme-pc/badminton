@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CalendarDays, Clock, MapPin, UserRound, UsersRound } from "lucide-react";
 import { SlotDetailActions } from "@/components/planning/slot-detail-actions";
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: SlotDetailPageProps): Promise
   const slot = getSlotById(occurrenceId);
 
   return {
-    title: slot ? `${slot.title} - CFVV41` : "Créneau introuvable",
+    title: slot ? `${slot.title} - CF2V41` : "Créneau introuvable",
     description: slot ? `Détail du créneau ${slot.title} au ${slot.venueName}.` : undefined
   };
 }
@@ -64,7 +64,7 @@ export default async function SlotDetailPage({ params }: SlotDetailPageProps) {
               Affichage limité : les noms complets sont visibles uniquement selon les droits et les consentements des adhérents.
             </p>
             <div className="mt-4 rounded-lg bg-court-50 p-4 text-sm font-semibold leading-6 text-ink-600">
-              Aucune liste nominative n’est affichée publiquement pour le moment. Les vraies réservations seront visibles
+              Aucune liste nominative n'est affichée publiquement pour le moment. Les vraies réservations seront visibles
               uniquement dans les espaces autorisés.
             </div>
           </section>

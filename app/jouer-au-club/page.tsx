@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { InfoPage } from "@/components/public/info-page";
 
 export const metadata: Metadata = {
-  title: "Jouer au club - CFVV41",
-  description: "Créneaux jeunes, adultes débutants, loisirs et compétition au CFVV41."
+  title: "Jouer au club - CF2V41",
+  description: "Créneaux jeunes, adultes débutants, loisirs et compétition au CF2V41."
 };
 
 export default function JouerAuClubPage() {
   return (
     <InfoPage
       eyebrow="Jouer au club"
-      title="Trouver le bon créneau pour jouer au CFVV41"
-      intro="La rubrique regroupe les créneaux et les parcours de jeu selon l’âge, le niveau et l’envie de compétition."
+      title="Trouver le bon créneau pour jouer au CF2V41"
+      intro="La rubrique regroupe les créneaux et les parcours de jeu selon l'âge, le niveau et l'envie de compétition."
       cards={[
         { title: "Créneaux", text: "Consulter le planning et réserver une place.", href: "/jouer-au-club/creneaux" },
         { title: "Jeunes", text: "École de badminton et séances adaptées.", href: "/jouer-au-club/jeunes" },

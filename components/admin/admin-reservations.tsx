@@ -102,7 +102,12 @@ function AdminReservationsContent() {
               <p className="mt-1 text-sm text-ink-500">
                 {reservation.creneaux?.gymnase || "Gymnase"} · {reservation.creneaux?.heure_debut?.slice(0, 5)} - {reservation.creneaux?.heure_fin?.slice(0, 5)}
               </p>
-              <p className="mt-1 text-xs font-semibold text-ink-500">Utilisateur : {reservation.user_id}</p>
+              <p className="mt-1 text-xs font-semibold text-ink-500">
+                Adhérent : {reservation.member_name || reservation.member_email || reservation.user_id}
+              </p>
+              {reservation.member_email && reservation.member_name ? (
+                <p className="mt-1 text-xs text-ink-500">{reservation.member_email}</p>
+              ) : null}
             </div>
             <select
               value={reservation.statut}

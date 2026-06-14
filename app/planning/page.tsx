@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { PlanningExperience } from "@/components/planning/planning-experience";
 import { getUpcomingSlots } from "@/services/club.service";
 
 export const metadata: Metadata = {
-  title: "Planning des créneaux - CFVV41",
+  title: "Planning des créneaux - CF2V41",
   description: "Consultez les créneaux du club et réservez votre place."
 };
 

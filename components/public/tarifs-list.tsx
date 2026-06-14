@@ -9,12 +9,21 @@ type PublicTarif = Omit<TarifRow, "id"> & { id: number | string };
 
 const fallbackTarifs: PublicTarif[] = [
   {
-    id: "jeunes",
-    titre: "Jeunes",
-    description: "École de badminton, créneaux encadrés et licence.",
-    montant: 0,
+    id: "enfants-loisirs",
+    titre: "Licence enfants loisirs",
+    description: "Licence jeune pour jouer en loisir sur les créneaux adaptés.",
+    montant: 50,
     public: "Jeunes",
     ordre: 1,
+    actif: true
+  },
+  {
+    id: "enfants-competiteurs",
+    titre: "Licence enfants compétiteurs",
+    description: "Licence jeune pour les enfants qui participent aux compétitions.",
+    montant: 85,
+    public: "Jeunes compétiteurs",
+    ordre: 2,
     actif: true
   },
   {
@@ -23,7 +32,7 @@ const fallbackTarifs: PublicTarif[] = [
     description: "Accès aux créneaux loisirs et jeu libre adultes.",
     montant: 60,
     public: "Loisirs",
-    ordre: 2,
+    ordre: 3,
     actif: true
   },
   {
@@ -32,7 +41,7 @@ const fallbackTarifs: PublicTarif[] = [
     description: "Licence adaptée aux tournois, interclubs et créneaux compétiteurs.",
     montant: 95,
     public: "Compétiteurs",
-    ordre: 3,
+    ordre: 4,
     actif: true
   },
   {
@@ -41,7 +50,7 @@ const fallbackTarifs: PublicTarif[] = [
     description: "Jusqu’à 3 séances gratuites pour découvrir.",
     montant: 0,
     public: "Découverte",
-    ordre: 4,
+    ordre: 5,
     actif: true
   }
 ];

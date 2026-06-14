@@ -1,9 +1,9 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { MyReservations } from "@/components/member/my-reservations";
 
 export const metadata: Metadata = {
-  title: "Mes réservations - CFVV41",
-  description: "Réservations de créneaux de l'adhérent CFVV41."
+  title: "Mes réservations - CF2V41",
+  description: "Réservations de créneaux de l'adhérent CF2V41."
 };
 
 export default function MesReservationsPage() {
