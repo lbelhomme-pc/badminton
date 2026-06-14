@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { reservationStatusLabel, waitingListStatusLabel } from "@/lib/status-labels";
 import {
   cancelReservation,
   fetchMyReservations,
@@ -56,7 +57,7 @@ function MyReservationsContent() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <p className="font-black text-court-900">{reservation.creneaux?.jour} · {reservation.creneaux?.gymnase}</p>
-                <p className="text-sm text-ink-500">{reservation.date_reservation} · {reservation.statut}</p>
+                <p className="text-sm text-ink-500">{reservation.date_reservation} · {reservationStatusLabel(reservation.statut)}</p>
               </div>
               {reservation.statut !== "annulee" ? (
                 <Button variant="outline" onClick={() => cancel(reservation.id)}>
@@ -78,7 +79,7 @@ function MyReservationsContent() {
                 <div>
                   <p className="font-black text-court-900">{waiting.creneaux?.jour} · {waiting.creneaux?.gymnase}</p>
                   <p className="text-sm text-ink-500">
-                    {waiting.date_reservation} · {waiting.statut === "notifiee" ? "place à confirmer avec le club" : waiting.statut}
+                    {waiting.date_reservation} · {waitingListStatusLabel(waiting.statut)}
                   </p>
                 </div>
                 <span className="rounded-full bg-yellow-100 px-3 py-1 text-xs font-black text-yellow-800">

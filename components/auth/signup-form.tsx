@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,7 @@ import { Card } from "@/components/ui/card";
 
 export function SignupForm() {
   const { signup, configured } = useAuth();
+  const router = useRouter();
   const [form, setForm] = useState({
     prenom: "",
     nom: "",
@@ -45,6 +47,13 @@ export function SignupForm() {
       telephone: form.telephone,
       password: form.password
     });
+
+    if (result.ok && result.signedIn) {
+      setMessage("Connexion en cours...");
+      router.replace("/espace-adherent");
+      return;
+    }
+
     setMessage(result.message);
     setPending(false);
   }

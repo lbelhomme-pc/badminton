@@ -6,6 +6,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
 import { appRoleLabels, normalizeAppRoles, type AppRole } from "@/lib/roles";
+import { clubRoleLabel } from "@/lib/status-labels";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { fetchProfiles, updateUserRoles, type ProfileRow } from "@/services/supabase-data.service";
@@ -190,7 +191,7 @@ function AdminAdherentsContent() {
             <div className="mt-4 flex flex-wrap gap-2">
               <RoleBadges roles={profile.roles} />
               <span className="rounded-full bg-court-50 px-3 py-1 text-xs font-black text-ink-600">
-                {legacyLabel} : {profile.role}
+                {legacyLabel} : {clubRoleLabel(profile.role)}
               </span>
               <span className="rounded-full bg-court-50 px-3 py-1 text-xs font-black text-ink-600">{profile.categorie || noCategoryLabel}</span>
               {roleChangeSummary(profile, rolesById) ? (

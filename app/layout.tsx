@@ -14,8 +14,11 @@ export const metadata: Metadata = {
     "Site moderne du Club des fous du Volant Vendômois (CF2V41) : créneaux, réservations, volants, inscriptions, classements et espace adhérent.",
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/pwa-icon.svg",
-    apple: "/pwa-icon.svg"
+    icon: [
+      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/pwa-icon-192.png", sizes: "192x192", type: "image/png" }
+    ],
+    apple: "/icons/apple-touch-icon.png"
   },
   appleWebApp: {
     capable: true,

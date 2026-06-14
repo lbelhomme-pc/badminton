@@ -6,6 +6,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { shuttleOrderStatusLabel } from "@/lib/status-labels";
 import {
   createCommandeVolants,
   fetchMyShuttleOrders,
@@ -157,7 +158,9 @@ function CommandeVolantsContent() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase text-court-700">{order.statut}</span>
+                  <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase text-court-700">
+                    {shuttleOrderStatusLabel(order.statut)}
+                  </span>
                   <p className="mt-2 text-sm font-semibold text-court-900">
                     {order.total != null ? `${Number(order.total).toFixed(2)} €` : "Total non renseigné"}
                   </p>

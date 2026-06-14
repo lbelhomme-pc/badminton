@@ -40,7 +40,7 @@ interface AuthContextValue {
   isCheckingPasswordRecovery: boolean;
   passwordRecoveryError: string | null;
   login: (email: string, password: string) => Promise<{ ok: boolean; message: string }>;
-  signup: (input: SignupInput) => Promise<{ ok: boolean; message: string }>;
+  signup: (input: SignupInput) => Promise<{ ok: boolean; message: string; signedIn?: boolean }>;
   resetPassword: (email: string) => Promise<{ ok: boolean; message: string }>;
   updatePassword: (password: string) => Promise<{ ok: boolean; message: string }>;
   clearPasswordRecovery: () => void;
@@ -586,7 +586,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       try {
-        const { error } = await withTimeout(
+        const { data, error } = await withTimeout(
           supabase.auth.signUp({
             email: input.email.trim().toLowerCase(),
             password: input.password,
@@ -605,16 +605,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           return { ok: false, message: friendlyAuthError(error.message) };
         }
 
+        if (data.session?.user) {
+          setUser(data.session.user);
+          await fetchProfile(data.session.user.id);
+          return { ok: true, signedIn: true, message: "Connexion en cours..." };
+        }
+
         return {
           ok: true,
-          message: "Ton compte a été créé. Vérifie ta boîte mail si une confirmation est nécessaire."
+          signedIn: false,
+          message: "Vérifie ta boîte mail pour finaliser l'inscription."
         };
       } catch (error) {
         const message = error instanceof Error ? error.message : "Une erreur est survenue.";
         return { ok: false, message: friendlyAuthError(message) };
       }
     },
-    [supabase]
+    [fetchProfile, supabase]
   );
 
   const resetPassword = useCallback(

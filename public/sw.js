@@ -1,5 +1,14 @@
 const CACHE_NAME = "cf2v41-static-v3";
-const STATIC_ASSETS = ["/", "/creneaux", "/inscription", "/pwa-icon.svg", "/logo-cfvv41.png"];
+const STATIC_ASSETS = [
+  "/",
+  "/creneaux",
+  "/inscription",
+  "/logo-cfvv41.png",
+  "/icons/favicon-32.png",
+  "/icons/apple-touch-icon.png",
+  "/icons/pwa-icon-192.png",
+  "/icons/pwa-icon-512.png"
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

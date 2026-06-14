@@ -6,6 +6,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { reservationStatusLabel } from "@/lib/status-labels";
 import {
   fetchAllReservations,
   updateReservationStatus,
@@ -78,7 +79,7 @@ function AdminReservationsContent() {
             <option value="">Tous</option>
             {statuses.map((status) => (
               <option key={status} value={status}>
-                {status}
+                {reservationStatusLabel(status)}
               </option>
             ))}
           </select>
@@ -116,7 +117,7 @@ function AdminReservationsContent() {
             >
               {statuses.map((status) => (
                 <option key={status} value={status}>
-                  {status}
+                  {reservationStatusLabel(status)}
                 </option>
               ))}
             </select>

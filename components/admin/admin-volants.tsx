@@ -6,6 +6,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { shuttleOrderStatusLabel } from "@/lib/status-labels";
 import {
   createDirectCommandeVolants,
   createVolant,
@@ -349,7 +350,9 @@ function AdminVolantsContent() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase text-court-700">{order.statut}</span>
+                    <span className="rounded-full bg-white px-3 py-1 text-xs font-black uppercase text-court-700">
+                      {shuttleOrderStatusLabel(order.statut)}
+                    </span>
                     <p className="mt-2 text-sm font-semibold text-court-900">
                       {order.total != null ? `${Number(order.total).toFixed(2)} €` : "Total non renseigné"}
                     </p>
