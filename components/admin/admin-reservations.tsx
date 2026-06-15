@@ -93,7 +93,7 @@ function AdminReservationsContent() {
           </select>
         </label>
         <div className="flex items-end">
-          <Button variant="outline" onClick={() => { setDateFilter(""); setStatusFilter(""); }}>
+          <Button className="w-full md:w-auto" variant="outline" onClick={() => { setDateFilter(""); setStatusFilter(""); }}>
             Réinitialiser
           </Button>
         </div>
@@ -121,7 +121,7 @@ function AdminReservationsContent() {
             <select
               value={reservation.statut}
               onChange={(event) => updateStatus(reservation.id, event.target.value)}
-              className="h-11 rounded-lg border border-court-200 bg-court-50 px-3 text-sm font-semibold text-court-900"
+              className="h-11 w-full rounded-lg border border-court-200 bg-court-50 px-3 text-sm font-semibold text-court-900 md:w-auto"
             >
               {statuses.map((status) => (
                 <option key={status} value={status}>

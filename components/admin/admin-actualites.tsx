@@ -274,7 +274,7 @@ function AdminActualitesContent() {
             />
             Visible publiquement
           </label>
-          <Button type="submit">Publier</Button>
+          <Button className="w-full sm:w-auto" type="submit">Publier</Button>
         </form>
         <ActualitePreview value={form} title="Aperçu avant publication" />
       </Card>
@@ -315,7 +315,7 @@ function ActualiteEditor({
 
   return (
     <Card className="p-5">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-black text-court-900">Modifier l’actualité</h2>
         <span className="rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-600">
           {value.visible_public ? "Public" : "Interne"}
@@ -383,8 +383,8 @@ function ActualiteEditor({
 
       <ActualitePreview value={value} title="Aperçu public" />
 
-      <div className="mt-5 flex flex-wrap gap-2">
-        <Button type="button" onClick={() => onSave(actualite)}>
+      <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap">
+        <Button className="w-full sm:w-auto" type="button" onClick={() => onSave(actualite)}>
           Enregistrer
         </Button>
         {safeEditorLink && canPreviewLink ? (
@@ -392,13 +392,13 @@ function ActualiteEditor({
             href={safeEditorLink}
             target={isExternalActualiteUrl(safeEditorLink) ? "_blank" : undefined}
             rel={isExternalActualiteUrl(safeEditorLink) ? "noopener noreferrer" : undefined}
-            className="inline-flex h-11 items-center gap-2 rounded-lg border border-court-200 bg-white px-4 text-sm font-semibold text-court-900 hover:bg-court-50"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-court-200 bg-white px-4 text-sm font-semibold text-court-900 hover:bg-court-50 sm:w-auto"
           >
             Tester le lien
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
         ) : null}
-        <Button variant="danger" type="button" onClick={() => onRemove(actualite)}>
+        <Button className="w-full sm:w-auto" variant="danger" type="button" onClick={() => onRemove(actualite)}>
           Supprimer
         </Button>
       </div>

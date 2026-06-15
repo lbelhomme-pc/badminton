@@ -230,7 +230,7 @@ function AdminCreneauxContent() {
 
           return (
           <Card key={creneau.id} className="p-5">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
                 <h2 className="text-xl font-black text-court-900">{creneau.jour} · {creneau.type}</h2>
                 <p className="mt-2 text-sm text-ink-500">
@@ -243,7 +243,7 @@ function AdminCreneauxContent() {
                 {creneau.actif ? "Actif" : "Inactif"}
               </span>
             </div>
-            <Button variant="outline" className="mt-5" onClick={() => toggleActive(creneau)}>
+            <Button variant="outline" className="mt-5 w-full sm:w-auto" onClick={() => toggleActive(creneau)}>
               {creneau.actif ? "Désactiver" : "Réactiver"}
             </Button>
 
@@ -289,14 +289,14 @@ function AdminCreneauxContent() {
         ) : (
           <div className="mt-4 grid gap-3">
             {cancellations.map((cancellation) => (
-              <div key={cancellation.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg bg-court-50 p-4">
+              <div key={cancellation.id} className="grid gap-3 rounded-lg bg-court-50 p-4 sm:grid-cols-[1fr_auto] sm:items-center">
                 <div>
                   <p className="font-black text-court-900">
                     {cancellation.creneaux?.jour || "Créneau"} · {cancellation.date_reservation}
                   </p>
                   <p className="text-sm text-ink-500">{cancellation.reason || "Motif non renseigné"}</p>
                 </div>
-                <Button variant="outline" type="button" onClick={() => removeCancellation(cancellation.id)}>
+                <Button className="w-full sm:w-auto" variant="outline" type="button" onClick={() => removeCancellation(cancellation.id)}>
                   Retirer
                 </Button>
               </div>

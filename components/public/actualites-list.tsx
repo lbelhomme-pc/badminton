@@ -65,7 +65,7 @@ export function ActualitesList({ limit }: ActualitesListProps) {
             {isSafeDisplayUrl(post.imageUrl) ? (
               <img
                 src={post.imageUrl ?? ""}
-                alt={`Illustration : ${post.title}`}
+                alt={`Photo ou illustration de l'actualité : ${post.title}`}
                 loading="lazy"
                 decoding="async"
                 sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"

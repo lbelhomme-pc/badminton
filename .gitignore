@@ -18,6 +18,7 @@ supabase/.temp/
 *.log
 dev-server.log
 dev-server.err.log
+reports/lighthouse/
 
 # OS / editor
 .DS_Store

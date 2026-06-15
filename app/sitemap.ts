@@ -7,6 +7,7 @@ const priorities: Record<(typeof publicSitemapPaths)[number], number> = {
   "/tarifs": 0.8,
   "/contact": 0.8,
   "/vie-du-club/actualites": 0.7,
+  "/vie-du-club/partenaires": 0.6,
   "/club/gymnases-acces": 0.8,
   "/inscriptions/seance-essai": 0.8,
   "/mentions-legales": 0.3,

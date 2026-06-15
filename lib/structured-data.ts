@@ -39,8 +39,8 @@ export function getLocalStructuredData() {
         name: club.shortName,
         alternateName: club.fullName,
         url: getSiteUrl(),
-        logo: absoluteUrl("/logo-cfvv41.png"),
-        image: absoluteUrl("/logo-cfvv41.png"),
+        logo: absoluteUrl("/icons/pwa-icon-192.png"),
+        image: absoluteUrl("/icons/pwa-icon-512.png"),
         email: club.email,
         sport: club.sport,
         areaServed: {

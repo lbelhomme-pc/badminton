@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ExternalLink, MapPin, Navigation, ParkingCircle, ThermometerSun } from "lucide-react";
+import { ClubPhoto } from "@/components/public/club-photo";
 import { InfoPage } from "@/components/public/info-page";
 import { Card } from "@/components/ui/card";
+import { clubPhotoSlots, hasClubPhoto } from "@/lib/club-photos";
 import { canonical } from "@/lib/seo";
 import { getVenues } from "@/services/club.service";
 
@@ -18,6 +20,7 @@ export const metadata: Metadata = {
 export default function GymnasesAccesPage() {
   const venues = getVenues();
   const mainVenue = venues[0];
+  const gymnasePhoto = clubPhotoSlots.gymnaseAigremonts;
 
   return (
     <InfoPage
@@ -39,6 +42,8 @@ export default function GymnasesAccesPage() {
             <p>554 Rue de la Chappe,</p>
             <p>41100 Vendôme</p>
           </div>
+
+          {hasClubPhoto(gymnasePhoto) ? <ClubPhoto slot={gymnasePhoto} className="mt-6 h-56 w-full sm:h-64" /> : null}
 
           <div className="mt-6 grid gap-3 text-sm font-semibold text-court-900">
             <span className="inline-flex items-center gap-2 rounded-lg bg-court-100 px-3 py-3">

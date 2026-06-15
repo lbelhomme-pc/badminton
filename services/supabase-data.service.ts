@@ -212,7 +212,7 @@ function friendlyDatabaseError(error: { message: string; code?: string } | null 
   return error.message;
 }
 
-export type SiteSettingKey = "club" | "contact" | "bureau";
+export type SiteSettingKey = "club" | "contact" | "bureau" | "venue";
 
 export interface SiteSettingRow {
   key: SiteSettingKey;
@@ -240,6 +240,14 @@ export async function fetchCreneaux() {
   if (!supabase) return { data: [] as CreneauRow[], error: "Configuration Supabase manquante." };
 
   const { data, error } = await supabase.from("creneaux").select("*").order("id", { ascending: true });
+  return { data: (data ?? []) as CreneauRow[], error: friendlyDatabaseError(error) };
+}
+
+export async function fetchPublicCreneaux() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as CreneauRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase.from("creneaux").select("*").eq("actif", true).order("id", { ascending: true });
   return { data: (data ?? []) as CreneauRow[], error: friendlyDatabaseError(error) };
 }
 
@@ -580,7 +588,7 @@ export async function fetchSiteSettings() {
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { data: [] as SiteSettingRow[], error: "Configuration Supabase manquante." };
 
-  const { data, error } = await supabase.from("settings_site").select("key, value, visibility").in("key", ["club", "contact", "bureau"]);
+  const { data, error } = await supabase.from("settings_site").select("key, value, visibility").in("key", ["club", "contact", "bureau", "venue"]);
 
   return { data: (data ?? []) as SiteSettingRow[], error: friendlyDatabaseError(error) };
 }

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { ClubPhoto } from "@/components/public/club-photo";
 import { InfoPage } from "@/components/public/info-page";
 import { RequestForm } from "@/components/public/request-form";
+import { clubPhotoSlots, hasClubPhoto } from "@/lib/club-photos";
 import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -10,6 +12,8 @@ export const metadata: Metadata = {
 };
 
 export default function SeanceEssaiPage() {
+  const trialPhoto = clubPhotoSlots.trialSession;
+
   return (
     <InfoPage
       eyebrow="Inscriptions"
@@ -21,11 +25,14 @@ export default function SeanceEssaiPage() {
         { title: "Où ?", text: "Gymnase des Aigremonts, 554 Rue de la Chappe, 41100 Vendôme.", href: "/club/gymnases-acces" }
       ]}
     >
-      <RequestForm
-        title="Demander un essai"
-        defaultType="Séance d'essai"
-        messagePlaceholder="Indiquez l'âge du joueur, son niveau approximatif et les créneaux qui vous arrangent."
-      />
+      <div className="space-y-6">
+        {hasClubPhoto(trialPhoto) ? <ClubPhoto slot={trialPhoto} className="h-64 w-full md:h-96" /> : null}
+        <RequestForm
+          title="Demander un essai"
+          defaultType="Séance d'essai"
+          messagePlaceholder="Indiquez l'âge du joueur, son niveau approximatif et les créneaux qui vous arrangent."
+        />
+      </div>
     </InfoPage>
   );
 }

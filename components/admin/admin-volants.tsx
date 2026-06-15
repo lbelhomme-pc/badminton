@@ -377,7 +377,7 @@ function AdminVolantsContent() {
               </Button>
             ))}
           </div>
-          <Button type="submit" className="self-end" disabled={quickBlocked}>
+          <Button type="submit" className="w-full self-end lg:w-auto" disabled={quickBlocked}>
             Enregistrer la vente
           </Button>
         </form>
@@ -396,7 +396,7 @@ function AdminVolantsContent() {
 
           return (
             <Card key={volant.id} className="p-5">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h2 className="text-xl font-black text-court-900">{volant.marque}</h2>
                   <p className="mt-1 text-sm text-ink-500">{volant.modele || "Modèle non précisé"} · {volant.type}</p>
@@ -451,7 +451,7 @@ function AdminVolantsContent() {
                 <label className="text-sm font-bold text-court-900" htmlFor={`restock-${volant.id}`}>
                   Réassort club
                 </label>
-                <div className="mt-2 flex gap-2">
+                <div className="mt-2 grid gap-2 sm:flex">
                   <input
                     id={`restock-${volant.id}`}
                     min="1"
@@ -462,13 +462,14 @@ function AdminVolantsContent() {
                     placeholder="Nombre de tubes"
                     className="h-11 min-w-0 flex-1 rounded-lg border border-court-200 bg-white px-3 text-sm"
                   />
-                  <Button type="button" onClick={() => restockVolant(volant)}>
+                  <Button className="w-full sm:w-auto" type="button" onClick={() => restockVolant(volant)}>
                     Ajouter
                   </Button>
                 </div>
               </div>
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap">
                 <Button
+                  className="w-full sm:w-auto"
                   variant="outline"
                   onClick={() => {
                     const confirmed = window.confirm(`Retirer 1 tube du stock ${volant.marque} sans lier d'acheteur ?`);
@@ -480,12 +481,14 @@ function AdminVolantsContent() {
                   Correction -1 sans acheteur
                 </Button>
                 <Button
+                  className="w-full sm:w-auto"
                   variant="outline"
                   onClick={() => patchVolant(volant.id, { stock: volant.stock + 1 }, "Stock corrigé : 1 tube ajouté.")}
                 >
                   Correction +1
                 </Button>
                 <Button
+                  className="w-full sm:w-auto"
                   variant="outline"
                   onClick={() => {
                     if (volant.actif) {

@@ -1,9 +1,8 @@
-const CACHE_NAME = "cf2v41-static-v3";
+const CACHE_NAME = "cf2v41-static-v4";
 const STATIC_ASSETS = [
   "/",
   "/creneaux",
   "/inscription",
-  "/logo-cfvv41.png",
   "/icons/favicon-32.png",
   "/icons/apple-touch-icon.png",
   "/icons/pwa-icon-192.png",

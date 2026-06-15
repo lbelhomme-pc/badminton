@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Medal, Sparkles, Trophy, UsersRound } from "lucide-react";
 import { ActualitesList } from "@/components/public/actualites-list";
+import { ClubPhoto } from "@/components/public/club-photo";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { clubPhotoSlots, hasClubPhoto } from "@/lib/club-photos";
 import { clubStats } from "@/lib/mock-data";
 import { canonical } from "@/lib/seo";
 import { getLocalStructuredData, serializeStructuredData } from "@/lib/structured-data";
@@ -21,6 +23,7 @@ export default function HomePage() {
   const nextSlot = getOpenSlots()[0];
   const events = getEvents();
   const structuredData = getLocalStructuredData();
+  const homeHeroPhoto = clubPhotoSlots.homeHero;
 
   return (
     <div>
@@ -60,6 +63,9 @@ export default function HomePage() {
             </div>
           </div>
           <div className="grid gap-4">
+            {hasClubPhoto(homeHeroPhoto) ? (
+              <ClubPhoto slot={homeHeroPhoto} priority className="h-64 w-full sm:h-80 lg:h-96" />
+            ) : null}
             {nextSlot ? (
               <Link
                 href={`/planning/${nextSlot.id}`}
@@ -144,16 +150,18 @@ export default function HomePage() {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             {[
-              ["Débutants", "Un cadre simple pour apprendre les bases sans pression."],
-              ["Jeunes", "École de badminton, motricité, technique et matchs."],
-              ["Adultes", "Entraînements structurés et jeu libre convivial."],
-              ["Compétiteurs", "Préparation interclubs, doubles et intensité maîtrisée."]
-            ].map(([title, text]) => (
-              <Card key={title} className="p-5">
-                <Medal className="h-6 w-6 text-court-500" aria-hidden="true" />
-                <h3 className="mt-4 text-xl font-black text-court-900">{title}</h3>
-                <p className="mt-2 text-sm leading-6 text-ink-500">{text}</p>
-              </Card>
+              { title: "Débutants", text: "Un cadre simple pour apprendre les bases sans pression.", href: "/jouer-au-club/adultes-debutants" },
+              { title: "Jeunes et parents", text: "Groupes jeunes, encadrement, documents et âge d'accueil à confirmer.", href: "/jouer-au-club/jeunes" },
+              { title: "Loisirs", text: "Jeu libre convivial sans obligation de compétition.", href: "/jouer-au-club/loisirs" },
+              { title: "Compétiteurs", text: "Interclubs, tournois, classements et créneaux adaptés.", href: "/jouer-au-club/competition" }
+            ].map((item) => (
+              <Link key={item.title} href={item.href} className="block">
+                <Card className="h-full p-5 transition hover:-translate-y-0.5 hover:shadow-lift">
+                  <Medal className="h-6 w-6 text-court-500" aria-hidden="true" />
+                  <h3 className="mt-4 text-xl font-black text-court-900">{item.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink-500">{item.text}</p>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>

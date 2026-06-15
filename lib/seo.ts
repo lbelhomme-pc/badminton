@@ -6,6 +6,7 @@ export const publicSitemapPaths = [
   "/tarifs",
   "/contact",
   "/vie-du-club/actualites",
+  "/vie-du-club/partenaires",
   "/club/gymnases-acces",
   "/inscriptions/seance-essai",
   "/mentions-legales",

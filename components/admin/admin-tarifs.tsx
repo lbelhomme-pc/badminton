@@ -152,7 +152,7 @@ function AdminTarifsContent() {
 
           return (
             <Card key={tarif.id} className="p-5">
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <h2 className="text-xl font-black text-court-900">{tarif.titre}</h2>
                   <p className="mt-1 text-sm text-ink-500">{Number(tarif.montant).toFixed(2)} € · ordre {tarif.ordre}</p>
@@ -181,11 +181,11 @@ function AdminTarifsContent() {
                 </label>
               </div>
 
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Button type="button" onClick={() => save(tarif)}>
+              <div className="mt-5 grid gap-2 sm:flex sm:flex-wrap">
+                <Button className="w-full sm:w-auto" type="button" onClick={() => save(tarif)}>
                   Enregistrer
                 </Button>
-                <Button type="button" variant="danger" onClick={() => remove(tarif.id)}>
+                <Button className="w-full sm:w-auto" type="button" variant="danger" onClick={() => remove(tarif.id)}>
                   Supprimer
                 </Button>
               </div>

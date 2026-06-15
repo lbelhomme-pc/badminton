@@ -16,7 +16,8 @@ export default function VieDuClubPage() {
         { title: "Actualités", text: "Fermetures, annonces, résultats et informations importantes.", href: "/vie-du-club/actualites" },
         { title: "Événements", text: "Stages, rencontres internes, moments conviviaux et actions club.", href: "/vie-du-club/evenements" },
         { title: "Interclubs", text: "Équipes, prochaines rencontres, capitaines et résultats.", href: "/vie-du-club/interclubs" },
-        { title: "Tournois", text: "Tournois internes, sorties compétition et inscriptions.", href: "/vie-du-club/tournois" }
+        { title: "Tournois", text: "Tournois internes, sorties compétition et inscriptions.", href: "/vie-du-club/tournois" },
+        { title: "Partenaires", text: "Entreprises, collectivités et structures locales qui souhaitent échanger avec le club.", href: "/vie-du-club/partenaires" }
       ]}
     />
   );

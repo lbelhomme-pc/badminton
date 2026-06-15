@@ -37,7 +37,8 @@ export const siteNavigation = [
       { label: "Actualités", href: "/vie-du-club/actualites" },
       { label: "Événements", href: "/vie-du-club/evenements" },
       { label: "Interclubs", href: "/vie-du-club/interclubs" },
-      { label: "Tournois", href: "/vie-du-club/tournois" }
+      { label: "Tournois", href: "/vie-du-club/tournois" },
+      { label: "Partenaires", href: "/vie-du-club/partenaires" }
     ]
   },
   {

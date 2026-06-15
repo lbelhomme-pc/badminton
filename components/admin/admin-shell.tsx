@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Settings, UsersRound, CalendarDays, Newspaper, Package, ClipboardList, Euro, Home } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { cn } from "@/lib/utils";
@@ -26,18 +26,35 @@ interface AdminShellProps {
 
 export function AdminShell({ title, intro, eyebrow = "Administration", children }: AdminShellProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { isAdmin } = useAuth();
   const visibleItems = adminNavItems.filter((item) => item.minRole === "manager" || isAdmin);
+  const activeItem = visibleItems.find((item) => pathname === item.href) ?? visibleItems[0];
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6">
         <p className="text-sm font-semibold uppercase tracking-wide text-court-600">{eyebrow}</p>
-        <h1 className="mt-2 text-4xl font-black text-court-900">{title}</h1>
+        <h1 className="mt-2 text-3xl font-black text-court-900 sm:text-4xl">{title}</h1>
         <p className="mt-3 max-w-3xl text-ink-500">{intro}</p>
       </div>
 
-      <nav className="mb-8 flex gap-2 overflow-x-auto rounded-lg border border-court-200 bg-white p-2" aria-label="Navigation administration">
+      <label className="mb-4 grid gap-2 text-sm font-semibold text-court-900 md:hidden">
+        Aller à
+        <select
+          value={activeItem?.href ?? "/admin"}
+          onChange={(event) => router.push(event.target.value)}
+          className="h-12 rounded-lg border border-court-200 bg-white px-3 text-base font-semibold"
+        >
+          {visibleItems.map((item) => (
+            <option key={item.href} value={item.href}>
+              {item.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <nav className="mb-8 hidden gap-2 overflow-x-auto rounded-lg border border-court-200 bg-white p-2 md:flex" aria-label="Navigation administration">
         {visibleItems.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href;
