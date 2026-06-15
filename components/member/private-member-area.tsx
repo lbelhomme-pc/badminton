@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { clubRoleLabel, reservationStatusLabel, shuttleOrderStatusLabel, waitingListStatusLabel } from "@/lib/status-labels";
 import {
+  cancelReservation,
   fetchActualites,
   fetchMyReservations,
   fetchMyShuttleOrders,
@@ -33,13 +34,60 @@ function MemberContent() {
   const [waitingList, setWaitingList] = useState<WaitingListRow[]>([]);
   const [orders, setOrders] = useState<ShuttleOrderMemberRow[]>([]);
   const [actualites, setActualites] = useState<ActualiteRow[]>([]);
+  const [message, setMessage] = useState<{ tone: "success" | "error" | "info"; text: string } | null>(null);
+  const [pendingCancelId, setPendingCancelId] = useState<number | null>(null);
+
+  async function loadMemberData() {
+    const [reservationResult, waitingResult, orderResult, actualiteResult] = await Promise.all([
+      fetchMyReservations(),
+      fetchMyWaitingList(),
+      fetchMyShuttleOrders(),
+      fetchActualites(true)
+    ]);
+
+    setReservations(reservationResult.data);
+    setWaitingList(waitingResult.data);
+    setOrders(orderResult.data);
+    setActualites(actualiteResult.data);
+  }
 
   useEffect(() => {
-    fetchMyReservations().then((result) => setReservations(result.data));
-    fetchMyWaitingList().then((result) => setWaitingList(result.data));
-    fetchMyShuttleOrders().then((result) => setOrders(result.data));
-    fetchActualites(true).then((result) => setActualites(result.data));
+    loadMemberData();
   }, []);
+
+  function canCancel(reservation: ReservationRow) {
+    if (reservation.statut === "annulee" || reservation.statut === "refusee") return false;
+    if (!reservation.creneaux?.heure_debut) return true;
+
+    const start = new Date(`${reservation.date_reservation}T${reservation.creneaux.heure_debut.slice(0, 8)}`);
+    return start.getTime() > Date.now() + 2 * 60 * 60 * 1000;
+  }
+
+  async function cancelFromDashboard(reservation: ReservationRow) {
+    const label = reservation.creneaux
+      ? `${reservation.creneaux.jour} ${reservation.creneaux.heure_debut.slice(0, 5)} - ${reservation.creneaux.heure_fin.slice(0, 5)}`
+      : "ce créneau";
+    const confirmed = window.confirm(`Annuler ta réservation pour ${label} ?`);
+    if (!confirmed) return;
+
+    setPendingCancelId(reservation.id);
+    setMessage({ tone: "info", text: "Annulation de la réservation en cours..." });
+
+    try {
+      const result = await cancelReservation(reservation.id);
+      setMessage({ tone: result.ok ? "success" : "error", text: result.message });
+      await loadMemberData();
+    } finally {
+      setPendingCancelId(null);
+    }
+  }
+
+  const messageClassName =
+    message?.tone === "success"
+      ? "bg-emerald-50 text-emerald-700"
+      : message?.tone === "error"
+        ? "bg-red-50 text-red-700"
+        : "bg-court-100 text-court-900";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -50,6 +98,12 @@ function MemberContent() {
             <h1 className="mt-2 text-4xl font-black text-court-900">Bonjour {profile?.prenom || user?.email}</h1>
             <p className="mt-2 text-ink-500">Retrouve tes informations, tes réservations et les actualités internes du club.</p>
           </div>
+
+          {message ? (
+            <p className={`rounded-lg px-4 py-3 text-sm font-semibold ${messageClassName}`} aria-live="polite">
+              {message.text}
+            </p>
+          ) : null}
 
           <Card className="p-5">
             <h2 className="text-2xl font-black text-court-900">Ce que permet ton compte</h2>
@@ -82,8 +136,22 @@ function MemberContent() {
               <div className="mt-4 grid gap-3">
                 {reservations.slice(0, 4).map((reservation) => (
                   <div key={reservation.id} className="rounded-lg bg-court-50 p-4">
-                    <p className="font-semibold text-court-900">{reservation.creneaux?.jour} · {reservation.creneaux?.gymnase}</p>
-                    <p className="text-sm text-ink-500">{reservation.date_reservation} · {reservationStatusLabel(reservation.statut)}</p>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-court-900">{reservation.creneaux?.jour} · {reservation.creneaux?.gymnase}</p>
+                        <p className="text-sm text-ink-500">{reservation.date_reservation} · {reservationStatusLabel(reservation.statut)}</p>
+                      </div>
+                      {canCancel(reservation) ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => cancelFromDashboard(reservation)}
+                          disabled={pendingCancelId === reservation.id}
+                        >
+                          {pendingCancelId === reservation.id ? "Annulation..." : "Annuler"}
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 ))}
               </div>
