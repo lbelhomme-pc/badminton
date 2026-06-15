@@ -1,5 +1,6 @@
 ﻿import { PlanningExperience } from "@/components/planning/planning-experience";
 import { WeeklyAvailability } from "@/components/planning/weekly-availability";
+import { RegistrationCta } from "@/components/public/registration-cta";
 import { Card } from "@/components/ui/card";
 import { formatTime, slotTypeLabel } from "@/lib/utils";
 import { getUpcomingSlots } from "@/services/club.service";
@@ -16,6 +17,14 @@ export default function CreneauxPage() {
           Les habitudes de la semaine et les disponibilités réelles pour réserver sans deviner.
         </p>
       </div>
+
+      <RegistrationCta
+        className="mb-8"
+        compact
+        showOfficialLink={false}
+        title="Tu as trouvé un créneau qui te convient ?"
+        intro="Demande une séance d'essai ou ouvre le parcours d'inscription avant de venir pour la première fois."
+      />
 
       <Card className="mb-8 p-6">
         <div className="grid gap-6 lg:grid-cols-[260px_1fr]">

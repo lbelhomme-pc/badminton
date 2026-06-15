@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
+import { AdminFeedback, actionFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -80,8 +80,9 @@ function AdminTarifsContent() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setFeedback(loadingFeedback("Ajout du tarif en cours..."));
     const result = await createTarif(toInput(form));
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback("Tarif ajouté.") : actionFeedback(result));
 
     if (result.ok) {
       setForm(emptyForm);
@@ -91,8 +92,9 @@ function AdminTarifsContent() {
 
   async function save(tarif: TarifRow) {
     const current = editing[tarif.id] ?? toForm(tarif);
+    setFeedback(loadingFeedback("Mise à jour du tarif en cours..."));
     const result = await updateTarif(tarif.id, toInput(current));
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback("Tarif mis à jour.") : actionFeedback(result));
 
     if (result.ok) {
       setEditing((state) => {
@@ -105,8 +107,13 @@ function AdminTarifsContent() {
   }
 
   async function remove(id: number) {
+    const tarif = tarifs.find((item) => item.id === id);
+    const confirmed = window.confirm(`Supprimer le tarif "${tarif?.titre ?? "sélectionné"}" ? Cette action est définitive.`);
+    if (!confirmed) return;
+
+    setFeedback(loadingFeedback("Suppression du tarif en cours..."));
     const result = await deleteTarif(id);
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback("Tarif supprimé.") : actionFeedback(result));
     if (result.ok) await load();
   }
 

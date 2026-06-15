@@ -1,11 +1,19 @@
-﻿import Link from "next/link";
+import type { Metadata } from "next";
+import Link from "next/link";
 import { ExternalLink, MapPin, Navigation, ParkingCircle, ThermometerSun } from "lucide-react";
 import { InfoPage } from "@/components/public/info-page";
 import { Card } from "@/components/ui/card";
+import { canonical } from "@/lib/seo";
 import { getVenues } from "@/services/club.service";
 
 const mapSrc =
   "https://www.google.com/maps?q=Gymnase%20des%20Aigremonts%20554%20Rue%20de%20la%20Chappe%2041100%20Vend%C3%B4me&output=embed";
+
+export const metadata: Metadata = {
+  title: "Gymnase et accès - CF2V41",
+  description: "Adresse, accès et informations pratiques du Gymnase des Aigremonts à Vendôme.",
+  alternates: canonical("/club/gymnases-acces")
+};
 
 export default function GymnasesAccesPage() {
   const venues = getVenues();

@@ -1,18 +1,33 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Medal, Sparkles, Trophy, UsersRound } from "lucide-react";
 import { ActualitesList } from "@/components/public/actualites-list";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { clubStats } from "@/lib/mock-data";
+import { canonical } from "@/lib/seo";
+import { getLocalStructuredData, serializeStructuredData } from "@/lib/structured-data";
 import { formatDate, formatTime, slotTypeLabel } from "@/lib/utils";
 import { getEvents, getOpenSlots } from "@/services/club.service";
+
+export const metadata: Metadata = {
+  title: "CF2V41 - Club de badminton à Vendôme",
+  description:
+    "Accueil du Club des fous du Volant Vendômois : créneaux, inscriptions, séance d'essai, actualités et informations pratiques.",
+  alternates: canonical("/")
+};
 
 export default function HomePage() {
   const nextSlot = getOpenSlots()[0];
   const events = getEvents();
+  const structuredData = getLocalStructuredData();
 
   return (
     <div>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }}
+      />
       <section className="border-b border-court-200 bg-white">
         <div className="mx-auto grid min-h-[460px] max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
           <div>
@@ -35,6 +50,12 @@ export default function HomePage() {
                 className="inline-flex h-12 items-center justify-center rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-100"
               >
                 Voir les créneaux
+              </Link>
+              <Link
+                href="/inscriptions/seance-essai"
+                className="inline-flex h-12 items-center justify-center rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-100"
+              >
+                Demander un essai
               </Link>
             </div>
           </div>

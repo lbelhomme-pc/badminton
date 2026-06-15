@@ -60,7 +60,7 @@ export function SignupForm() {
 
   return (
     <Card className="mx-auto max-w-2xl p-6">
-      <h1 className="text-3xl font-black text-court-900">Créer un compte</h1>
+      <h2 className="text-3xl font-black text-court-900">Créer un compte</h2>
       <p className="mt-2 text-sm leading-6 text-ink-500">
         Le compte sert à gérer tes réservations et tes informations club. Le club collecte uniquement les données utiles à cette gestion.
       </p>
@@ -93,7 +93,11 @@ export function SignupForm() {
             J’ai compris que mes données servent à gérer mon compte, mes réservations et les échanges avec le club. Je peux demander leur suppression via la page contact.
           </span>
         </label>
-        {message ? <p className="rounded-lg bg-court-100 px-3 py-2 text-sm font-semibold text-court-900">{message}</p> : null}
+        {message ? (
+          <p role="status" aria-live="polite" className="rounded-lg bg-court-100 px-3 py-2 text-sm font-semibold text-court-900">
+            {message}
+          </p>
+        ) : null}
         <Button type="submit" disabled={pending || !configured}>
           {pending ? "Création..." : "Créer mon compte"}
         </Button>

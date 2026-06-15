@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
+import { AdminFeedback, actionFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -130,8 +130,9 @@ function AdminCreneauxContent() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setFeedback(loadingFeedback("Création du créneau en cours..."));
     const result = await createCreneau(toCreneauInput(form));
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback("Créneau créé.") : actionFeedback(result));
     if (result.ok) {
       setForm(initialForm);
       await load();
@@ -139,15 +140,22 @@ function AdminCreneauxContent() {
   }
 
   async function toggleActive(creneau: CreneauRow) {
+    if (creneau.actif) {
+      const confirmed = window.confirm(`Désactiver le créneau du ${creneau.jour} ? Il ne sera plus proposé tant qu'il reste inactif.`);
+      if (!confirmed) return;
+    }
+
+    setFeedback(loadingFeedback(creneau.actif ? "Désactivation du créneau en cours..." : "Réactivation du créneau en cours..."));
     const result = await updateCreneau(creneau.id, { actif: !creneau.actif });
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback(creneau.actif ? "Créneau désactivé." : "Créneau réactivé.") : actionFeedback(result));
     if (result.ok) await load();
   }
 
   async function saveCreneau(creneau: CreneauRow) {
     const current = editing[creneau.id] ?? formFromCreneau(creneau);
+    setFeedback(loadingFeedback("Mise à jour du créneau en cours..."));
     const result = await updateCreneau(creneau.id, { ...toCreneauInput(current), actif: creneau.actif });
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback("Créneau mis à jour.") : actionFeedback(result));
 
     if (result.ok) {
       setEditing((state) => {
@@ -163,13 +171,17 @@ function AdminCreneauxContent() {
     const week = getCurrentClubWeek();
     const fallbackDate = dateForFrenchDay(creneau.jour, week.start);
     const current = cancelForms[creneau.id] ?? { date: fallbackDate, reason: "" };
+    const confirmed = window.confirm(`Annuler le créneau du ${current.date} ? Cela ne supprimera pas le créneau habituel.`);
+    if (!confirmed) return;
+
+    setFeedback(loadingFeedback("Annulation exceptionnelle en cours..."));
     const result = await createCreneauCancellation({
       creneauId: creneau.id,
       dateReservation: current.date,
       reason: current.reason
     });
 
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback(`Créneau annulé pour le ${current.date}.`) : actionFeedback(result));
     if (result.ok) {
       setCancelForms((state) => ({ ...state, [creneau.id]: { date: fallbackDate, reason: "" } }));
       await load();
@@ -177,8 +189,12 @@ function AdminCreneauxContent() {
   }
 
   async function removeCancellation(id: number) {
+    const confirmed = window.confirm("Retirer cette annulation exceptionnelle ?");
+    if (!confirmed) return;
+
+    setFeedback(loadingFeedback("Retrait de l'annulation en cours..."));
     const result = await deleteCreneauCancellation(id);
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback("Annulation exceptionnelle retirée.") : actionFeedback(result));
     if (result.ok) await load();
   }
 

@@ -1,5 +1,13 @@
-﻿import { InfoPage } from "@/components/public/info-page";
+import type { Metadata } from "next";
+import { InfoPage } from "@/components/public/info-page";
 import { RequestForm } from "@/components/public/request-form";
+import { canonical } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  title: "Séance d'essai - CF2V41",
+  description: "Demander une séance d'essai gratuite au Club des fous du Volant Vendômois.",
+  alternates: canonical("/inscriptions/seance-essai")
+};
 
 export default function SeanceEssaiPage() {
   return (

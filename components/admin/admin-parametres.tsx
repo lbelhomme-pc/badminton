@@ -1,7 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
-import { AdminFeedback, errorFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
+import { AdminFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ const defaultClub = {
   full_name: "Club des fous du Volant Vendômois",
   city: "Vendôme",
   registered_office: "Naveil",
-  ffbad_url: ""
+  ffbad_url: defaultPublicClubSettings.club.ffbadUrl
 };
 
 const defaultContact = {
@@ -111,6 +111,7 @@ function AdminParametresContent() {
   async function save(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
+    setFeedback(loadingFeedback("Enregistrement des paramètres du site en cours..."));
 
     const [clubResult, contactResult, bureauResult] = await Promise.all([
       upsertSiteSetting({ key: "club", value: club, visibility: "public" }),
@@ -145,7 +146,17 @@ function AdminParametresContent() {
             <SettingsInput label="Nom complet" value={club.full_name} onChange={(value) => updateClub("full_name", value)} />
             <SettingsInput label="Ville" value={club.city} onChange={(value) => updateClub("city", value)} />
             <SettingsInput label="Siège social" value={club.registered_office} onChange={(value) => updateClub("registered_office", value)} />
-            <SettingsInput label="Lien inscription FFBaD" required={false} value={club.ffbad_url} onChange={(value) => updateClub("ffbad_url", value)} />
+            <div>
+              <SettingsInput
+                label="Lien officiel inscription"
+                required={false}
+                value={club.ffbad_url}
+                onChange={(value) => updateClub("ffbad_url", value)}
+              />
+              <p className="mt-2 text-xs leading-5 text-ink-500">
+                À vérifier chaque saison : lien FFBaD, HelloAsso ou page club utilisée pour finaliser l'inscription.
+              </p>
+            </div>
           </div>
         </Card>
 

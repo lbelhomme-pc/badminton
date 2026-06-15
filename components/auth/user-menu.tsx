@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { LogOut, Shield, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -27,16 +28,18 @@ function GuestMenu() {
 
 export function UserMenu() {
   const { isAuthenticated, profile, user, isAdmin, logout } = useAuth();
+  const router = useRouter();
   const [pendingLogout, setPendingLogout] = useState(false);
 
   async function onLogout() {
     setPendingLogout(true);
-    await logout();
-    if (typeof window !== "undefined") {
-      window.location.replace("/connexion?logged_out=1");
-      return;
+    try {
+      await logout();
+      router.replace("/connexion?logged_out=1");
+      router.refresh();
+    } finally {
+      setPendingLogout(false);
     }
-    setPendingLogout(false);
   }
 
   if (!isAuthenticated) {

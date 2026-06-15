@@ -146,7 +146,7 @@ export function LoginForm() {
 
   return (
     <Card className="mx-auto max-w-xl p-6">
-      <h1 className="text-3xl font-black text-court-900">Connexion</h1>
+      <h2 className="text-3xl font-black text-court-900">Connexion</h2>
       <p className="mt-2 text-sm leading-6 text-ink-500">
         Connecte-toi pour accéder à ton espace adhérent, tes réservations et les services du club.
       </p>
@@ -176,7 +176,11 @@ export function LoginForm() {
             className="h-11 rounded-lg border border-court-200 bg-court-50 px-3 outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20"
           />
         </label>
-        {message ? <p className="rounded-lg bg-court-100 px-3 py-2 text-sm font-semibold text-court-900">{message}</p> : null}
+        {message ? (
+          <p role="status" aria-live="polite" className="rounded-lg bg-court-100 px-3 py-2 text-sm font-semibold text-court-900">
+            {message}
+          </p>
+        ) : null}
         <Button type="submit" disabled={pending || !configured}>
           {pending ? "Connexion..." : "Se connecter"}
         </Button>

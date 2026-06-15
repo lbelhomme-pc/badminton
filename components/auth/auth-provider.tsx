@@ -246,6 +246,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const profileRef = useRef<ClubProfile | null>(null);
   const rolesRef = useRef<AppRole[]>([]);
 
+  const setAuthUser = useCallback((nextUser: User | null) => {
+    userRef.current = nextUser;
+    setUser(nextUser);
+  }, []);
+
+  const setAuthProfile = useCallback((nextProfile: ClubProfile | null) => {
+    profileRef.current = nextProfile;
+    setProfile(nextProfile);
+  }, []);
+
+  const setAuthRoles = useCallback((nextRoles: AppRole[]) => {
+    const normalizedRoles = normalizeAppRoles(nextRoles);
+    rolesRef.current = normalizedRoles;
+    setRoles(normalizedRoles);
+  }, []);
+
+  const isCurrentSessionUser = useCallback((userId: string) => userRef.current?.id === userId, []);
+
   useEffect(() => {
     userRef.current = user;
   }, [user]);
@@ -269,6 +287,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchUserRoles = useCallback(
     async (userId: string, legacyRole?: string | null) => {
+      if (!isCurrentSessionUser(userId)) {
+        return legacyClubRoleToAppRoles(legacyRole);
+      }
+
       const cached = readAuthCache(userId);
       const fallbackRoles = () => {
         if (legacyRole) {
@@ -288,7 +310,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       if (!supabase) {
         const nextRoles = fallbackRoles();
-        setRoles(nextRoles);
+        if (isCurrentSessionUser(userId)) {
+          setAuthRoles(nextRoles);
+        }
         return nextRoles;
       }
 
@@ -297,29 +321,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         if (error) {
           const nextRoles = fallbackRoles();
-          setRoles(nextRoles);
+          if (isCurrentSessionUser(userId)) {
+            setAuthRoles(nextRoles);
+          }
           return nextRoles;
         }
 
         const nextRoles = (data ?? []).map((row) => row.role);
         const normalizedRoles = nextRoles.length > 0 ? normalizeAppRoles(nextRoles) : fallbackRoles();
-        setRoles(normalizedRoles);
-        writeAuthCache(userId, profileRef.current?.id === userId ? profileRef.current : cached?.profile ?? null, normalizedRoles);
+        if (isCurrentSessionUser(userId)) {
+          setAuthRoles(normalizedRoles);
+          writeAuthCache(userId, profileRef.current?.id === userId ? profileRef.current : cached?.profile ?? null, normalizedRoles);
+        }
         return normalizedRoles;
       } catch {
         const nextRoles = fallbackRoles();
-        setRoles(nextRoles);
+        if (isCurrentSessionUser(userId)) {
+          setAuthRoles(nextRoles);
+        }
         return nextRoles;
       }
     },
-    [supabase]
+    [isCurrentSessionUser, setAuthRoles, supabase]
   );
 
   const fetchProfile = useCallback(
     async (userId: string) => {
+      if (!isCurrentSessionUser(userId)) {
+        return;
+      }
+
       if (!supabase) {
-        setProfile(null);
-        setRoles([]);
+        setAuthProfile(null);
+        setAuthRoles([]);
         return;
       }
 
@@ -327,34 +361,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const fallbackProfile = profileRef.current?.id === userId ? profileRef.current : cached?.profile ?? null;
 
       if (fallbackProfile) {
-        setProfile(fallbackProfile);
+        setAuthProfile(fallbackProfile);
       }
 
       if (cached?.roles.length) {
-        setRoles(normalizeAppRoles(cached.roles));
+        setAuthRoles(normalizeAppRoles(cached.roles));
       }
 
       try {
         const { data, error } = await withTimeout(supabase.from("profiles").select("*").eq("id", userId).single(), 10000);
 
+        if (!isCurrentSessionUser(userId)) {
+          return;
+        }
+
         if (error) {
-          setProfile(fallbackProfile);
+          setAuthProfile(fallbackProfile);
           const nextRoles = await fetchUserRoles(userId, fallbackProfile?.role);
           writeAuthCache(userId, fallbackProfile, nextRoles);
           return;
         }
 
         const nextProfile = data as ClubProfile;
-        setProfile(nextProfile);
+        setAuthProfile(nextProfile);
         const nextRoles = await fetchUserRoles(userId, nextProfile.role);
-        writeAuthCache(userId, nextProfile, nextRoles);
+        if (isCurrentSessionUser(userId)) {
+          writeAuthCache(userId, nextProfile, nextRoles);
+        }
       } catch {
-        setProfile(fallbackProfile);
+        if (!isCurrentSessionUser(userId)) {
+          return;
+        }
+        setAuthProfile(fallbackProfile);
         const nextRoles = await fetchUserRoles(userId, fallbackProfile?.role);
         writeAuthCache(userId, fallbackProfile, nextRoles);
       }
     },
-    [fetchUserRoles, supabase]
+    [fetchUserRoles, isCurrentSessionUser, setAuthProfile, setAuthRoles, supabase]
   );
 
   const refreshProfile = useCallback(async () => {
@@ -419,10 +462,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           if (mounted && sessionUser) {
             const cached = readAuthCache(sessionUser.id);
             optimisticUser = sessionUser;
-            setUser(sessionUser);
+            setAuthUser(sessionUser);
             if (cached) {
-              setProfile(cached.profile);
-              setRoles(normalizeAppRoles(cached.roles));
+              setAuthProfile(cached.profile);
+              setAuthRoles(normalizeAppRoles(cached.roles));
             }
           }
         } catch {
@@ -432,12 +475,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const { data } = await withTimeout(supabase.auth.getUser(), 10000);
         if (!mounted) return;
 
-        setUser(data.user);
+        setAuthUser(data.user);
         if (data.user) {
           await fetchProfile(data.user.id);
         } else {
-          setProfile(null);
-          setRoles([]);
+          setAuthProfile(null);
+          setAuthRoles([]);
         }
 
         if (shouldHandlePasswordRecovery) {
@@ -459,16 +502,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const cachedUser = optimisticUser ?? userRef.current;
         if (cachedUser && !shouldHandlePasswordRecovery) {
           const cached = readAuthCache(cachedUser.id);
-          setUser(cachedUser);
+          setAuthUser(cachedUser);
           if (cached) {
-            setProfile(cached.profile);
-            setRoles(normalizeAppRoles(cached.roles));
+            setAuthProfile(cached.profile);
+            setAuthRoles(normalizeAppRoles(cached.roles));
           }
           return;
         }
-        setUser(null);
-        setProfile(null);
-        setRoles([]);
+        setAuthUser(null);
+        setAuthProfile(null);
+        setAuthRoles([]);
         if (shouldHandlePasswordRecovery) {
           const message = error instanceof Error ? error.message : "";
           setIsPasswordRecovery(false);
@@ -500,15 +543,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
 
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
+        const nextUser = session?.user ?? null;
+        if (!nextUser && event === "INITIAL_SESSION" && userRef.current) {
+          return;
+        }
+
+        setAuthUser(nextUser);
+        if (nextUser) {
+          await fetchProfile(nextUser.id);
         } else {
-          if (event === "INITIAL_SESSION" && userRef.current) {
-            return;
-          }
-          setProfile(null);
-          setRoles([]);
+          setAuthProfile(null);
+          setAuthRoles([]);
           setIsPasswordRecovery(false);
           setPasswordRecoveryError(null);
           if (typeof window !== "undefined") {
@@ -516,10 +561,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           }
         }
       } catch {
-        setUser(session?.user ?? null);
-        setProfile(null);
+        setAuthUser(session?.user ?? null);
+        setAuthProfile(null);
         if (!session?.user) {
-          setRoles([]);
+          setAuthRoles([]);
         }
       } finally {
         setLoading(false);
@@ -527,9 +572,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     const onForcedLogout = () => {
-      setUser(null);
-      setProfile(null);
-      setRoles([]);
+      setAuthUser(null);
+      setAuthProfile(null);
+      setAuthRoles([]);
       setIsPasswordRecovery(false);
       setIsCheckingPasswordRecovery(false);
       setPasswordRecoveryError(null);
@@ -543,7 +588,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       window.removeEventListener("cfvv41:auth-logout", onForcedLogout);
       listener.subscription.unsubscribe();
     };
-  }, [fetchProfile, supabase]);
+  }, [fetchProfile, setAuthProfile, setAuthRoles, setAuthUser, supabase]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -564,7 +609,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (data.user) {
-          setUser(data.user);
+          setAuthUser(data.user);
           await fetchProfile(data.user.id);
         }
 
@@ -576,7 +621,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, message: friendlyAuthError(message) };
       }
     },
-    [fetchProfile, supabase]
+    [fetchProfile, setAuthUser, supabase]
   );
 
   const signup = useCallback(
@@ -606,7 +651,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         if (data.session?.user) {
-          setUser(data.session.user);
+          setAuthUser(data.session.user);
           await fetchProfile(data.session.user.id);
           return { ok: true, signedIn: true, message: "Connexion en cours..." };
         }
@@ -621,7 +666,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { ok: false, message: friendlyAuthError(message) };
       }
     },
-    [fetchProfile, supabase]
+    [fetchProfile, setAuthProfile, setAuthRoles, setAuthUser, supabase]
   );
 
   const resetPassword = useCallback(
@@ -683,12 +728,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     clearSupabaseAuthStorage();
-    setUser(null);
-    setProfile(null);
-    setRoles([]);
+    setAuthUser(null);
+    setAuthProfile(null);
+    setAuthRoles([]);
     clearPasswordRecovery();
     setLoading(false);
-  }, [clearPasswordRecovery, supabase]);
+  }, [clearPasswordRecovery, setAuthProfile, setAuthRoles, setAuthUser, supabase]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

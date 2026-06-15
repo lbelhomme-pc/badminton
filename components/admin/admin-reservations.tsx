@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
+import { AdminFeedback, actionFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
@@ -52,8 +52,16 @@ function AdminReservationsContent() {
   );
 
   async function updateStatus(id: number, statut: string) {
+    const label = reservationStatusLabel(statut).toLowerCase();
+
+    if (statut === "annulee" || statut === "refusee") {
+      const confirmed = window.confirm(`Passer cette réservation en statut "${reservationStatusLabel(statut)}" ?`);
+      if (!confirmed) return;
+    }
+
+    setFeedback(loadingFeedback("Mise à jour de la réservation en cours..."));
     const result = await updateReservationStatus(id, statut);
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback(`Réservation ${label}.`) : actionFeedback(result));
     if (result.ok) await load();
   }
 

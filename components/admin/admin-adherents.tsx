@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
+import { AdminFeedback, actionFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -63,6 +63,10 @@ const fallbackRoles = ["member"] satisfies AppRole[];
 
 function getSelectedRoles(profile: ProfileRow, rolesById: Record<string, AppRole[]>) {
   return rolesById[profile.id] ?? profile.roles ?? fallbackRoles;
+}
+
+function profileDisplayName(profile: ProfileRow) {
+  return [profile.prenom, profile.nom].filter(Boolean).join(" ") || profile.email || "cet adhérent";
 }
 
 function roleChangeSummary(profile: ProfileRow, rolesById: Record<string, AppRole[]>) {
@@ -146,8 +150,14 @@ function AdminAdherentsContent() {
       return;
     }
 
+    if (!sameRoles(roles, profile.roles)) {
+      const confirmed = window.confirm(`Modifier les rôles de ${profileDisplayName(profile)} ?`);
+      if (!confirmed) return;
+    }
+
+    setFeedback(loadingFeedback("Mise à jour des rôles en cours..."));
     const result = await updateUserRoles(profile.id, roles);
-    setFeedback(actionFeedback(result));
+    setFeedback(result.ok ? successFeedback(`Rôles mis à jour pour ${profileDisplayName(profile)}.`) : actionFeedback(result));
     if (result.ok) await load();
   }
 

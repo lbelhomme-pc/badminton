@@ -1,8 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { ExternalLink, ImageIcon } from "lucide-react";
-import { AdminFeedback, actionFeedback, errorFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
+import { AdminFeedback, actionFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
@@ -25,6 +25,21 @@ type ActualiteForm = {
   visible_public: boolean;
 };
 
+type ParsedActualiteForm =
+  | {
+      ok: true;
+      input: {
+        titre: string;
+        contenu: string;
+        image_url: string | null;
+        lien_url: string | null;
+        lien_label: string | null;
+        visible_public: boolean;
+        auteur_id?: string;
+      };
+    }
+  | { ok: false; message: string };
+
 const emptyActualiteForm: ActualiteForm = {
   titre: "",
   contenu: "",
@@ -39,15 +54,60 @@ function cleanOptionalUrl(value: string) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function toActualitePayload(form: ActualiteForm, auteurId?: string) {
+function isSafeActualiteUrl(value: string | null) {
+  if (!value) return true;
+  if (value.startsWith("/") && !value.startsWith("//")) return true;
+
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" || url.protocol === "http:";
+  } catch {
+    return false;
+  }
+}
+
+function isExternalActualiteUrl(value: string) {
+  return value.startsWith("http://") || value.startsWith("https://");
+}
+
+function toActualitePayload(form: ActualiteForm, auteurId?: string): ParsedActualiteForm {
+  const titre = form.titre.trim();
+  const contenu = form.contenu.trim();
+  const imageUrl = cleanOptionalUrl(form.image_url);
+  const lienUrl = cleanOptionalUrl(form.lien_url);
+  const lienLabel = form.lien_label.trim() || null;
+
+  if (!titre) {
+    return { ok: false, message: "Le titre de l'actualité est obligatoire." };
+  }
+
+  if (!contenu) {
+    return { ok: false, message: "Le contenu de l'actualité est obligatoire." };
+  }
+
+  if (!isSafeActualiteUrl(imageUrl)) {
+    return { ok: false, message: "L'URL de la photo doit commencer par https://, http:// ou /." };
+  }
+
+  if (!isSafeActualiteUrl(lienUrl)) {
+    return { ok: false, message: "Le lien doit commencer par https://, http:// ou /." };
+  }
+
+  if (lienUrl && !lienLabel) {
+    return { ok: false, message: "Ajoute un texte de bouton pour le lien de l'actualité." };
+  }
+
   return {
-    titre: form.titre.trim(),
-    contenu: form.contenu.trim(),
-    image_url: cleanOptionalUrl(form.image_url),
-    lien_url: cleanOptionalUrl(form.lien_url),
-    lien_label: form.lien_label.trim() || null,
-    visible_public: form.visible_public,
-    auteur_id: auteurId
+    ok: true,
+    input: {
+      titre,
+      contenu,
+      image_url: imageUrl,
+      lien_url: lienUrl,
+      lien_label: lienLabel,
+      visible_public: form.visible_public,
+      auteur_id: auteurId
+    }
   };
 }
 
@@ -80,17 +140,29 @@ function AdminActualitesContent() {
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const result = await createActualite(toActualitePayload(form, user?.id));
-    setFeedback(actionFeedback(result));
+    const parsed = toActualitePayload(form, user?.id);
+
+    if (!parsed.ok) {
+      setFeedback(errorFeedback(parsed.message));
+      return;
+    }
+
+    setFeedback(loadingFeedback("Publication de l'actualité en cours..."));
+    const result = await createActualite(parsed.input);
+    setFeedback(result.ok ? successFeedback("Actualité publiée.") : actionFeedback(result));
     if (result.ok) {
       setForm(emptyActualiteForm);
       await load();
     }
   }
 
-  async function remove(id: number) {
-    const result = await deleteActualite(id);
-    setFeedback(actionFeedback(result));
+  async function remove(actualite: ActualiteRow) {
+    const confirmed = window.confirm(`Supprimer l'actualité "${actualite.titre}" ? Cette action est définitive.`);
+    if (!confirmed) return;
+
+    setFeedback(loadingFeedback("Suppression de l'actualité en cours..."));
+    const result = await deleteActualite(actualite.id);
+    setFeedback(result.ok ? successFeedback("Actualité supprimée.") : actionFeedback(result));
     if (result.ok) await load();
   }
 
@@ -120,8 +192,16 @@ function AdminActualitesContent() {
 
   async function save(actualite: ActualiteRow) {
     const current = editValue(actualite);
-    const result = await updateActualite(actualite.id, toActualitePayload(current));
-    setFeedback(actionFeedback(result));
+    const parsed = toActualitePayload(current);
+
+    if (!parsed.ok) {
+      setFeedback(errorFeedback(parsed.message));
+      return;
+    }
+
+    setFeedback(loadingFeedback("Mise à jour de l'actualité en cours..."));
+    const result = await updateActualite(actualite.id, parsed.input);
+    setFeedback(result.ok ? successFeedback("Actualité mise à jour.") : actionFeedback(result));
 
     if (result.ok) {
       setEditing((state) => {
@@ -196,6 +276,7 @@ function AdminActualitesContent() {
           </label>
           <Button type="submit">Publier</Button>
         </form>
+        <ActualitePreview value={form} title="Aperçu avant publication" />
       </Card>
 
       <AdminFeedback feedback={feedback} className="mt-6" />
@@ -227,8 +308,11 @@ function ActualiteEditor({
   value: ActualiteForm;
   onChange: (id: number, field: keyof ActualiteForm, value: string | boolean) => void;
   onSave: (actualite: ActualiteRow) => void;
-  onRemove: (id: number) => void;
+  onRemove: (actualite: ActualiteRow) => void;
 }) {
+  const safeEditorLink = cleanOptionalUrl(value.lien_url);
+  const canPreviewLink = isSafeActualiteUrl(safeEditorLink);
+
   return (
     <Card className="p-5">
       <div className="flex items-center justify-between gap-4">
@@ -237,17 +321,6 @@ function ActualiteEditor({
           {value.visible_public ? "Public" : "Interne"}
         </span>
       </div>
-
-      {value.image_url ? (
-        <div className="mt-4 overflow-hidden rounded-lg border border-court-200 bg-court-50">
-          <img src={value.image_url} alt="" className="h-40 w-full object-cover" />
-        </div>
-      ) : (
-        <div className="mt-4 flex items-center gap-2 rounded-lg bg-court-50 px-3 py-2 text-sm font-semibold text-ink-500">
-          <ImageIcon className="h-4 w-4" aria-hidden="true" />
-          Aucune photo associee
-        </div>
-      )}
 
       <div className="mt-5 grid gap-4">
         <label className="grid gap-2 text-sm font-semibold text-court-900">
@@ -308,25 +381,78 @@ function ActualiteEditor({
         </label>
       </div>
 
+      <ActualitePreview value={value} title="Aperçu public" />
+
       <div className="mt-5 flex flex-wrap gap-2">
         <Button type="button" onClick={() => onSave(actualite)}>
           Enregistrer
         </Button>
-        {value.lien_url ? (
+        {safeEditorLink && canPreviewLink ? (
           <a
-            href={value.lien_url}
-            target={value.lien_url.startsWith("/") ? undefined : "_blank"}
-            rel={value.lien_url.startsWith("/") ? undefined : "noreferrer"}
+            href={safeEditorLink}
+            target={isExternalActualiteUrl(safeEditorLink) ? "_blank" : undefined}
+            rel={isExternalActualiteUrl(safeEditorLink) ? "noopener noreferrer" : undefined}
             className="inline-flex h-11 items-center gap-2 rounded-lg border border-court-200 bg-white px-4 text-sm font-semibold text-court-900 hover:bg-court-50"
           >
             Tester le lien
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </a>
         ) : null}
-        <Button variant="danger" type="button" onClick={() => onRemove(actualite.id)}>
+        <Button variant="danger" type="button" onClick={() => onRemove(actualite)}>
           Supprimer
         </Button>
       </div>
     </Card>
+  );
+}
+
+function ActualitePreview({ value, title }: { value: ActualiteForm; title: string }) {
+  const imageUrl = cleanOptionalUrl(value.image_url);
+  const linkUrl = cleanOptionalUrl(value.lien_url);
+  const safeImageUrl = isSafeActualiteUrl(imageUrl) ? imageUrl : null;
+  const safeLinkUrl = isSafeActualiteUrl(linkUrl) ? linkUrl : null;
+  const visibleTitle = value.titre.trim() || "Titre de l'actualité";
+  const visibleContent = value.contenu.trim() || "Le contenu saisi apparaîtra ici, sans HTML libre.";
+
+  return (
+    <div className="mt-5 rounded-lg border border-court-100 bg-court-50 p-4">
+      <p className="text-sm font-black uppercase text-court-700">{title}</p>
+      <article className="mt-3 overflow-hidden rounded-lg border border-court-200 bg-white">
+        {safeImageUrl ? (
+          <img
+            src={safeImageUrl}
+            alt={`Illustration : ${visibleTitle}`}
+            loading="lazy"
+            decoding="async"
+            className="h-40 w-full object-cover"
+          />
+        ) : (
+          <div className="flex h-20 items-center gap-2 bg-court-50 px-4 text-sm font-semibold text-ink-500">
+            <ImageIcon className="h-4 w-4" aria-hidden="true" />
+            Aucune photo ajoutée
+          </div>
+        )}
+        <div className="p-4">
+          <span className="rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-700">
+            {value.visible_public ? "Public" : "Interne adhérents"}
+          </span>
+          <h3 className="mt-3 text-xl font-black text-court-900">{visibleTitle}</h3>
+          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink-500">{visibleContent}</p>
+          {safeLinkUrl ? (
+            <a
+              href={safeLinkUrl}
+              target={isExternalActualiteUrl(safeLinkUrl) ? "_blank" : undefined}
+              rel={isExternalActualiteUrl(safeLinkUrl) ? "noopener noreferrer" : undefined}
+              className="mt-4 inline-flex h-10 items-center rounded-lg bg-court-500 px-4 text-sm font-semibold text-white hover:bg-court-600"
+            >
+              {value.lien_label.trim() || "Voir le lien"}
+            </a>
+          ) : null}
+        </div>
+      </article>
+      <p className="mt-3 text-xs leading-5 text-ink-500">
+        Le contenu est affiché comme du texte. Les balises HTML ne sont pas interprétées.
+      </p>
+    </div>
   );
 }

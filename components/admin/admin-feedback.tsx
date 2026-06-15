@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 export type AdminFeedbackMessage = {
-  tone: "success" | "error";
+  tone: "success" | "error" | "loading";
   text: string;
 } | null;
 
@@ -20,6 +20,10 @@ export function successFeedback(text: string): AdminFeedbackMessage {
   return { tone: "success", text: `Succès : ${text}` };
 }
 
+export function loadingFeedback(text: string): AdminFeedbackMessage {
+  return { tone: "loading", text };
+}
+
 export function AdminFeedback({ feedback, className }: { feedback: AdminFeedbackMessage; className?: string }) {
   if (!feedback) {
     return null;
@@ -31,7 +35,11 @@ export function AdminFeedback({ feedback, className }: { feedback: AdminFeedback
       aria-live="polite"
       className={cn(
         "rounded-lg px-4 py-3 text-sm font-semibold",
-        feedback.tone === "error" ? "bg-orange-50 text-orange-700" : "bg-court-100 text-court-900",
+        feedback.tone === "error"
+          ? "bg-orange-50 text-orange-700"
+          : feedback.tone === "loading"
+            ? "bg-court-50 text-court-800"
+            : "bg-court-100 text-court-900",
         className
       )}
     >

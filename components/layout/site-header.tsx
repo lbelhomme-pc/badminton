@@ -48,6 +48,7 @@ export function SiteHeader() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
                 "rounded-lg px-3 py-2 text-sm font-semibold transition",
                 isActive(item.href) ? "bg-court-100 text-court-900" : "text-ink-500 hover:bg-court-100 hover:text-court-900"
@@ -68,6 +69,7 @@ export function SiteHeader() {
             className="lg:hidden"
             aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={mobileOpen}
+            aria-controls="mobile-main-menu"
             onClick={() => setMobileOpen((open) => !open)}
           >
             {mobileOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
@@ -76,12 +78,17 @@ export function SiteHeader() {
       </div>
 
       {mobileOpen ? (
-        <div className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-court-200 bg-white px-4 py-4 lg:hidden">
+        <nav
+          id="mobile-main-menu"
+          aria-label="Navigation principale mobile"
+          className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-court-200 bg-white px-4 py-4 lg:hidden"
+        >
           <div className="grid gap-2">
             {mobileLinks.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
+                aria-current={isActive(item.href) ? "page" : undefined}
                 className={cn(
                   "rounded-lg px-3 py-3 text-sm font-semibold transition",
                   isActive(item.href) ? "bg-court-100 text-court-900" : "text-ink-500 hover:bg-court-100 hover:text-court-900"
@@ -92,7 +99,7 @@ export function SiteHeader() {
               </Link>
             ))}
           </div>
-        </div>
+        </nav>
       ) : null}
     </header>
   );

@@ -36,7 +36,11 @@ export function PasswordResetForm() {
             className="h-11 rounded-lg border border-court-200 bg-court-50 px-3 outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20"
           />
         </label>
-        {message ? <p className="rounded-lg bg-court-100 px-3 py-2 text-sm font-semibold text-court-900">{message}</p> : null}
+        {message ? (
+          <p role="status" aria-live="polite" className="rounded-lg bg-court-100 px-3 py-2 text-sm font-semibold text-court-900">
+            {message}
+          </p>
+        ) : null}
         <Button type="submit" disabled={pending || !configured}>
           {pending ? "Envoi..." : "Envoyer le lien"}
         </Button>

@@ -184,11 +184,12 @@ function friendlyDatabaseError(error: { message: string; code?: string } | null 
   }
 
   if (
+    message.includes("create_shuttle_order") ||
     message.includes("list_members_for_manager") ||
     message.includes("list_shuttle_orders_for_manager") ||
     message.includes("create_direct_shuttle_order")
   ) {
-    return "La vente rapide des volants doit être activée dans Supabase. Exécute le script supabase/volants-vente-rapide.sql puis réessaie.";
+    return "Le module volants doit être mis à jour dans Supabase. Exécute les dernières migrations puis réessaie.";
   }
 
   if (
@@ -612,12 +613,23 @@ export async function createCommandeVolants(userId: string, volant: VolantRow, q
   const supabase = createSupabaseBrowserClient();
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
-  const { error } = await supabase.from("commandes_volants").insert({
-    user_id: userId,
-    volant_id: volant.id,
-    quantite,
-    statut: "demandee",
-    total: Number(volant.prix) * quantite
+  if (!userId) {
+    return { ok: false, message: "Tu dois etre connecte pour commander des volants." };
+  }
+
+  const safeQuantity = Math.floor(quantite);
+
+  if (!Number.isFinite(safeQuantity) || safeQuantity <= 0) {
+    return { ok: false, message: "Choisis au moins 1 tube." };
+  }
+
+  if (safeQuantity > volant.stock) {
+    return { ok: false, message: "Stock insuffisant pour cette commande." };
+  }
+
+  const { error } = await supabase.rpc("create_shuttle_order", {
+    target_volant_id: volant.id,
+    target_quantite: safeQuantity
   });
 
   if (error?.message.includes("Stock insuffisant")) {
@@ -630,7 +642,7 @@ export async function createCommandeVolants(userId: string, volant: VolantRow, q
 
   return {
     ok: !error,
-    message: friendlyDatabaseError(error) ?? `Commande de ${quantite} tube${quantite > 1 ? "s" : ""} envoyée. Le stock a été mis à jour.`
+    message: friendlyDatabaseError(error) ?? `Commande de ${safeQuantity} tube${safeQuantity > 1 ? "s" : ""} créée. Le stock a été mis à jour.`
   };
 }
 

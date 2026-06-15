@@ -101,7 +101,11 @@ export function PasswordUpdateForm({
         </label>
 
         {message ? (
-          <p className={`rounded-lg px-3 py-2 text-sm font-semibold ${ok ? "bg-court-100 text-court-900" : "bg-orange-50 text-orange-700"}`}>
+          <p
+            role={ok ? "status" : "alert"}
+            aria-live="polite"
+            className={`rounded-lg px-3 py-2 text-sm font-semibold ${ok ? "bg-court-100 text-court-900" : "bg-orange-50 text-orange-700"}`}
+          >
             {message}
           </p>
         ) : null}

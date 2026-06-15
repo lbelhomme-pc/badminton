@@ -27,6 +27,14 @@ export interface PublicBureauMember {
   phone: string;
 }
 
+export interface RegistrationLinkStatus {
+  url: string;
+  fallbackUrl: string;
+  isFallback: boolean;
+  sourceLabel: string;
+  confirmationMessage: string;
+}
+
 export const defaultPublicClubSettings: PublicClubSettings = {
   club: {
     name: "CF2V41",
@@ -199,6 +207,21 @@ export function getEvents() {
 
 export function getFfbadRegistrationUrl() {
   return ffbadRegistrationUrl;
+}
+
+export function getRegistrationLinkStatus(settings: PublicClubSettings): RegistrationLinkStatus {
+  const url = settings.club.ffbadUrl || ffbadRegistrationUrl;
+  const isFallback = url === ffbadRegistrationUrl;
+
+  return {
+    url,
+    fallbackUrl: ffbadRegistrationUrl,
+    isFallback,
+    sourceLabel: isFallback ? "Lien à confirmer" : "Lien configuré par le club",
+    confirmationMessage: isFallback
+      ? "Le lien d'inscription affiché est le lien de secours du site. Le bureau peut le confirmer ou le remplacer dans l'administration."
+      : "Ce lien provient des paramètres publics du site et peut être mis à jour par le club."
+  };
 }
 
 export async function getConfiguredFfbadRegistrationUrl() {

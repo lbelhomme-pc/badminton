@@ -5,10 +5,12 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PwaInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 import { Providers } from "@/components/providers";
+import { getSiteUrl } from "@/lib/seo";
 
 export const revalidate = 60;
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: "CF2V41 - Planning, réservations et vie du club",
   description:
     "Site moderne du Club des fous du Volant Vendômois (CF2V41) : créneaux, réservations, volants, inscriptions, classements et espace adhérent.",
@@ -28,6 +30,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CF2V41",
     description: "Réservez vos créneaux et suivez la vie du CF2V41.",
+    url: "/",
     type: "website"
   }
 };
@@ -37,8 +40,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="fr">
       <body>
         <Providers>
+          <a href="#main-content" className="skip-link">
+            Aller au contenu
+          </a>
           <SiteHeader />
-          <main id="main-content">{children}</main>
+          <main id="main-content" tabIndex={-1}>
+            {children}
+          </main>
           <SiteFooter />
           <PwaInstallPrompt />
           <MobileBottomNav />

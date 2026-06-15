@@ -18,20 +18,29 @@ export function ShuttleShop({ products }: ShuttleShopProps) {
   const [quantities, setQuantities] = useState<Record<string, number>>({});
   const [message, setMessage] = useState<string | null>(null);
 
-  function quantityFor(productId: string) {
-    return quantities[productId] ?? 1;
+  function quantityFor(product: ShuttleProduct) {
+    const max = Math.max(0, product.stockQuantity);
+    if (max <= 0) return 0;
+    return Math.min(Math.max(quantities[product.id] ?? 1, 1), max);
   }
 
-  function setQuantity(productId: string, value: number) {
-    setQuantities((current) => ({ ...current, [productId]: Math.max(1, value) }));
+  function setQuantity(product: ShuttleProduct, value: number) {
+    const max = Math.max(0, product.stockQuantity);
+    if (max <= 0) {
+      setQuantities((current) => ({ ...current, [product.id]: 0 }));
+      return;
+    }
+
+    setQuantities((current) => ({ ...current, [product.id]: Math.min(Math.max(1, value), max) }));
   }
 
   return (
     <div className="space-y-8">
       <div className="grid gap-4 md:grid-cols-3">
         {products.map((product) => {
-          const quantity = quantityFor(product.id);
+          const quantity = quantityFor(product);
           const lowStock = product.stockQuantity <= product.lowStockThreshold;
+          const outOfStock = product.stockQuantity <= 0;
           const visualClass = {
             green: "bg-emerald-100 text-emerald-700",
             blue: "bg-blue-100 text-blue-700",
@@ -62,7 +71,8 @@ export function ShuttleShop({ products }: ShuttleShopProps) {
                 <div className="flex h-11 items-center rounded-lg border border-court-200 bg-white">
                   <button
                     className="flex h-10 w-10 items-center justify-center text-ink-500 hover:text-court-900"
-                    onClick={() => setQuantity(product.id, quantity - 1)}
+                    disabled={outOfStock || quantity <= 1}
+                    onClick={() => setQuantity(product, quantity - 1)}
                     aria-label="Diminuer la quantité"
                   >
                     <Minus className="h-4 w-4" aria-hidden="true" />
@@ -70,7 +80,8 @@ export function ShuttleShop({ products }: ShuttleShopProps) {
                   <span className="w-8 text-center text-sm font-black text-court-900">{quantity}</span>
                   <button
                     className="flex h-10 w-10 items-center justify-center text-ink-500 hover:text-court-900"
-                    onClick={() => setQuantity(product.id, quantity + 1)}
+                    disabled={outOfStock || quantity >= product.stockQuantity}
+                    onClick={() => setQuantity(product, quantity + 1)}
                     aria-label="Augmenter la quantité"
                   >
                     <Plus className="h-4 w-4" aria-hidden="true" />
@@ -78,6 +89,7 @@ export function ShuttleShop({ products }: ShuttleShopProps) {
                 </div>
                 <Button
                   className="flex-1"
+                  disabled={outOfStock}
                   onClick={() => {
                     const result = createShuttleOrder(product, quantity);
                     setMessage(result.ok ? "Commande réservée. Paiement sur place." : result.message);

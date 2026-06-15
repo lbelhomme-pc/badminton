@@ -2,13 +2,16 @@
 import Link from "next/link";
 import { ExternalLink, Mail, Phone } from "lucide-react";
 import { InfoPage } from "@/components/public/info-page";
+import { RegistrationCta } from "@/components/public/registration-cta";
 import { RequestForm } from "@/components/public/request-form";
 import { Card } from "@/components/ui/card";
+import { canonical } from "@/lib/seo";
 import { getPublicClubSettings } from "@/services/club.service";
 
 export const metadata: Metadata = {
   title: "Contact - CF2V41",
-  description: "Contacter le Club des fous du Volant Vendômois."
+  description: "Contacter le Club des fous du Volant Vendômois.",
+  alternates: canonical("/contact")
 };
 
 export default async function ContactPage() {
@@ -59,6 +62,13 @@ export default async function ContactPage() {
           </div>
         </Card>
       </div>
+      <RegistrationCta
+        className="mt-8"
+        compact
+        showOfficialLink={false}
+        title="Tu viens pour une inscription ou un essai ?"
+        intro="Le plus simple est de demander un essai ou de consulter le parcours d'inscription avant d'envoyer ta demande."
+      />
     </InfoPage>
   );
 }
