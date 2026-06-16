@@ -51,10 +51,12 @@ export function UserMenu() {
       {isAdmin ? (
         <Link
           href="/admin"
-          className="hidden h-10 items-center gap-2 rounded-lg border border-court-200 bg-white px-3 text-sm font-semibold text-court-900 transition hover:bg-court-100 md:inline-flex"
+          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-court-200 bg-white text-sm font-semibold text-court-900 transition hover:bg-court-100 md:w-auto md:gap-2 md:px-3"
+          aria-label="Administration"
+          title="Administration"
         >
           <Shield className="h-4 w-4" aria-hidden="true" />
-          Admin
+          <span className="hidden md:inline">Admin</span>
         </Link>
       ) : null}
       <Link

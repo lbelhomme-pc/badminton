@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Home, MapPin, Package, UserRound } from "lucide-react";
+import { CalendarDays, Home, MapPin, Package, Shield, UserRound } from "lucide-react";
+import { useAuth } from "@/components/auth/auth-provider";
 import { cn } from "@/lib/utils";
 
-const items = [
+const memberItems = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/creneaux", label: "Créneaux", icon: CalendarDays },
   { href: "/reservation-creneau", label: "Réserver", icon: MapPin },
@@ -15,13 +16,15 @@ const items = [
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const { isAdmin, isManager } = useAuth();
+  const items = isAdmin || isManager ? [...memberItems, { href: "/admin", label: "Admin", icon: Shield }] : memberItems;
 
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 border-t border-court-200 bg-white/95 px-2 pb-2 pt-1 shadow-soft backdrop-blur md:hidden"
       aria-label="Navigation mobile"
     >
-      <div className="grid grid-cols-5">
+      <div className={cn("grid", items.length === 6 ? "grid-cols-6" : "grid-cols-5")}>
         {items.map((item) => {
           const Icon = item.icon;
           const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
