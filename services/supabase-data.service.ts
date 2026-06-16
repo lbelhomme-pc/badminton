@@ -104,6 +104,7 @@ export interface CreneauAvailabilityRow extends CreneauRow {
   places_left: number | null;
   is_cancelled: boolean;
   cancellation_reason: string | null;
+  user_reservation_id: number | null;
   user_reservation_status: string | null;
   user_waiting_status: string | null;
 }
@@ -177,6 +178,10 @@ function friendlyDatabaseError(error: { message: string; code?: string } | null 
 
   if (message.includes("invalid input syntax")) {
     return "Une valeur saisie n'est pas dans le bon format.";
+  }
+
+  if (message.includes("annulation impossible moins de 2 heures")) {
+    return "Annulation impossible moins de 2 heures avant le créneau. Contacte le responsable si besoin.";
   }
 
   if (message.includes("stock_movements_commande_id_fkey")) {
@@ -483,6 +488,30 @@ export async function cancelReservation(id: number) {
   }
 
   return updateReservationStatus(id, "annulee");
+}
+
+export async function cancelReservationForSlot(input: { reservationId?: number | null; creneauId: number; dateReservation: string }) {
+  if (input.reservationId) {
+    return cancelReservation(input.reservationId);
+  }
+
+  const result = await fetchMyReservations();
+  if (result.error) {
+    return { ok: false, message: result.error };
+  }
+
+  const reservation = result.data.find(
+    (item) =>
+      item.creneau_id === input.creneauId &&
+      item.date_reservation === input.dateReservation &&
+      !["annulee", "refusee"].includes(item.statut)
+  );
+
+  if (!reservation) {
+    return { ok: false, message: "Impossible de retrouver cette réservation. Recharge la page puis réessaie." };
+  }
+
+  return cancelReservation(reservation.id);
 }
 
 export async function fetchMyWaitingList() {

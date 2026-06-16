@@ -1,5 +1,4 @@
-﻿import { PlanningExperience } from "@/components/planning/planning-experience";
-import { WeeklyAvailability } from "@/components/planning/weekly-availability";
+import { PlanningExperience } from "@/components/planning/planning-experience";
 import { RegistrationCta } from "@/components/public/registration-cta";
 import { Card } from "@/components/ui/card";
 import { formatTime, slotTypeLabel } from "@/lib/utils";
@@ -61,8 +60,6 @@ export default function CreneauxPage() {
           </div>
         </div>
       </Card>
-
-      <WeeklyAvailability />
 
       <PlanningExperience slots={weeklySlots} />
     </div>

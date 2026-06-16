@@ -1,20 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatFullDate } from "@/lib/club-week";
 import {
+  cancelReservationForSlot,
   createReservation,
   fetchCreneauAvailability,
   type CreneauAvailabilityRow
 } from "@/services/supabase-data.service";
 
+type Feedback = { tone: "success" | "error" | "info"; text: string };
+
 function publicReservationMessage(value: string) {
   return value === "Configuration Supabase manquante."
-    ? "Le service de réservation n’est pas encore disponible. Contacte le club si tu veux réserver."
+    ? "Le service de réservation n'est pas encore disponible. Contacte le club si tu veux réserver."
     : value;
 }
 
@@ -30,29 +33,92 @@ function ReservationCreneauContent() {
   const { user } = useAuth();
   const [creneaux, setCreneaux] = useState<CreneauAvailabilityRow[]>([]);
   const [dateReservation, setDateReservation] = useState(new Date().toISOString().slice(0, 10));
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<Feedback | null>(null);
   const [loading, setLoading] = useState(true);
+  const [pendingActionKey, setPendingActionKey] = useState<string | null>(null);
+
+  const loadAvailability = useCallback(
+    async (silent = false) => {
+      if (!silent) setLoading(true);
+      const result = await fetchCreneauAvailability(dateReservation, dateReservation);
+      setCreneaux(result.data);
+      if (result.error) {
+        setMessage({ tone: "error", text: publicReservationMessage(result.error) });
+      } else if (!silent) {
+        setMessage(null);
+      }
+      if (!silent) setLoading(false);
+    },
+    [dateReservation]
+  );
 
   useEffect(() => {
-    setLoading(true);
-    fetchCreneauAvailability(dateReservation, dateReservation).then((result) => {
-      setCreneaux(result.data);
-      if (result.error) setMessage(publicReservationMessage(result.error));
-      setLoading(false);
-    });
-  }, [dateReservation]);
+    loadAvailability();
+  }, [loadAvailability]);
+
+  useEffect(() => {
+    function refreshVisiblePage() {
+      if (document.visibilityState === "visible") {
+        loadAvailability(true);
+      }
+    }
+
+    window.addEventListener("focus", refreshVisiblePage);
+    document.addEventListener("visibilitychange", refreshVisiblePage);
+
+    return () => {
+      window.removeEventListener("focus", refreshVisiblePage);
+      document.removeEventListener("visibilitychange", refreshVisiblePage);
+    };
+  }, [loadAvailability]);
 
   async function reserve(creneau: CreneauAvailabilityRow) {
     if (!user) {
-      setMessage("Tu dois être connecté pour réserver un créneau.");
+      setMessage({ tone: "error", text: "Tu dois être connecté pour réserver un créneau." });
       return;
     }
 
-    const result = await createReservation(user.id, creneau.id, creneau.occurrence_date);
-    setMessage(publicReservationMessage(result.message));
-    const refreshed = await fetchCreneauAvailability(dateReservation, dateReservation);
-    setCreneaux(refreshed.data);
+    const actionKey = `${creneau.id}-${creneau.occurrence_date}-reserve`;
+    setPendingActionKey(actionKey);
+    setMessage({ tone: "info", text: "Réservation en cours..." });
+
+    try {
+      const result = await createReservation(user.id, creneau.id, creneau.occurrence_date);
+      setMessage({ tone: result.ok ? "success" : "error", text: publicReservationMessage(result.message) });
+      await loadAvailability(true);
+    } finally {
+      setPendingActionKey(null);
+    }
   }
+
+  async function cancel(creneau: CreneauAvailabilityRow) {
+    const label = `${creneau.jour} ${creneau.heure_debut.slice(0, 5)} - ${creneau.heure_fin.slice(0, 5)}`;
+    const confirmed = window.confirm(`Annuler ta réservation pour ${label} ?`);
+    if (!confirmed) return;
+
+    const actionKey = `${creneau.id}-${creneau.occurrence_date}-cancel`;
+    setPendingActionKey(actionKey);
+    setMessage({ tone: "info", text: "Annulation en cours..." });
+
+    try {
+      const result = await cancelReservationForSlot({
+        reservationId: creneau.user_reservation_id,
+        creneauId: creneau.id,
+        dateReservation: creneau.occurrence_date
+      });
+      setMessage({ tone: result.ok ? "success" : "error", text: publicReservationMessage(result.message) });
+      await loadAvailability(true);
+    } finally {
+      setPendingActionKey(null);
+    }
+  }
+
+  const messageClassName =
+    message?.tone === "success"
+      ? "bg-emerald-50 text-emerald-700"
+      : message?.tone === "error"
+        ? "bg-red-50 text-red-700"
+        : "bg-court-100 text-court-900";
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -74,11 +140,21 @@ function ReservationCreneauContent() {
         </label>
         <p className="mt-3 text-sm font-semibold capitalize text-ink-500">{formatFullDate(dateReservation)}</p>
       </Card>
-      {message ? <p className="mb-6 rounded-lg bg-court-100 px-4 py-3 text-sm font-semibold text-court-900">{message}</p> : null}
+      {message ? (
+        <p className={`mb-6 rounded-lg px-4 py-3 text-sm font-semibold ${messageClassName}`} aria-live="polite">
+          {message.text}
+        </p>
+      ) : null}
       {loading ? <Card className="p-5 text-sm font-semibold text-ink-500">Chargement des disponibilités...</Card> : null}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {creneaux.map((creneau) => (
-          <ReservationCard key={`${creneau.id}-${creneau.occurrence_date}`} creneau={creneau} onReserve={reserve} />
+          <ReservationCard
+            key={`${creneau.id}-${creneau.occurrence_date}`}
+            creneau={creneau}
+            pendingActionKey={pendingActionKey}
+            onCancel={cancel}
+            onReserve={reserve}
+          />
         ))}
         {!loading && creneaux.length === 0 ? (
           <Card className="p-5 text-sm font-semibold text-ink-500">
@@ -92,24 +168,54 @@ function ReservationCreneauContent() {
 
 function ReservationCard({
   creneau,
+  pendingActionKey,
+  onCancel,
   onReserve
 }: {
   creneau: CreneauAvailabilityRow;
+  pendingActionKey: string | null;
+  onCancel: (creneau: CreneauAvailabilityRow) => void;
   onReserve: (creneau: CreneauAvailabilityRow) => void;
 }) {
   const alreadyReserved = creneau.user_reservation_status && !["annulee", "refusee"].includes(creneau.user_reservation_status);
   const alreadyWaiting = creneau.user_waiting_status && ["en_attente", "notifiee"].includes(creneau.user_waiting_status);
   const full = creneau.places_left === 0;
-  const disabled = creneau.is_cancelled || Boolean(alreadyReserved) || Boolean(alreadyWaiting);
-  const buttonLabel = creneau.is_cancelled
-    ? "Créneau annulé"
-    : alreadyReserved
-      ? "Déjà réservé"
-      : alreadyWaiting
-        ? "Déjà en attente"
-        : full
-          ? "Rejoindre la liste d'attente"
-          : "Réserver";
+  const reserveActionKey = `${creneau.id}-${creneau.occurrence_date}-reserve`;
+  const cancelActionKey = `${creneau.id}-${creneau.occurrence_date}-cancel`;
+  const pendingReserve = pendingActionKey === reserveActionKey;
+  const pendingCancel = pendingActionKey === cancelActionKey;
+
+  function renderAction() {
+    if (creneau.is_cancelled) {
+      return (
+        <Button className="mt-5 w-full" disabled>
+          Créneau annulé
+        </Button>
+      );
+    }
+
+    if (alreadyReserved) {
+      return (
+        <Button className="mt-5 w-full" variant="outline" disabled={pendingCancel} onClick={() => onCancel(creneau)}>
+          {pendingCancel ? "Annulation..." : "Annuler ma réservation"}
+        </Button>
+      );
+    }
+
+    if (alreadyWaiting) {
+      return (
+        <Button className="mt-5 w-full" disabled>
+          Déjà en attente
+        </Button>
+      );
+    }
+
+    return (
+      <Button className="mt-5 w-full" disabled={pendingReserve} onClick={() => onReserve(creneau)}>
+        {pendingReserve ? "Réservation..." : full ? "Rejoindre la liste d'attente" : "Réserver"}
+      </Button>
+    );
+  }
 
   return (
     <Card className="p-5">
@@ -142,9 +248,7 @@ function ReservationCard({
         </div>
       )}
 
-      <Button className="mt-5 w-full" disabled={disabled} onClick={() => onReserve(creneau)}>
-        {buttonLabel}
-      </Button>
+      {renderAction()}
     </Card>
   );
 }
