@@ -71,16 +71,16 @@ export function SignupForm() {
       ) : null}
       <form className="mt-6 grid gap-4" onSubmit={onSubmit}>
         <div className="grid gap-4 md:grid-cols-2">
-          <TextInput label="Prénom" value={form.prenom} onChange={(value) => update("prenom", value)} />
-          <TextInput label="Nom" value={form.nom} onChange={(value) => update("nom", value)} />
+          <TextInput label="Prénom" autoComplete="given-name" value={form.prenom} onChange={(value) => update("prenom", value)} />
+          <TextInput label="Nom" autoComplete="family-name" value={form.nom} onChange={(value) => update("nom", value)} />
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <TextInput label="Email" type="email" value={form.email} onChange={(value) => update("email", value)} />
-          <TextInput label="Téléphone" type="tel" value={form.telephone} onChange={(value) => update("telephone", value)} />
+          <TextInput label="Email" type="email" autoComplete="email" value={form.email} onChange={(value) => update("email", value)} />
+          <TextInput label="Téléphone" type="tel" autoComplete="tel" value={form.telephone} onChange={(value) => update("telephone", value)} />
         </div>
         <div className="grid gap-4 md:grid-cols-2">
-          <TextInput label="Mot de passe" type="password" value={form.password} onChange={(value) => update("password", value)} />
-          <TextInput label="Confirmation" type="password" value={form.confirmPassword} onChange={(value) => update("confirmPassword", value)} />
+          <TextInput label="Mot de passe" type="password" autoComplete="new-password" value={form.password} onChange={(value) => update("password", value)} />
+          <TextInput label="Confirmation" type="password" autoComplete="new-password" value={form.confirmPassword} onChange={(value) => update("confirmPassword", value)} />
         </div>
         <label className="flex gap-3 rounded-lg bg-court-100 p-3 text-sm leading-6 text-ink-600">
           <input
@@ -113,12 +113,14 @@ function TextInput({
   label,
   value,
   onChange,
-  type = "text"
+  type = "text",
+  autoComplete
 }: {
   label: string;
   value: string;
   onChange: (value: string) => void;
   type?: string;
+  autoComplete?: string;
 }) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-court-900">
@@ -126,6 +128,7 @@ function TextInput({
       <input
         required
         type={type}
+        autoComplete={autoComplete}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         className="h-11 rounded-lg border border-court-200 bg-court-50 px-3 outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20"

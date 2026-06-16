@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { PasswordUpdateForm } from "@/components/auth/password-update-form";
@@ -29,13 +30,15 @@ export function PrivateMemberArea() {
 }
 
 function MemberContent() {
-  const { profile, user } = useAuth();
+  const router = useRouter();
+  const { profile, user, roles, refreshProfile, resetLocalSession } = useAuth();
   const [reservations, setReservations] = useState<ReservationRow[]>([]);
   const [waitingList, setWaitingList] = useState<WaitingListRow[]>([]);
   const [orders, setOrders] = useState<ShuttleOrderMemberRow[]>([]);
   const [actualites, setActualites] = useState<ActualiteRow[]>([]);
   const [message, setMessage] = useState<{ tone: "success" | "error" | "info"; text: string } | null>(null);
   const [pendingCancelId, setPendingCancelId] = useState<number | null>(null);
+  const [pendingSessionAction, setPendingSessionAction] = useState<"refresh" | "reset" | null>(null);
 
   async function loadMemberData() {
     const [reservationResult, waitingResult, orderResult, actualiteResult] = await Promise.all([
@@ -79,6 +82,36 @@ function MemberContent() {
       await loadMemberData();
     } finally {
       setPendingCancelId(null);
+    }
+  }
+
+  async function refreshAccountProfile() {
+    setPendingSessionAction("refresh");
+    setMessage({ tone: "info", text: "Actualisation du profil en cours..." });
+    try {
+      await refreshProfile();
+      await loadMemberData();
+      setMessage({ tone: "success", text: "Profil et données adhérent actualisés." });
+    } catch {
+      setMessage({ tone: "error", text: "Le profil n'a pas pu être actualisé. Réessaie dans quelques instants." });
+    } finally {
+      setPendingSessionAction(null);
+    }
+  }
+
+  async function resetBrowserSession() {
+    const confirmed = window.confirm(
+      "Réinitialiser la session sur cet appareil ? Tu seras déconnecté ici, puis tu pourras te reconnecter proprement."
+    );
+    if (!confirmed) return;
+
+    setPendingSessionAction("reset");
+    try {
+      await resetLocalSession();
+      router.replace("/connexion?logged_out=1");
+      router.refresh();
+    } finally {
+      setPendingSessionAction(null);
     }
   }
 
@@ -195,6 +228,21 @@ function MemberContent() {
               <p>{profile?.prenom} {profile?.nom}</p>
               <p>{profile?.email || user?.email}</p>
               <p>Rôle : {clubRoleLabel(profile?.role ?? "adherent")}</p>
+              <p>Rôles détectés : {roles.join(", ")}</p>
+            </div>
+          </Card>
+          <Card className="p-5">
+            <h2 className="text-xl font-black text-court-900">Session</h2>
+            <p className="mt-2 text-sm leading-6 text-ink-500">
+              À utiliser si ton rôle vient d'être changé ou si l'affichage reste bloqué après une déconnexion.
+            </p>
+            <div className="mt-4 grid gap-3">
+              <Button type="button" variant="outline" onClick={refreshAccountProfile} disabled={pendingSessionAction !== null}>
+                {pendingSessionAction === "refresh" ? "Actualisation..." : "Rafraîchir mon profil"}
+              </Button>
+              <Button type="button" variant="ghost" onClick={resetBrowserSession} disabled={pendingSessionAction !== null}>
+                {pendingSessionAction === "reset" ? "Réinitialisation..." : "Réinitialiser ma session"}
+              </Button>
             </div>
           </Card>
           <PasswordUpdateForm

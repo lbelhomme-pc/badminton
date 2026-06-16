@@ -45,6 +45,7 @@ interface AuthContextValue {
   updatePassword: (password: string) => Promise<{ ok: boolean; message: string }>;
   clearPasswordRecovery: () => void;
   logout: () => Promise<void>;
+  resetLocalSession: () => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
 
@@ -735,6 +736,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, [clearPasswordRecovery, setAuthProfile, setAuthRoles, setAuthUser, supabase]);
 
+  const resetLocalSession = useCallback(async () => {
+    if (supabase) {
+      try {
+        await supabase.auth.signOut({ scope: "local" });
+      } catch {
+        // Local storage is still cleared below so the browser state is reset.
+      }
+    }
+    clearSupabaseAuthStorage();
+    setAuthUser(null);
+    setAuthProfile(null);
+    setAuthRoles([]);
+    clearPasswordRecovery();
+    setLoading(false);
+  }, [clearPasswordRecovery, setAuthProfile, setAuthRoles, setAuthUser, supabase]);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       configured: isSupabaseConfigured,
@@ -754,6 +771,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updatePassword,
       clearPasswordRecovery,
       logout,
+      resetLocalSession,
       refreshProfile
     }),
     [
@@ -766,6 +784,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       passwordRecoveryError,
       profile,
       refreshProfile,
+      resetLocalSession,
       resetPassword,
       roles,
       signup,
