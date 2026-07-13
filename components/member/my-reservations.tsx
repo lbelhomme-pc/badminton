@@ -65,7 +65,8 @@ function MyReservationsContent() {
     if (!reservation.creneaux?.heure_debut) return true;
 
     const start = new Date(`${reservation.date_reservation}T${reservation.creneaux.heure_debut.slice(0, 8)}`);
-    return start.getTime() > Date.now() + 2 * 60 * 60 * 1000;
+    const deadlineHours = reservation.creneaux.cancellation_deadline_hours ?? 2;
+    return start.getTime() > Date.now() + deadlineHours * 60 * 60 * 1000;
   }
 
   const messageClassName =
@@ -79,7 +80,7 @@ function MyReservationsContent() {
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-black text-court-900">Mes réservations</h1>
       <p className="mt-3 text-ink-500">
-        Consulte tes réservations. L'annulation adhérent est bloquée moins de 2 heures avant le début du créneau.
+        Consulte tes réservations. L'annulation adhérent est bloquée selon le délai configuré pour chaque créneau.
       </p>
       {message ? (
         <p className={`mt-5 rounded-lg px-4 py-3 text-sm font-semibold ${messageClassName}`} aria-live="polite">

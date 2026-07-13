@@ -1,51 +1,51 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle, Mail } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Mentions légales - CF2V41",
-  description: "Mentions légales du site du Club des fous du Volant Vendômois.",
+  title: "Mentions lÃ©gales - CFVV",
+  description: "Mentions lÃ©gales du site du Club des fous du Volant VendÃ´mois.",
   alternates: canonical("/mentions-legales")
 };
 
-const clubName = "CF2V41";
-const clubFullName = "Club des fous du Volant Vendômois";
+const clubName = "CFVV";
+const clubFullName = "Club des fous du Volant VendÃ´mois";
 const contactEmail = "cfvv41@gmail.com";
 
 const sections = [
   {
-    title: "Édition du site",
+    title: "Ã‰dition du site",
     items: [
-      "Nom légal de l'association : à confirmer par le bureau.",
-      "Nom utilisé sur le site : Club des fous du Volant Vendômois - CF2V41.",
-      "Siège social connu à ce jour : Naveil. Adresse complète à compléter si le bureau souhaite l'afficher.",
-      "Responsable de publication : bureau du CF2V41, à confirmer formellement."
+      "Nom lÃ©gal de l'association : Ã  confirmer par le bureau.",
+      "Nom utilisÃ© sur le site : Club des fous du Volant VendÃ´mois - CFVV.",
+      "SiÃ¨ge social connu Ã  ce jour : Naveil. Adresse complÃ¨te Ã  complÃ©ter si le bureau souhaite l'afficher.",
+      "Responsable de publication : bureau du CFVV, Ã  confirmer formellement."
     ]
   },
   {
-    title: "Hébergement",
+    title: "HÃ©bergement",
     items: [
-      "Hébergeur technique pressenti : Vercel Inc.",
-      "Adresse et informations légales complètes de l'hébergeur : à vérifier et compléter depuis le compte de déploiement.",
-      "Le nom de domaine définitif devra être ajouté ici après mise en production."
+      "HÃ©bergeur technique pressenti : Vercel Inc.",
+      "Adresse et informations lÃ©gales complÃ¨tes de l'hÃ©bergeur : Ã  vÃ©rifier et complÃ©ter depuis le compte de dÃ©ploiement.",
+      "Le nom de domaine dÃ©finitif devra Ãªtre ajoutÃ© ici aprÃ¨s mise en production."
     ]
   },
   {
-    title: "Propriété intellectuelle",
+    title: "PropriÃ©tÃ© intellectuelle",
     items: [
-      "Les textes, contenus, éléments graphiques, logo du club et documents publiés sur ce site sont destinés à l'information des adhérents et visiteurs du club.",
-      "Toute réutilisation du logo, des documents internes ou des contenus du site doit être validée par le bureau du club.",
-      "Les marques et services externes cités, comme FFBaD, MyFFBaD, Supabase ou Vercel, restent la propriété de leurs titulaires respectifs."
+      "Les textes, contenus, Ã©lÃ©ments graphiques, logo du club et documents publiÃ©s sur ce site sont destinÃ©s Ã  l'information des adhÃ©rents et visiteurs du club.",
+      "Toute rÃ©utilisation du logo, des documents internes ou des contenus du site doit Ãªtre validÃ©e par le bureau du club.",
+      "Les marques et services externes citÃ©s, comme FFBaD, MyFFBaD, Supabase ou Vercel, restent la propriÃ©tÃ© de leurs titulaires respectifs."
     ]
   },
   {
-    title: "Photos, crédits et droit à l'image",
+    title: "Photos, crÃ©dits et droit Ã  l'image",
     items: [
-      "Crédits photos et illustrations : à compléter par le club selon les visuels réellement utilisés.",
-      "Les photos de joueurs, bénévoles, mineurs ou événements ne doivent être publiées qu'avec une autorisation adaptée.",
-      "Toute demande de retrait d'une photo peut être adressée au club via la page contact."
+      "CrÃ©dits photos et illustrations : Ã  complÃ©ter par le club selon les visuels rÃ©ellement utilisÃ©s.",
+      "Les photos de joueurs, bÃ©nÃ©voles, mineurs ou Ã©vÃ©nements ne doivent Ãªtre publiÃ©es qu'avec une autorisation adaptÃ©e.",
+      "Toute demande de retrait d'une photo peut Ãªtre adressÃ©e au club via la page contact."
     ]
   }
 ];
@@ -54,11 +54,11 @@ export default function MentionsLegalesPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <section className="rounded-lg border border-court-200 bg-white p-6 shadow-soft">
-        <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Informations légales</p>
-        <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-court-900">Mentions légales</h1>
+        <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Informations lÃ©gales</p>
+        <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-court-900">Mentions lÃ©gales</h1>
         <p className="mt-4 max-w-3xl text-lg leading-8 text-ink-500">
-          Cette page rassemble les informations légales du site du {clubName}. Certaines mentions doivent encore
-          être vérifiées par le bureau avant publication définitive.
+          Cette page rassemble les informations lÃ©gales du site du {clubName}. Certaines mentions doivent encore
+          Ãªtre vÃ©rifiÃ©es par le bureau avant publication dÃ©finitive.
         </p>
       </section>
 
@@ -66,10 +66,10 @@ export default function MentionsLegalesPage() {
         <div className="flex gap-3">
           <AlertTriangle className="mt-1 h-5 w-5 shrink-0 text-amber-700" aria-hidden="true" />
           <div>
-            <h2 className="font-black text-court-900">À valider par le bureau</h2>
+            <h2 className="font-black text-court-900">Ã€ valider par le bureau</h2>
             <p className="mt-2 text-sm leading-6 text-ink-600">
-              Ces mentions ne constituent pas une validation juridique complète. Le club doit confirmer son nom légal,
-              son responsable de publication, l'hébergeur définitif, les crédits photos et les règles de droit à l'image.
+              Ces mentions ne constituent pas une validation juridique complÃ¨te. Le club doit confirmer son nom lÃ©gal,
+              son responsable de publication, l'hÃ©bergeur dÃ©finitif, les crÃ©dits photos et les rÃ¨gles de droit Ã  l'image.
             </p>
           </div>
         </div>
@@ -93,9 +93,9 @@ export default function MentionsLegalesPage() {
 
       <section className="mt-8 grid gap-4 md:grid-cols-2">
         <Card className="p-5">
-          <h2 className="text-xl font-black text-court-900">Contact légal</h2>
+          <h2 className="text-xl font-black text-court-900">Contact lÃ©gal</h2>
           <p className="mt-3 text-sm leading-6 text-ink-500">
-            Pour une question liée au site, aux contenus publiés ou à une demande de retrait, contactez le {clubFullName}.
+            Pour une question liÃ©e au site, aux contenus publiÃ©s ou Ã  une demande de retrait, contactez le {clubFullName}.
           </p>
           <Link
             href={`mailto:${contactEmail}`}
@@ -107,10 +107,10 @@ export default function MentionsLegalesPage() {
         </Card>
 
         <Card className="p-5">
-          <h2 className="text-xl font-black text-court-900">Pages associées</h2>
+          <h2 className="text-xl font-black text-court-900">Pages associÃ©es</h2>
           <div className="mt-4 grid gap-3 text-sm font-bold text-court-700">
             <Link href="/confidentialite" className="rounded-lg bg-court-50 px-4 py-3 hover:bg-court-100">
-              Politique de confidentialité
+              Politique de confidentialitÃ©
             </Link>
             <Link href="/contact" className="rounded-lg bg-court-50 px-4 py-3 hover:bg-court-100">
               Formulaire de contact

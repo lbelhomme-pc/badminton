@@ -2,8 +2,8 @@
 import { AdminReservations } from "@/components/admin/admin-reservations";
 
 export const metadata: Metadata = {
-  title: "Admin réservations - CF2V41",
-  description: "Gestion des réservations du CF2V41."
+  title: "Admin réservations - CFVV",
+  description: "Gestion des réservations du CFVV."
 };
 
 export default function AdminReservationsPage() {

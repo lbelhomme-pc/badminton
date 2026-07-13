@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Settings, UsersRound, CalendarDays, Newspaper, Package, ClipboardList, Euro, Home } from "lucide-react";
+import { Settings, UsersRound, CalendarDays, Newspaper, Package, ClipboardList, Euro, Home, FileText } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ const adminNavItems = [
   { href: "/admin/reservations", label: "Réservations", icon: ClipboardList, minRole: "manager" },
   { href: "/admin/actualites", label: "Actualités", icon: Newspaper, minRole: "manager" },
   { href: "/admin/volants", label: "Volants", icon: Package, minRole: "manager" },
+  { href: "/admin/documents", label: "Documents", icon: FileText, minRole: "manager" },
   { href: "/admin/adherents", label: "Membres", icon: UsersRound, minRole: "admin" },
   { href: "/admin/tarifs", label: "Tarifs", icon: Euro, minRole: "admin" },
   { href: "/admin/parametres", label: "Paramètres", icon: Settings, minRole: "admin" }

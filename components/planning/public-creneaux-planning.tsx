@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PlanningExperience } from "@/components/planning/planning-experience";
+import { PublicCreneauxBoard } from "@/components/planning/public-creneaux-board";
 import { Card } from "@/components/ui/card";
 import { creneauxToSlotOccurrences } from "@/lib/creneau-slots";
 import { formatTime, slotTypeLabel } from "@/lib/utils";
@@ -33,7 +33,7 @@ export function PublicCreneauxPlanning({ fallbackSlots, showWeeklySummary = fals
     <>
       {message ? <p className="mb-6 rounded-lg bg-yellow-50 px-4 py-3 text-sm font-semibold text-yellow-800">{message}</p> : null}
       {showWeeklySummary ? <WeeklySummary slots={slots} /> : null}
-      <PlanningExperience slots={slots} onlyOpen={onlyOpen} />
+      <PublicCreneauxBoard slots={slots} onlyOpen={onlyOpen} />
     </>
   );
 }

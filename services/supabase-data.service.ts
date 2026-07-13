@@ -1,5 +1,6 @@
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { isAllowedPrivateDocumentFile, sanitizePrivateDocumentFileName } from "@/lib/private-documents";
 import { appRolesToLegacyClubRole, legacyClubRoleToAppRoles, normalizeAppRoles, type AppRole, type LegacyClubRole } from "@/lib/roles";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export interface CreneauRow {
   id: number;
@@ -14,6 +15,12 @@ export interface CreneauRow {
   places_max: number | null;
   responsable: string | null;
   actif: boolean;
+  reservation_active?: boolean | null;
+  reservation_open_days?: number | null;
+  reservation_open_time?: string | null;
+  reservation_close_minutes_before?: number | null;
+  cancellation_deadline_hours?: number | null;
+  reservation_message?: string | null;
 }
 
 export interface ReservationRow {
@@ -47,6 +54,15 @@ export interface VolantRow {
   prix: number;
   stock: number;
   actif: boolean;
+  reference?: string | null;
+  quantite_boite?: number | null;
+  photo_url?: string | null;
+  disponibilite?: string | null;
+  limite_commande?: number | null;
+  instructions_retrait?: string | null;
+  helloasso_url?: string | null;
+  helloasso_item_id?: string | null;
+  payment_provider?: string | null;
 }
 
 export interface ShuttleOrderAdminRow {
@@ -97,6 +113,24 @@ export interface CreneauCancellationRow {
   creneaux?: CreneauRow | null;
 }
 
+export interface PrivateDocumentRow {
+  id: number;
+  titre: string;
+  description: string | null;
+  categorie: string;
+  bucket_name: string;
+  file_path: string;
+  file_name: string;
+  mime_type: string;
+  size_bytes: number;
+  auteur: string | null;
+  version_label: string | null;
+  allowed_roles: string[];
+  statut: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CreneauAvailabilityRow extends CreneauRow {
   occurrence_date: string;
   reserved_count: number;
@@ -107,6 +141,16 @@ export interface CreneauAvailabilityRow extends CreneauRow {
   user_reservation_id: number | null;
   user_reservation_status: string | null;
   user_waiting_status: string | null;
+  reservation_active: boolean | null;
+  reservation_open_days: number | null;
+  reservation_open_time: string | null;
+  reservation_close_minutes_before: number | null;
+  cancellation_deadline_hours: number | null;
+  reservation_message: string | null;
+  opens_at: string | null;
+  closes_at: string | null;
+  cancellation_deadline_at: string | null;
+  can_reserve: boolean | null;
 }
 
 interface ReservationManagerRpcRow {
@@ -320,20 +364,10 @@ export async function createCreneauCancellation(input: { creneauId: number; date
   }
 
   const rpcMessage = friendlyDatabaseError(error);
-  if (rpcMessage && !rpcMessage.includes("nouvelles règles")) {
-    return { ok: false, message: rpcMessage };
-  }
-
-  const fallback = await supabase.from("creneau_annulations").upsert(
-    {
-      creneau_id: input.creneauId,
-      date_reservation: input.dateReservation,
-      reason: input.reason?.trim() || null
-    },
-    { onConflict: "creneau_id,date_reservation" }
-  );
-
-  return { ok: !fallback.error, message: friendlyDatabaseError(fallback.error) ?? "Créneau annulé pour cette date." };
+  return {
+    ok: false,
+    message: rpcMessage ?? "La migration Supabase des fermetures exceptionnelles doit être appliquée avant cette action."
+  };
 }
 
 export async function deleteCreneauCancellation(id: number) {
@@ -349,12 +383,10 @@ export async function deleteCreneauCancellation(id: number) {
   }
 
   const rpcMessage = friendlyDatabaseError(error);
-  if (rpcMessage && !rpcMessage.includes("nouvelles règles")) {
-    return { ok: false, message: rpcMessage };
-  }
-
-  const fallback = await supabase.from("creneau_annulations").delete().eq("id", id);
-  return { ok: !fallback.error, message: friendlyDatabaseError(fallback.error) ?? "Annulation exceptionnelle retirée." };
+  return {
+    ok: false,
+    message: rpcMessage ?? "La migration Supabase des annulations exceptionnelles doit être appliquée avant cette action."
+  };
 }
 
 export async function fetchMyReservations() {
@@ -443,22 +475,10 @@ export async function createReservation(userId: string, creneauId: number, dateR
   }
 
   const reserveMessage = friendlyDatabaseError(reserveError);
-  if (reserveMessage && !reserveMessage.includes("nouvelles règles")) {
-    return { ok: false, message: reserveMessage };
-  }
-
-  const { error } = await supabase.from("reservations").insert({
-    user_id: userId,
-    creneau_id: creneauId,
-    date_reservation: dateReservation,
-    statut: "confirmee"
-  });
-
-  if (error?.code === "23505") {
-    return { ok: false, message: "Tu as déjà réservé ce créneau." };
-  }
-
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Réservation confirmée." };
+  return {
+    ok: false,
+    message: reserveMessage ?? "La migration Supabase des réservations atomiques doit être appliquée avant de réserver."
+  };
 }
 
 export async function updateReservationStatus(id: number, statut: string) {
@@ -483,11 +503,10 @@ export async function cancelReservation(id: number) {
   }
 
   const cancelMessage = friendlyDatabaseError(error);
-  if (cancelMessage && !cancelMessage.includes("nouvelles règles")) {
-    return { ok: false, message: cancelMessage };
-  }
-
-  return updateReservationStatus(id, "annulee");
+  return {
+    ok: false,
+    message: cancelMessage ?? "La migration Supabase des annulations atomiques doit être appliquée avant d'annuler."
+  };
 }
 
 export async function cancelReservationForSlot(input: { reservationId?: number | null; creneauId: number; dateReservation: string }) {
@@ -574,6 +593,116 @@ export async function fetchVolants() {
 
   const { data, error } = await supabase.from("volants").select("*").order("id", { ascending: true });
   return { data: (data ?? []) as VolantRow[], error: friendlyDatabaseError(error) };
+}
+
+export async function fetchPrivateDocuments() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as PrivateDocumentRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase
+    .from("documents_prives")
+    .select("*")
+    .eq("statut", "publie")
+    .order("updated_at", { ascending: false });
+
+  return { data: (data ?? []) as PrivateDocumentRow[], error: friendlyDatabaseError(error) };
+}
+
+export async function fetchPrivateDocumentsForManager() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as PrivateDocumentRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase
+    .from("documents_prives")
+    .select("*")
+    .order("updated_at", { ascending: false });
+
+  return { data: (data ?? []) as PrivateDocumentRow[], error: friendlyDatabaseError(error) };
+}
+
+export async function createPrivateDocumentSignedUrl(document: Pick<PrivateDocumentRow, "bucket_name" | "file_path">) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { url: null as string | null, error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase.storage.from(document.bucket_name).createSignedUrl(document.file_path, 60);
+  return { url: data?.signedUrl ?? null, error: friendlyDatabaseError(error) };
+}
+
+export async function uploadPrivateDocument(input: {
+  file: File;
+  titre: string;
+  description?: string;
+  categorie: string;
+  auteur?: string;
+  versionLabel?: string;
+  allowedRoles: string[];
+  statut: string;
+}) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const titre = input.titre.trim();
+  if (!titre) return { ok: false, message: "Le titre du document est obligatoire." };
+
+  if (!isAllowedPrivateDocumentFile({ mimeType: input.file.type, sizeBytes: input.file.size })) {
+    return { ok: false, message: "Fichier refusé : type non autorisé ou taille supérieure à 15 Mo." };
+  }
+
+  const safeName = sanitizePrivateDocumentFileName(input.file.name);
+  if (!safeName) return { ok: false, message: "Nom de fichier invalide." };
+
+  const bucketName = "cfvv-private-documents";
+  const filePath = `${input.categorie}/${Date.now()}-${safeName}`;
+  const upload = await supabase.storage.from(bucketName).upload(filePath, input.file, {
+    cacheControl: "3600",
+    upsert: false
+  });
+
+  if (upload.error) {
+    return { ok: false, message: friendlyDatabaseError(upload.error) ?? "Le fichier n'a pas pu être téléversé." };
+  }
+
+  const { error } = await supabase.from("documents_prives").insert({
+    titre,
+    description: input.description?.trim() || null,
+    categorie: input.categorie,
+    bucket_name: bucketName,
+    file_path: filePath,
+    file_name: safeName,
+    mime_type: input.file.type,
+    size_bytes: input.file.size,
+    auteur: input.auteur?.trim() || null,
+    version_label: input.versionLabel?.trim() || null,
+    allowed_roles: input.allowedRoles.length > 0 ? input.allowedRoles : ["member"],
+    statut: input.statut
+  });
+
+  if (error) {
+    await supabase.storage.from(bucketName).remove([filePath]);
+  }
+
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Document ajouté au back-office." };
+}
+
+export async function updatePrivateDocument(id: number, input: Partial<PrivateDocumentRow>) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.from("documents_prives").update(input).eq("id", id);
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Document mis à jour." };
+}
+
+export async function deletePrivateDocumentPermanently(document: Pick<PrivateDocumentRow, "id" | "bucket_name" | "file_path">) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const remove = await supabase.storage.from(document.bucket_name).remove([document.file_path]);
+  if (remove.error) {
+    return { ok: false, message: friendlyDatabaseError(remove.error) ?? "Le fichier n'a pas pu être supprimé." };
+  }
+
+  const { error } = await supabase.from("documents_prives").delete().eq("id", document.id);
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Document supprimé définitivement." };
 }
 
 export async function fetchTarifs(includeInactive = false) {

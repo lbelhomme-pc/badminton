@@ -1,73 +1,98 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
-import { ExternalLink, Mail, Phone } from "lucide-react";
+import { Clock, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { InfoPage } from "@/components/public/info-page";
 import { RegistrationCta } from "@/components/public/registration-cta";
 import { RequestForm } from "@/components/public/request-form";
 import { Card } from "@/components/ui/card";
 import { canonical } from "@/lib/seo";
-import { getPublicClubSettings } from "@/services/club.service";
+import { getPublicClubSettings, getVenues } from "@/services/club.service";
 
 export const metadata: Metadata = {
-  title: "Contact - CF2V41",
-  description: "Contacter le Club des fous du Volant Vendômois.",
+  title: "Contact - CFVV",
+  description: "Contacter le Club des Fous du Volant du Vendômois.",
   alternates: canonical("/contact")
 };
 
 export default async function ContactPage() {
   const settings = await getPublicClubSettings();
+  const venues = getVenues();
+  const mainVenue = venues[0];
   const hasContact = Boolean(settings.contact.email || settings.contact.phone || settings.contact.facebookUrl || settings.contact.instagramUrl);
 
   return (
     <InfoPage
       eyebrow="Contact"
-      title={`Contacter le ${settings.club.name}`}
-      intro="Une question sur l'inscription, une séance d'essai, une réservation, les volants ou la compétition ? Envoyez votre demande au club."
+      title="Contacter le club"
+      intro="Une question sur une inscription, une séance d'essai, un créneau, les volants, la compétition ou un partenariat ? Envoyez une demande au CFVV."
       cards={[]}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
         <RequestForm title="Envoyer un message" defaultType="Inscription" messagePlaceholder="Décrivez votre demande en quelques lignes." />
-        <Card className="p-5">
-          <Mail className="h-6 w-6 text-info" aria-hidden="true" />
-          <h2 className="mt-4 text-2xl font-black text-court-900">Contact direct</h2>
-          {hasContact ? (
-            <div className="mt-4 grid gap-3 text-sm font-semibold text-ink-500">
-              {settings.contact.email ? (
-                <Link href={`mailto:${settings.contact.email}`} className="inline-flex items-center gap-2 hover:text-court-900">
-                  <Mail className="h-4 w-4" aria-hidden="true" />
-                  {settings.contact.email}
-                </Link>
-              ) : null}
-              {settings.contact.phone ? (
-                <Link href={`tel:${settings.contact.phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 hover:text-court-900">
-                  <Phone className="h-4 w-4" aria-hidden="true" />
-                  {settings.contact.phone}
-                </Link>
-              ) : null}
-              {settings.contact.facebookUrl ? <SocialLink href={settings.contact.facebookUrl} label="Facebook du club" /> : null}
-              {settings.contact.instagramUrl ? <SocialLink href={settings.contact.instagramUrl} label="Instagram du club" /> : null}
-            </div>
-          ) : (
-            <p className="mt-4 text-sm leading-6 text-ink-500">
-              Les coordonnées directes seront affichées ici dès qu'elles seront renseignées dans l'administration.
-            </p>
-          )}
 
-          <h2 className="mt-8 text-2xl font-black text-court-900">Demandes fréquentes</h2>
-          <div className="mt-4 grid gap-3 text-sm text-ink-500">
-            <p>Inscription ou séance d'essai</p>
-            <p>Problème de réservation</p>
-            <p>Achat ou retrait de volants</p>
-            <p>Compétition et interclubs</p>
-          </div>
-        </Card>
+        <div className="grid gap-4">
+          <Card className="p-5">
+            <Mail className="h-6 w-6 text-court-500" aria-hidden="true" />
+            <h2 className="mt-4 text-2xl font-black text-court-900">Coordonnées génériques</h2>
+            {hasContact ? (
+              <div className="mt-4 grid gap-3 text-sm font-semibold text-ink-600">
+                {settings.contact.email ? (
+                  <Link href={`mailto:${settings.contact.email}`} className="inline-flex items-center gap-2 hover:text-court-900">
+                    <Mail className="h-4 w-4" aria-hidden="true" />
+                    {settings.contact.email}
+                  </Link>
+                ) : null}
+                {settings.contact.phone ? (
+                  <Link href={`tel:${settings.contact.phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 hover:text-court-900">
+                    <Phone className="h-4 w-4" aria-hidden="true" />
+                    {settings.contact.phone}
+                  </Link>
+                ) : null}
+                {settings.contact.facebookUrl ? <SocialLink href={settings.contact.facebookUrl} label="Facebook du club" /> : null}
+                {settings.contact.instagramUrl ? <SocialLink href={settings.contact.instagramUrl} label="Instagram du club" /> : null}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-6 text-ink-600">
+                Les coordonnées directes seront affichées ici dès qu'elles seront renseignées dans l'administration.
+              </p>
+            )}
+          </Card>
+
+          <Card className="p-5">
+            <Clock className="h-6 w-6 text-court-500" aria-hidden="true" />
+            <h2 className="mt-4 text-2xl font-black text-court-900">Délai de réponse</h2>
+            <p className="mt-3 text-sm leading-6 text-ink-600">
+              Le club est géré par des bénévoles. Une réponse rapide est recherchée, mais le délai peut varier selon la période sportive.
+            </p>
+          </Card>
+
+          <Card className="p-5">
+            <MapPin className="h-6 w-6 text-court-500" aria-hidden="true" />
+            <h2 className="mt-4 text-2xl font-black text-court-900">Accès</h2>
+            {mainVenue ? (
+              <div className="mt-3 text-sm leading-6 text-ink-600">
+                <p className="font-bold text-court-900">{mainVenue.name}</p>
+                <p>{mainVenue.address}</p>
+                <p>
+                  {mainVenue.postalCode} {mainVenue.city}
+                </p>
+              </div>
+            ) : (
+              <p className="mt-3 text-sm leading-6 text-ink-600">Le lieu sera affiché ici dès validation.</p>
+            )}
+            <Link href="/club/gymnases-acces" className="mt-4 inline-flex font-display text-sm font-bold text-court-600 hover:underline">
+              Voir les informations d'accès
+            </Link>
+          </Card>
+        </div>
       </div>
+
       <RegistrationCta
         className="mt-8"
         compact
         showOfficialLink={false}
-        title="Tu viens pour une inscription ou un essai ?"
-        intro="Le plus simple est de demander un essai ou de consulter le parcours d'inscription avant d'envoyer ta demande."
+        title="Vous venez pour une inscription ou un essai ?"
+        intro="Le plus simple est de consulter les créneaux et le parcours d'inscription avant d'envoyer votre demande."
       />
     </InfoPage>
   );

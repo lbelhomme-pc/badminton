@@ -2,8 +2,8 @@
 import { AdminAdherents } from "@/components/admin/admin-adherents";
 
 export const metadata: Metadata = {
-  title: "Admin adhérents - CF2V41",
-  description: "Liste des adhérents du CF2V41."
+  title: "Admin adhérents - CFVV",
+  description: "Liste des adhérents du CFVV."
 };
 
 export default function AdminAdherentsPage() {

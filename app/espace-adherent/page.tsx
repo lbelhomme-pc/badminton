@@ -2,8 +2,8 @@
 import { PrivateMemberArea } from "@/components/member/private-member-area";
 
 export const metadata: Metadata = {
-  title: "Espace adhérent - CF2V41",
-  description: "Tableau de bord privé des adhérents du CF2V41."
+  title: "Espace adhérent - CFVV",
+  description: "Tableau de bord privé et sécurisé des adhérents du CFVV."
 };
 
 export default function EspaceAdherentPage() {

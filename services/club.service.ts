@@ -37,7 +37,7 @@ export interface RegistrationLinkStatus {
 
 export const defaultPublicClubSettings: PublicClubSettings = {
   club: {
-    name: "CF2V41",
+    name: "CFVV",
     fullName: "Club des fous du Volant Vendômois",
     city: "Vendôme",
     registeredOffice: "Naveil",

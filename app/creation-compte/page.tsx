@@ -2,8 +2,8 @@
 import { SignupForm } from "@/components/auth/signup-form";
 
 export const metadata: Metadata = {
-  title: "Créer un compte - CF2V41",
-  description: "Création d'un compte adhérent pour gérer les réservations du CF2V41."
+  title: "Créer un compte - CFVV",
+  description: "Création d'un compte adhérent pour gérer les réservations du CFVV."
 };
 
 export default function CreationComptePage() {

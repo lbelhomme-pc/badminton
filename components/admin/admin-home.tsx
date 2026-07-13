@@ -12,6 +12,7 @@ import {
   fetchActualites,
   fetchAllReservations,
   fetchCreneaux,
+  fetchPrivateDocumentsForManager,
   fetchProfiles,
   fetchTarifs,
   fetchVolants
@@ -22,6 +23,7 @@ const adminLinks = [
   { href: "/admin/reservations", label: "Voir les réservations", text: "Suivre les demandes avec le nom des adhérents.", minRole: "manager" },
   { href: "/admin/actualites", label: "Publier une actualité", text: "Informer les adhérents et les visiteurs.", minRole: "manager" },
   { href: "/admin/volants", label: "Volants", text: "Suivre le stock et les demandes simples.", minRole: "manager" },
+  { href: "/admin/documents", label: "Documents privés", text: "Publier, archiver ou retirer les fichiers réservés aux adhérents.", minRole: "manager" },
   { href: "/admin/tarifs", label: "Modifier les tarifs", text: "Mettre à jour les prix affichés sur le site.", minRole: "admin" },
   { href: "/admin/adherents", label: "Adhérents", text: "Consulter les profils utiles au club.", minRole: "admin" },
   { href: "/admin/parametres", label: "Paramètres du site", text: "Modifier contact, bureau, identité du club et liens utiles.", minRole: "admin" }
@@ -42,6 +44,8 @@ function AdminHomeContent() {
     reservations: 0,
     creneaux: 0,
     actualites: 0,
+    documents: 0,
+    brouillons: 0,
     tarifs: 0,
     volants: 0
   });
@@ -56,6 +60,7 @@ function AdminHomeContent() {
         fetchActualites(true),
         fetchVolants()
       ]);
+      const documents = await fetchPrivateDocumentsForManager();
       const profiles = isAdmin ? await fetchProfiles() : { data: [], error: null };
       const tarifs = isAdmin ? await fetchTarifs(true) : { data: [], error: null };
 
@@ -64,11 +69,13 @@ function AdminHomeContent() {
         reservations: reservations.data.length,
         creneaux: creneaux.data.length,
         actualites: actualites.data.length,
+        documents: documents.data.length,
+        brouillons: documents.data.filter((document) => document.statut === "brouillon").length,
         tarifs: tarifs.data.length,
         volants: volants.data.length
       });
 
-      setFeedback(errorFeedback(profiles.error || reservations.error || creneaux.error || actualites.error || tarifs.error || volants.error));
+      setFeedback(errorFeedback(profiles.error || reservations.error || creneaux.error || actualites.error || documents.error || tarifs.error || volants.error));
     }
 
     load();
@@ -81,12 +88,14 @@ function AdminHomeContent() {
     ["Réservations", stats.reservations],
     ["Créneaux", stats.creneaux],
     ["Actualités", stats.actualites],
+    ["Documents", stats.documents],
+    ["Brouillons", stats.brouillons],
     ["Volants", stats.volants]
   ];
 
   return (
     <AdminShell
-      title="Pilotage du CF2V41"
+      title="Pilotage du CFVV"
       intro="Les actions sensibles restent protégées par les règles Supabase RLS, même si quelqu'un appelle la base directement."
     >
       <AdminFeedback feedback={feedback} className="mb-6" />

@@ -2,8 +2,8 @@
 import { AdminParametres } from "@/components/admin/admin-parametres";
 
 export const metadata: Metadata = {
-  title: "Paramètres admin - CF2V41",
-  description: "Paramètres publics et informations de contact du CF2V41."
+  title: "Paramètres admin - CFVV",
+  description: "Paramètres publics et informations de contact du CFVV."
 };
 
 export default function AdminParametresPage() {

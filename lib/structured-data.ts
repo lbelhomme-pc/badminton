@@ -1,8 +1,9 @@
 import { absoluteUrl, getSiteUrl } from "@/lib/seo";
+import type { ClubEvent } from "@/types/domain";
 
 const club = {
-  shortName: "CF2V41",
-  fullName: "Club des fous du Volant Vendômois",
+  shortName: "CFVV",
+  fullName: "Club des Fous du Volant du Vendômois",
   city: "Vendôme",
   email: "cfvv41@gmail.com",
   sport: "Badminton"
@@ -39,8 +40,8 @@ export function getLocalStructuredData() {
         name: club.shortName,
         alternateName: club.fullName,
         url: getSiteUrl(),
-        logo: absoluteUrl("/icons/pwa-icon-192.png"),
-        image: absoluteUrl("/icons/pwa-icon-512.png"),
+        logo: absoluteUrl("/logos/cfvv-horizontal.png"),
+        image: absoluteUrl("/logos/cfvv-horizontal.png"),
         email: club.email,
         sport: club.sport,
         areaServed: {
@@ -80,6 +81,41 @@ export function getLocalStructuredData() {
         }))
       }
     ]
+  };
+}
+
+export function getEventStructuredData(events: ClubEvent[]) {
+  const visibleEvents = events.filter((event) => event.status === "published" || event.status === "cancelled");
+
+  if (visibleEvents.length === 0) {
+    return null;
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": visibleEvents.map((event) => ({
+      "@type": "Event",
+      "@id": absoluteUrl(`/agenda#${event.id}`),
+      name: event.title,
+      description: event.cancellationMessage ? `${event.cancellationMessage} ${event.description}` : event.description,
+      startDate: event.startsAt,
+      endDate: event.endsAt,
+      eventStatus: event.status === "cancelled" ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
+      organizer: {
+        "@id": absoluteUrl("/#organization")
+      },
+      location: event.venueName
+        ? {
+            "@type": "Place",
+            name: event.venueName
+          }
+        : {
+            "@id": absoluteUrl("/club/gymnases-acces#gymnase-aigremonts")
+          },
+      image: event.imageUrl ? [absoluteUrl(event.imageUrl)] : undefined,
+      url: absoluteUrl(`/agenda#${event.id}`)
+    }))
   };
 }
 

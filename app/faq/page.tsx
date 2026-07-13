@@ -1,95 +1,67 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { InfoPage } from "@/components/public/info-page";
 import { Card } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "FAQ - CF2V41",
+  title: "FAQ - CFVV",
   description: "Questions fréquentes sur le club, les créneaux, les inscriptions et les réservations."
 };
 
 const faqItems = [
   {
     question: "Peut-on faire un essai ?",
-    answer: "Oui, jusqu'à 3 séances d'essai sont possibles sur inscription préalable.",
+    answer: "Oui. Le site prévoit un parcours de demande d'essai afin que le club puisse orienter la personne vers le bon créneau.",
     href: "/inscriptions/seance-essai",
     cta: "Demander un essai"
   },
   {
     question: "Le club accepte-t-il les débutants ?",
-    answer: "Oui, des créneaux sont adaptés aux débutants adultes et aux jeunes.",
-    href: "/jouer-au-club/adultes-debutants",
-    cta: "Voir les débutants"
+    answer: "Oui, les pages créneaux indiquent les publics et niveaux conseillés. En cas de doute, contactez le club avant de venir.",
+    href: "/creneaux",
+    cta: "Voir les créneaux"
   },
   {
     question: "À partir de quel âge ?",
-    answer: "L'âge d'accueil des jeunes est à confirmer auprès du club selon les groupes ouverts et les places disponibles."
+    answer: "L'âge d'accueil des jeunes doit être confirmé par le club selon les groupes ouverts, l'encadrement et les places disponibles."
   },
   {
     question: "Faut-il une raquette ?",
-    answer: "Pour une séance d'essai, le club peut aider à dépanner si vous n'avez pas encore de raquette."
-  },
-  {
-    question: "Faut-il acheter des volants ?",
-    answer: "Les volants plumes peuvent être achetés auprès du club. Les usages plastique/plumes dépendent du créneau et du niveau.",
-    href: "/reservations/volants",
-    cta: "Voir les volants"
+    answer: "Pour une première séance, contactez le club si vous n'avez pas encore de matériel. Les consignes définitives doivent être confirmées par le bureau."
   },
   {
     question: "Où joue-t-on ?",
-    answer: "Le club joue au Gymnase des Aigremonts, 554 Rue de la Chappe, 41100 Vendôme, avec stationnement à proximité.",
+    answer: "Les informations d'accès sont regroupées dans la page Lieux et accès, avec une alternative textuelle à la carte.",
     href: "/club/gymnases-acces",
     cta: "Voir l'accès"
   },
   {
     question: "Quels sont les horaires ?",
-    answer: "Les créneaux habituels sont le mardi de 18h à 22h30, le mercredi de 18h à 20h30, le jeudi de 18h à 22h30 et le vendredi de 18h à 22h30.",
-    href: "/jouer-au-club/creneaux",
-    cta: "Voir le planning"
+    answer: "Les horaires publiés dans la page Créneaux font foi. Ils peuvent changer en cas de vacances, fermeture ou événement.",
+    href: "/creneaux",
+    cta: "Voir les horaires"
   },
   {
     question: "Combien coûte l'inscription ?",
-    answer: "Adultes : licence loisirs à 60 euros et licence compétiteurs à 95 euros. Enfants : loisirs à 50 euros et compétiteurs à 85 euros.",
-    href: "/inscriptions/tarifs",
+    answer: "Les tarifs doivent être confirmés chaque saison par le bureau. La page Tarifs précise si les données affichées sont confirmées ou de démonstration.",
+    href: "/tarifs",
     cta: "Voir les tarifs"
   },
   {
-    question: "La licence FFBaD est-elle incluse ?",
-    answer: "L'inscription au club passe par la licence FFBaD selon la formule choisie. Vérifiez les détails sur la page officielle.",
-    href: "/inscriptions/licence-ffbad",
-    cta: "Licence FFBaD"
-  },
-  {
     question: "Comment inscrire un mineur ?",
-    answer: "Un responsable légal doit suivre la procédure d'inscription et préparer les documents nécessaires, dont l'autorisation parentale si demandée.",
+    answer: "Un responsable légal doit suivre la procédure d'inscription et fournir les documents demandés par le club et la FFBaD.",
     href: "/inscriptions/documents-utiles",
     cta: "Documents utiles"
   },
   {
     question: "Y a-t-il des compétitions ?",
-    answer: "Oui, le club propose de la compétition via interclubs et tournois, selon les niveaux et les envies.",
+    answer: "La compétition dépend des équipes, des calendriers et des responsables sportifs de la saison.",
     href: "/vie-du-club/interclubs",
     cta: "Voir interclubs"
   },
   {
-    question: "Les loisirs peuvent-ils jouer sans compétition ?",
-    answer: "Oui. Les créneaux loisirs permettent de jouer régulièrement sans obligation de compétition.",
-    href: "/jouer-au-club/loisirs",
-    cta: "Créneaux loisirs"
-  },
-  {
-    question: "Comment prévenir d'une absence ?",
-    answer: "Annulez votre réservation quand c'est possible ou contactez le responsable du créneau."
-  },
-  {
-    question: "Peut-on venir en cours d'année ?",
-    answer: "Oui si des places restent disponibles. Le plus simple est de demander un essai ou de contacter le club.",
-    href: "/contact",
-    cta: "Contacter le club"
-  },
-  {
     question: "Qui contacter ?",
-    answer: "Utilisez le formulaire de contact pour une question d'inscription, d'essai, de réservation, de volants ou de compétition.",
+    answer: "Utilisez le formulaire de contact avec l'objet adapté : essai, inscription, créneaux, volants, interclubs ou partenariat.",
     href: "/contact",
     cta: "Contact"
   }
@@ -100,16 +72,16 @@ export default function FaqPage() {
     <InfoPage
       eyebrow="FAQ"
       title="Questions fréquentes"
-      intro="Les réponses rapides pour comprendre le fonctionnement du CF2V41 avant de venir jouer, essayer ou s'inscrire."
+      intro="Les réponses rapides pour comprendre le fonctionnement du CFVV avant de venir jouer, essayer ou s'inscrire."
       cards={[]}
     >
       <div className="grid gap-4 md:grid-cols-2">
         {faqItems.map((item) => (
           <Card key={item.question} className="p-5">
             <h2 className="text-lg font-black text-court-900">{item.question}</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-500">{item.answer}</p>
+            <p className="mt-2 text-sm leading-6 text-ink-600">{item.answer}</p>
             {item.href ? (
-              <Link href={item.href} className="mt-4 inline-flex text-sm font-bold text-court-600 hover:text-court-900">
+              <Link href={item.href} className="mt-4 inline-flex font-display text-sm font-bold text-court-600 hover:text-court-900 hover:underline">
                 {item.cta}
               </Link>
             ) : null}

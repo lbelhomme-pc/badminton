@@ -11,8 +11,9 @@ function getSupabaseOrigin() {
   }
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+
 function buildContentSecurityPolicy() {
-  const isProduction = process.env.NODE_ENV === "production";
   const supabaseOrigin = getSupabaseOrigin();
 
   const connectSources = unique([
@@ -70,6 +71,33 @@ const securityHeaders = [
   {
     key: "X-Frame-Options",
     value: "SAMEORIGIN"
+  },
+  ...(isProduction
+    ? [
+        {
+          key: "Strict-Transport-Security",
+          value: "max-age=31536000; includeSubDomains"
+        }
+      ]
+    : []),
+  {
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin"
+  },
+  {
+    key: "X-DNS-Prefetch-Control",
+    value: "off"
+  },
+  {
+    key: "X-Permitted-Cross-Domain-Policies",
+    value: "none"
+  }
+];
+
+const privateNoIndexHeaders = [
+  {
+    key: "X-Robots-Tag",
+    value: "noindex, nofollow, noarchive"
   }
 ];
 
@@ -80,6 +108,34 @@ const nextConfig = {
       {
         source: "/:path*",
         headers: securityHeaders
+      },
+      {
+        source: "/admin/:path*",
+        headers: privateNoIndexHeaders
+      },
+      {
+        source: "/espace-adherent",
+        headers: privateNoIndexHeaders
+      },
+      {
+        source: "/compte",
+        headers: privateNoIndexHeaders
+      },
+      {
+        source: "/documents",
+        headers: privateNoIndexHeaders
+      },
+      {
+        source: "/commande-volants",
+        headers: privateNoIndexHeaders
+      },
+      {
+        source: "/reservation-creneau",
+        headers: privateNoIndexHeaders
+      },
+      {
+        source: "/mes-reservations",
+        headers: privateNoIndexHeaders
       }
     ];
   }

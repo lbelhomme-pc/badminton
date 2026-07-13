@@ -2,8 +2,8 @@
 import { AdminCreneaux } from "@/components/admin/admin-creneaux";
 
 export const metadata: Metadata = {
-  title: "Admin créneaux - CF2V41",
-  description: "Gestion des créneaux du CF2V41."
+  title: "Admin créneaux - CFVV",
+  description: "Gestion des créneaux du CFVV."
 };
 
 export default function AdminCreneauxPage() {

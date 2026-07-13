@@ -1,30 +1,93 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { BadgeCheck, HeartHandshake, History, Shirt, Sparkles, UsersRound } from "lucide-react";
 import { ClubPhoto } from "@/components/public/club-photo";
 import { InfoPage } from "@/components/public/info-page";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { clubPhotoSlots, hasClubPhoto } from "@/lib/club-photos";
 
 export const metadata: Metadata = {
-  title: "Le club - CF2V41",
-  description: "Présentation du Club des fous du Volant Vendômois, bureau, encadrants et gymnases."
+  title: "Le Club - CFVV",
+  description: "Histoire, valeurs, pratiques, catégories, équipement et modalités d'essai du CFVV."
 };
+
+const sections = [
+  {
+    icon: History,
+    title: "Histoire",
+    text: "Le CFVV est un club associatif vendômois. Les dates historiques précises doivent être confirmées par le bureau avant publication."
+  },
+  {
+    icon: HeartHandshake,
+    title: "Valeurs",
+    text: "Accueil, convivialité, progression, entraide bénévole et respect des niveaux de chacun."
+  },
+  {
+    icon: UsersRound,
+    title: "Pratiques proposées",
+    text: "Jeu libre, créneaux jeunes, pratique adulte, loisir, compétition et interclubs selon les créneaux ouverts."
+  },
+  {
+    icon: BadgeCheck,
+    title: "Catégories",
+    text: "Les catégories jeunes/adultes et loisirs/compétiteurs sont précisées dans les pages créneaux et tarifs."
+  },
+  {
+    icon: Shirt,
+    title: "Équipement",
+    text: "Prévoir une tenue de sport, des chaussures propres adaptées au gymnase, une gourde et une raquette si possible."
+  },
+  {
+    icon: Sparkles,
+    title: "Essai",
+    text: "La séance d'essai permet de vérifier le créneau, l'ambiance et le niveau avant de finaliser l'inscription."
+  }
+];
 
 export default function ClubPage() {
   const clubLifePhoto = clubPhotoSlots.clubLife;
 
   return (
     <InfoPage
-      eyebrow="Le club"
-      title="Club des fous du Volant Vendômois"
-      intro="Le CF2V41 rassemble les joueuses et joueurs de Vendôme autour d'un badminton convivial, progressif et structuré."
-      cards={[
-        { title: "Présentation", text: "L'esprit du club, ses valeurs et son fonctionnement au quotidien.", href: "/club/presentation" },
-        { title: "Bureau et bénévoles", text: "Les personnes qui organisent la vie associative et les temps forts.", href: "/club/bureau-benevoles" },
-        { title: "Encadrants", text: "Les responsables de créneaux et les personnes qui accompagnent la progression.", href: "/club/encadrants" },
-        { title: "Gymnases et accès", text: "Adresses, accès, stationnement et informations pratiques.", href: "/club/gymnases-acces" },
-        { title: "Partenaires", text: "Soutien local, collectivités, entreprises et actions communes.", href: "/vie-du-club/partenaires" }
-      ]}
+      eyebrow="Le Club"
+      title="Un club de badminton associatif à Vendôme"
+      intro="Le CFVV accueille les joueurs qui veulent découvrir, jouer régulièrement, progresser ou représenter le club en compétition."
+      cards={[]}
     >
-      {hasClubPhoto(clubLifePhoto) ? <ClubPhoto slot={clubLifePhoto} className="h-72 w-full md:h-96" /> : null}
+      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+        <div>
+          {hasClubPhoto(clubLifePhoto) ? (
+            <ClubPhoto slot={clubLifePhoto} className="h-72 w-full md:h-96" />
+          ) : (
+            <img
+              src="/logos/cfvv-illustration.png"
+              alt="Illustration du CFVV avec volant de badminton et monument de Vendôme"
+              className="h-72 w-full rounded-lg border border-court-200 bg-white object-contain p-5 md:h-96"
+            />
+          )}
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+            <Link href="/creneaux">
+              <Button className="w-full sm:w-auto">Voir les créneaux</Button>
+            </Link>
+            <Link href="/inscriptions/seance-essai">
+              <Button variant="outline" className="w-full sm:w-auto">Demander un essai</Button>
+            </Link>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {sections.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Card key={item.title} className="p-5">
+                <Icon className="h-6 w-6 text-court-500" aria-hidden="true" />
+                <h2 className="mt-4 text-xl font-black text-court-900">{item.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-ink-600">{item.text}</p>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
     </InfoPage>
   );
 }

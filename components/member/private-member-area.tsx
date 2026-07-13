@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { CalendarDays, FileText, Mail, ShoppingBag, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { PasswordUpdateForm } from "@/components/auth/password-update-form";
 import { ProtectedRoute } from "@/components/auth/protected-route";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { clubRoleLabel, reservationStatusLabel, shuttleOrderStatusLabel, waitingListStatusLabel } from "@/lib/status-labels";
+import { appRolesToMemberAccessRoles, memberAccessRoleLabels, normalizeSeasonStatus } from "@/lib/member-access";
+import { clubRoleLabel, reservationStatusLabel, seasonStatusLabel, shuttleOrderStatusLabel, waitingListStatusLabel } from "@/lib/status-labels";
 import {
   cancelReservation,
   fetchActualites,
@@ -40,6 +44,10 @@ function MemberContent() {
   const [pendingCancelId, setPendingCancelId] = useState<number | null>(null);
   const [pendingSessionAction, setPendingSessionAction] = useState<"refresh" | "reset" | null>(null);
 
+  const seasonStatus = normalizeSeasonStatus(profile?.statut);
+  const accessRoles = useMemo(() => appRolesToMemberAccessRoles(roles, profile?.role), [profile?.role, roles]);
+  const nextReservation = reservations[0] ?? null;
+
   async function loadMemberData() {
     const [reservationResult, waitingResult, orderResult, actualiteResult] = await Promise.all([
       fetchMyReservations(),
@@ -55,7 +63,7 @@ function MemberContent() {
   }
 
   useEffect(() => {
-    loadMemberData();
+    void loadMemberData();
   }, []);
 
   function canCancel(reservation: ReservationRow) {
@@ -127,9 +135,11 @@ function MemberContent() {
       <div className="grid gap-6 lg:grid-cols-[1.3fr_0.8fr]">
         <section className="space-y-6">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Espace adhérent</p>
+            <p className="font-display text-sm font-bold uppercase text-court-600">Espace adhérent sécurisé</p>
             <h1 className="mt-2 text-4xl font-black text-court-900">Bonjour {profile?.prenom || user?.email}</h1>
-            <p className="mt-2 text-ink-500">Retrouve tes informations, tes réservations et les actualités internes du club.</p>
+            <p className="mt-2 text-ink-500">
+              Réservations, informations internes, volants, documents et profil sont regroupés ici pour aller vite depuis un téléphone.
+            </p>
           </div>
 
           {message ? (
@@ -139,65 +149,116 @@ function MemberContent() {
           ) : null}
 
           <Card className="p-5">
-            <h2 className="text-2xl font-black text-court-900">Ce que permet ton compte</h2>
-            <p className="mt-2 text-sm leading-6 text-ink-500">
-              Le compte adhérent sert à gérer les actions utiles au quotidien, sans passer par plusieurs messages au club.
-            </p>
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {[
-                "Réserver un créneau ouvert",
-                "Voir et annuler tes réservations",
-                "Suivre ta liste d'attente",
-                "Commander des volants",
-                "Voir ton historique de volants",
-                "Retrouver les infos internes du club",
-                "Consulter ton profil adhérent",
-                "Modifier ton mot de passe"
-              ].map((item) => (
-                <div key={item} className="rounded-lg border border-court-100 bg-court-50 px-4 py-3 text-sm font-semibold text-court-900">
-                  {item}
-                </div>
-              ))}
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="font-display text-sm font-bold uppercase text-court-600">Prochaine action</p>
+                <h2 className="mt-2 text-2xl font-black text-court-900">Ma prochaine réservation</h2>
+              </div>
+              <Badge variant={nextReservation ? "success" : "neutral"}>
+                {nextReservation ? reservationStatusLabel(nextReservation.statut) : "Aucune réservation"}
+              </Badge>
+            </div>
+
+            {nextReservation ? (
+              <div className="mt-5 rounded-lg bg-court-50 p-4">
+                <p className="font-black text-court-900">
+                  {nextReservation.creneaux?.jour} · {nextReservation.creneaux?.gymnase}
+                </p>
+                <p className="mt-1 text-sm text-ink-600">
+                  {nextReservation.date_reservation}
+                  {nextReservation.creneaux
+                    ? ` · ${nextReservation.creneaux.heure_debut.slice(0, 5)} - ${nextReservation.creneaux.heure_fin.slice(0, 5)}`
+                    : ""}
+                </p>
+                {canCancel(nextReservation) ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="mt-4"
+                    onClick={() => cancelFromDashboard(nextReservation)}
+                    disabled={pendingCancelId === nextReservation.id}
+                  >
+                    {pendingCancelId === nextReservation.id ? "Annulation..." : "Annuler ma réservation"}
+                  </Button>
+                ) : (
+                  <p className="mt-4 text-sm font-semibold text-ink-600">Annulation en ligne fermée pour ce créneau.</p>
+                )}
+              </div>
+            ) : (
+              <p className="mt-4 text-sm leading-6 text-ink-600">
+                Tu n'as pas encore de réservation à venir. Les créneaux ouverts à la réservation restent accessibles ci-dessous.
+              </p>
+            )}
+
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href="/reservation-creneau">
+                <Button>Réserver un créneau</Button>
+              </Link>
+              <Link href="/mes-reservations">
+                <Button variant="outline">Voir mes réservations</Button>
+              </Link>
             </div>
           </Card>
 
+          <div className="grid gap-4 md:grid-cols-2">
+            <DashboardActionCard
+              icon={<CalendarDays className="h-6 w-6 text-court-500" aria-hidden="true" />}
+              title="Créneaux ouverts"
+              text="Consulte les disponibilités et réserve les séances concernées par le club."
+              href="/reservation-creneau"
+              label="Réserver"
+            />
+            <DashboardActionCard
+              icon={<ShoppingBag className="h-6 w-6 text-court-500" aria-hidden="true" />}
+              title="Boutique volants"
+              text="Commande les tubes disponibles et suis l'état de tes demandes."
+              href="/commande-volants"
+              label="Commander"
+            />
+            <DashboardActionCard
+              icon={<FileText className="h-6 w-6 text-court-500" aria-hidden="true" />}
+              title="Documents"
+              text="Retrouve les documents de saison, licence, règlement et informations utiles."
+              href="/documents"
+              label="Ouvrir"
+            />
+            <DashboardActionCard
+              icon={<Mail className="h-6 w-6 text-court-500" aria-hidden="true" />}
+              title="Contacter le club"
+              text="Une question sur ton compte, une réservation ou une information interne ?"
+              href="/contact"
+              label="Contacter"
+            />
+          </div>
+
           <Card className="p-5">
-            <h2 className="text-2xl font-black text-court-900">Mes prochaines réservations</h2>
-            {reservations.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-500">Aucune réservation pour le moment.</p>
+            <h2 className="text-2xl font-black text-court-900">Messages prioritaires du bureau</h2>
+            {actualites.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-500">Aucun message interne publié pour le moment.</p>
             ) : (
               <div className="mt-4 grid gap-3">
-                {reservations.slice(0, 4).map((reservation) => (
-                  <div key={reservation.id} className="rounded-lg bg-court-50 p-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                      <div>
-                        <p className="font-semibold text-court-900">{reservation.creneaux?.jour} · {reservation.creneaux?.gymnase}</p>
-                        <p className="text-sm text-ink-500">{reservation.date_reservation} · {reservationStatusLabel(reservation.statut)}</p>
-                      </div>
-                      {canCancel(reservation) ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => cancelFromDashboard(reservation)}
-                          disabled={pendingCancelId === reservation.id}
-                        >
-                          {pendingCancelId === reservation.id ? "Annulation..." : "Annuler"}
-                        </Button>
-                      ) : null}
-                    </div>
+                {actualites.slice(0, 3).map((actualite) => (
+                  <div key={actualite.id} className="rounded-lg bg-court-50 p-4">
+                    <p className="font-semibold text-court-900">{actualite.titre}</p>
+                    <p className="mt-1 line-clamp-2 text-sm text-ink-600">{actualite.contenu}</p>
+                    {actualite.lien_url ? (
+                      <a href={actualite.lien_url} className="mt-3 inline-flex font-display text-sm font-bold text-court-600 hover:underline">
+                        {actualite.lien_label || "Ouvrir le lien"}
+                      </a>
+                    ) : null}
                   </div>
                 ))}
               </div>
             )}
-            <div className="mt-5 flex flex-wrap gap-3">
-              <Link href="/reservation-creneau"><Button>Réserver un créneau</Button></Link>
-              <Link href="/mes-reservations"><Button variant="outline">Voir mes réservations</Button></Link>
-              <Link href="/commande-volants"><Button variant="outline">Commander des volants</Button></Link>
-            </div>
+            <Link href="/agenda">
+              <Button className="mt-5" variant="outline">
+                Voir l'agenda public
+              </Button>
+            </Link>
           </Card>
 
           <Card className="p-5">
-            <h2 className="text-2xl font-black text-court-900">Volants</h2>
+            <h2 className="text-2xl font-black text-court-900">Volants et commandes</h2>
             {orders.length === 0 ? (
               <p className="mt-3 text-sm text-ink-500">Aucun achat ou commande de volants enregistré pour le moment.</p>
             ) : (
@@ -216,21 +277,27 @@ function MemberContent() {
               </div>
             )}
             <Link href="/commande-volants">
-              <Button className="mt-5" variant="outline">Voir les volants</Button>
+              <Button className="mt-5" variant="outline">
+                Voir les volants
+              </Button>
             </Link>
           </Card>
         </section>
 
         <aside className="space-y-4">
           <Card className="p-5">
-            <h2 className="text-xl font-black text-court-900">Mes informations</h2>
-            <div className="mt-3 grid gap-2 text-sm text-ink-500">
+            <UserRound className="h-6 w-6 text-court-500" aria-hidden="true" />
+            <h2 className="mt-3 text-xl font-black text-court-900">Mon profil</h2>
+            <div className="mt-3 grid gap-2 text-sm text-ink-600">
               <p>{profile?.prenom} {profile?.nom}</p>
               <p>{profile?.email || user?.email}</p>
-              <p>Rôle : {clubRoleLabel(profile?.role ?? "adherent")}</p>
-              <p>Rôles détectés : {roles.join(", ")}</p>
+              <p>Licence : {profile?.licence_ffbad || "À renseigner par le club"}</p>
+              <p>Statut saison : {seasonStatusLabel(seasonStatus)}</p>
+              <p>Rôle historique : {clubRoleLabel(profile?.role ?? "adherent")}</p>
+              <p>Accès : {accessRoles.map((role) => memberAccessRoleLabels[role]).join(", ") || "Aucun accès actif"}</p>
             </div>
           </Card>
+
           <Card className="p-5">
             <h2 className="text-xl font-black text-court-900">Session</h2>
             <p className="mt-2 text-sm leading-6 text-ink-500">
@@ -245,11 +312,13 @@ function MemberContent() {
               </Button>
             </div>
           </Card>
+
           <PasswordUpdateForm
             compact
             title="Sécurité du compte"
             intro="Modifie ton mot de passe sans repasser par le lien de mot de passe oublié."
           />
+
           <Card className="p-5">
             <h2 className="text-xl font-black text-court-900">Liste d'attente</h2>
             {waitingList.length === 0 ? (
@@ -265,23 +334,35 @@ function MemberContent() {
               </div>
             )}
           </Card>
-          <Card className="p-5">
-            <h2 className="text-xl font-black text-court-900">Actualités internes</h2>
-            {actualites.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-500">Aucune actualité interne pour le moment.</p>
-            ) : (
-              <div className="mt-3 grid gap-3">
-                {actualites.slice(0, 3).map((actualite) => (
-                  <div key={actualite.id} className="rounded-lg bg-court-50 p-3">
-                    <p className="font-semibold text-court-900">{actualite.titre}</p>
-                    <p className="mt-1 line-clamp-2 text-sm text-ink-500">{actualite.contenu}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
         </aside>
       </div>
     </div>
+  );
+}
+
+function DashboardActionCard({
+  icon,
+  title,
+  text,
+  href,
+  label
+}: {
+  icon: ReactNode;
+  title: string;
+  text: string;
+  href: string;
+  label: string;
+}) {
+  return (
+    <Card className="p-5">
+      {icon}
+      <h2 className="mt-4 text-xl font-black text-court-900">{title}</h2>
+      <p className="mt-2 text-sm leading-6 text-ink-600">{text}</p>
+      <Link href={href}>
+        <Button className="mt-5" variant="outline">
+          {label}
+        </Button>
+      </Link>
+    </Card>
   );
 }

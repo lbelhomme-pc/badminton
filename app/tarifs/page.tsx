@@ -3,8 +3,8 @@ import TarifsPage from "@/app/inscriptions/tarifs/page";
 import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Tarifs - CF2V41",
-  description: "Tarifs et formules d'inscription du CF2V41.",
+  title: "Tarifs et inscriptions - CFVV",
+  description: "Tarifs, pièces nécessaires, procédure et informations de saison du CFVV.",
   alternates: canonical("/tarifs")
 };
 

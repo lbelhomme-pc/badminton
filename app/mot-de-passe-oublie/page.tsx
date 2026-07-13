@@ -2,8 +2,8 @@
 import { PasswordResetForm } from "@/components/auth/password-reset-form";
 
 export const metadata: Metadata = {
-  title: "Mot de passe oublié - CF2V41",
-  description: "Réinitialiser le mot de passe d'un compte adhérent CF2V41."
+  title: "Mot de passe oublié - CFVV",
+  description: "Réinitialiser le mot de passe d'un compte adhérent CFVV."
 };
 
 export default function MotDePasseOubliePage() {

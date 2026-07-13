@@ -2,12 +2,51 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { FormEvent } from "react";
 import { useState } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
+const publicSignupEnabled = process.env.NEXT_PUBLIC_ENABLE_PUBLIC_SIGNUP === "true";
+
 export function SignupForm() {
+  if (!publicSignupEnabled) {
+    return <InvitationOnlySignup />;
+  }
+
+  return <TransitionSignupForm />;
+}
+
+function InvitationOnlySignup() {
+  return (
+    <Card className="mx-auto max-w-2xl p-6">
+      <p className="font-display text-sm font-bold uppercase text-court-600">Activation sécurisée</p>
+      <h2 className="mt-2 text-3xl font-black text-court-900">Compte sur invitation du club</h2>
+      <p className="mt-3 text-sm leading-6 text-ink-600">
+        Pour protéger les données adhérents, la création libre de compte est désactivée. Le bureau doit envoyer une invitation personnelle avec un lien
+        ou un code à usage unique. Le numéro de licence reste l'identifiant métier visible dans l'espace adhérent ; l'authentification Supabase conserve
+        son identifiant technique.
+      </p>
+      <div className="mt-5 rounded-lg bg-court-50 p-4 text-sm leading-6 text-ink-700">
+        <p className="font-bold text-court-900">Tu as déjà reçu une invitation ?</p>
+        <p>Ouvre le lien reçu par email. S'il a expiré ou a déjà été utilisé, demande une nouvelle invitation au club.</p>
+      </div>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <Link href="/connexion">
+          <Button className="w-full sm:w-auto">Se connecter</Button>
+        </Link>
+        <Link href="/contact">
+          <Button variant="outline" className="w-full sm:w-auto">
+            Demander une invitation
+          </Button>
+        </Link>
+      </div>
+    </Card>
+  );
+}
+
+function TransitionSignupForm() {
   const { signup, configured } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({
@@ -26,7 +65,7 @@ export function SignupForm() {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     if (form.password !== form.confirmPassword) {
@@ -35,7 +74,7 @@ export function SignupForm() {
     }
 
     if (!form.privacy) {
-      setMessage("Merci d’accepter les informations de confidentialité.");
+      setMessage("Merci d'accepter les informations de confidentialité.");
       return;
     }
 
@@ -60,13 +99,14 @@ export function SignupForm() {
 
   return (
     <Card className="mx-auto max-w-2xl p-6">
-      <h2 className="text-3xl font-black text-court-900">Créer un compte</h2>
+      <p className="font-display text-sm font-bold uppercase text-yellow-700">Mode transition</p>
+      <h2 className="mt-2 text-3xl font-black text-court-900">Créer un compte</h2>
       <p className="mt-2 text-sm leading-6 text-ink-500">
-        Le compte sert à gérer tes réservations et tes informations club. Le club collecte uniquement les données utiles à cette gestion.
+        Cette création libre ne doit rester active que pendant une phase de transition. Le fonctionnement cible du CFVV est l'activation par invitation.
       </p>
       {!configured ? (
         <p className="mt-4 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">
-          La création de compte n’est pas encore disponible. Réessaie plus tard ou contacte le club.
+          La création de compte n'est pas encore disponible. Réessaie plus tard ou contacte le club.
         </p>
       ) : null}
       <form className="mt-6 grid gap-4" onSubmit={onSubmit}>
@@ -90,7 +130,8 @@ export function SignupForm() {
             className="mt-1 h-4 w-4"
           />
           <span>
-            J’ai compris que mes données servent à gérer mon compte, mes réservations et les échanges avec le club. Je peux demander leur suppression via la page contact.
+            J'ai compris que mes données servent à gérer mon compte, mes réservations et les échanges avec le club. Je peux demander leur suppression
+            via la page contact.
           </span>
         </label>
         {message ? (
@@ -103,7 +144,10 @@ export function SignupForm() {
         </Button>
       </form>
       <p className="mt-5 text-sm text-ink-500">
-        Déjà un compte ? <Link href="/connexion" className="font-bold text-court-600">Connexion</Link>
+        Déjà un compte ?{" "}
+        <Link href="/connexion" className="font-bold text-court-600">
+          Connexion
+        </Link>
       </p>
     </Card>
   );

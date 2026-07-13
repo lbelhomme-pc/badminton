@@ -3,7 +3,7 @@ import { ShuttleShop } from "@/components/shuttles/shuttle-shop";
 import { getShuttleProducts } from "@/services/club.service";
 
 export const metadata: Metadata = {
-  title: "Volants - CF2V41",
+  title: "Volants - CFVV",
   description: "Réservez des tubes de volants avec paiement sur place."
 };
 

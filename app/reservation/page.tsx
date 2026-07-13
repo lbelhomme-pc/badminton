@@ -3,7 +3,7 @@ import { PlanningExperience } from "@/components/planning/planning-experience";
 import { getUpcomingSlots } from "@/services/club.service";
 
 export const metadata: Metadata = {
-  title: "Réserver un créneau - CF2V41",
+  title: "Réserver un créneau - CFVV",
   description: "Réservez rapidement une place sur un créneau ouvert."
 };
 

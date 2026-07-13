@@ -14,7 +14,7 @@ interface RegistrationCtaProps {
 export async function RegistrationCta({
   className,
   compact = false,
-  title = "Prêt à rejoindre le CF2V41 ?",
+  title = "Prêt à rejoindre le CFVV ?",
   intro = "Choisis d'abord le créneau adapté ou demande une séance d'essai. Le club confirme ensuite les documents et la licence à finaliser.",
   showOfficialLink = true
 }: RegistrationCtaProps) {

@@ -20,11 +20,19 @@ import {
 } from "@/services/supabase-data.service";
 
 type VolantFormState = {
+  reference: string;
   marque: string;
   modele: string;
   type: string;
+  quantite_boite: string;
   prix: string;
   stock: string;
+  disponibilite: string;
+  limite_commande: string;
+  photo_url: string;
+  instructions_retrait: string;
+  helloasso_url: string;
+  helloasso_item_id: string;
   actif: boolean;
 };
 
@@ -35,11 +43,19 @@ type ParsedVolantForm =
 const VOLANT_TYPES = ["plastique", "plume", "hybride"] as const;
 
 const emptyVolantForm: VolantFormState = {
+  reference: "",
   marque: "",
   modele: "",
   type: "plume",
+  quantite_boite: "12",
   prix: "22.00",
   stock: "12",
+  disponibilite: "disponible",
+  limite_commande: "4",
+  photo_url: "",
+  instructions_retrait: "Retrait auprès du responsable volants à la salle.",
+  helloasso_url: "",
+  helloasso_item_id: "",
   actif: true
 };
 
@@ -53,11 +69,19 @@ export function AdminVolants() {
 
 function volantToForm(volant: VolantRow): VolantFormState {
   return {
+    reference: volant.reference ?? "",
     marque: volant.marque,
     modele: volant.modele ?? "",
     type: volant.type,
+    quantite_boite: String(volant.quantite_boite ?? 12),
     prix: Number(volant.prix).toFixed(2),
     stock: String(volant.stock),
+    disponibilite: volant.disponibilite ?? (volant.stock > 0 ? "disponible" : "indisponible"),
+    limite_commande: String(volant.limite_commande ?? 4),
+    photo_url: volant.photo_url ?? "",
+    instructions_retrait: volant.instructions_retrait ?? "",
+    helloasso_url: volant.helloasso_url ?? "",
+    helloasso_item_id: volant.helloasso_item_id ?? "",
     actif: volant.actif
   };
 }
@@ -71,6 +95,9 @@ function parseVolantForm(form: VolantFormState): ParsedVolantForm {
   const modele = form.modele.trim();
   const prix = parseEuro(form.prix || "0");
   const stock = Number(form.stock);
+  const quantiteBoite = Number(form.quantite_boite);
+  const limiteCommande = Number(form.limite_commande);
+  const helloassoUrl = form.helloasso_url.trim();
 
   if (!marque) {
     return { ok: false, message: "Le nom ou la marque du volant est obligatoire." };
@@ -88,14 +115,39 @@ function parseVolantForm(form: VolantFormState): ParsedVolantForm {
     return { ok: false, message: "Le stock doit être un nombre entier positif." };
   }
 
+  if (!Number.isInteger(quantiteBoite) || quantiteBoite <= 0) {
+    return { ok: false, message: "La quantité par boîte doit être un entier positif." };
+  }
+
+  if (!Number.isInteger(limiteCommande) || limiteCommande <= 0) {
+    return { ok: false, message: "La limite par commande doit être un entier positif." };
+  }
+
+  if (!["disponible", "indisponible"].includes(form.disponibilite)) {
+    return { ok: false, message: "Choisis une disponibilité valide." };
+  }
+
+  if (helloassoUrl && !helloassoUrl.startsWith("https://")) {
+    return { ok: false, message: "Le lien HelloAsso doit commencer par https://." };
+  }
+
   return {
     ok: true,
     input: {
       marque,
       modele: modele || null,
       type: form.type,
+      reference: form.reference.trim() || null,
+      quantite_boite: quantiteBoite,
       prix: Math.round(prix * 100) / 100,
       stock,
+      disponibilite: form.disponibilite,
+      limite_commande: limiteCommande,
+      photo_url: form.photo_url.trim() || null,
+      instructions_retrait: form.instructions_retrait.trim() || null,
+      helloasso_url: helloassoUrl || null,
+      helloasso_item_id: form.helloasso_item_id.trim() || null,
+      payment_provider: "helloasso",
       actif: form.actif
     }
   };
@@ -300,11 +352,19 @@ function AdminVolantsContent() {
       <Card className="p-5">
         <h2 className="text-xl font-black text-court-900">Nouveau volant</h2>
         <form className="mt-5 grid gap-4 md:grid-cols-5" onSubmit={onSubmit}>
+          <VolantInput label="Référence interne" required={false} value={form.reference} onChange={(value) => updateForm("reference", value)} />
           <VolantInput label="Marque ou nom" value={form.marque} onChange={(value) => updateForm("marque", value)} />
           <VolantInput label="Modèle" required={false} value={form.modele} onChange={(value) => updateForm("modele", value)} />
           <VolantTypeSelect value={form.type} onChange={(value) => updateForm("type", value)} />
+          <VolantInput label="Volants par boîte" type="number" min="1" step="1" value={form.quantite_boite} onChange={(value) => updateForm("quantite_boite", value)} />
           <VolantInput label="Prix en euros" inputMode="decimal" value={form.prix} onChange={(value) => updateForm("prix", value)} />
           <VolantInput label="Stock" type="number" min="0" step="1" value={form.stock} onChange={(value) => updateForm("stock", value)} />
+          <VolantAvailabilitySelect value={form.disponibilite} onChange={(value) => updateForm("disponibilite", value)} />
+          <VolantInput label="Limite par commande" type="number" min="1" step="1" value={form.limite_commande} onChange={(value) => updateForm("limite_commande", value)} />
+          <VolantInput label="Photo URL" required={false} value={form.photo_url} onChange={(value) => updateForm("photo_url", value)} />
+          <VolantInput label="Lien HelloAsso" required={false} value={form.helloasso_url} onChange={(value) => updateForm("helloasso_url", value)} />
+          <VolantInput label="ID HelloAsso" required={false} value={form.helloasso_item_id} onChange={(value) => updateForm("helloasso_item_id", value)} />
+          <VolantInput label="Instructions retrait" required={false} value={form.instructions_retrait} onChange={(value) => updateForm("instructions_retrait", value)} />
           <Button type="submit" className="md:col-span-5">
             Ajouter le volant
           </Button>
@@ -426,10 +486,18 @@ function AdminVolantsContent() {
               >
                 <VolantInput label="Marque ou nom" value={edit.marque} onChange={(value) => updateEdit(volant.id, "marque", value)} />
                 <VolantInput label="Modèle" required={false} value={edit.modele} onChange={(value) => updateEdit(volant.id, "modele", value)} />
+                <VolantInput label="Référence interne" required={false} value={edit.reference} onChange={(value) => updateEdit(volant.id, "reference", value)} />
                 <div className="grid gap-3 sm:grid-cols-2">
                   <VolantTypeSelect value={edit.type} onChange={(value) => updateEdit(volant.id, "type", value)} />
+                  <VolantAvailabilitySelect value={edit.disponibilite} onChange={(value) => updateEdit(volant.id, "disponibilite", value)} />
+                  <VolantInput label="Volants par boîte" type="number" min="1" step="1" value={edit.quantite_boite} onChange={(value) => updateEdit(volant.id, "quantite_boite", value)} />
                   <VolantInput label="Prix en euros" inputMode="decimal" value={edit.prix} onChange={(value) => updateEdit(volant.id, "prix", value)} />
                   <VolantInput label="Stock" type="number" min="0" step="1" value={edit.stock} onChange={(value) => updateEdit(volant.id, "stock", value)} />
+                  <VolantInput label="Limite par commande" type="number" min="1" step="1" value={edit.limite_commande} onChange={(value) => updateEdit(volant.id, "limite_commande", value)} />
+                  <VolantInput label="Photo URL" required={false} value={edit.photo_url} onChange={(value) => updateEdit(volant.id, "photo_url", value)} />
+                  <VolantInput label="Lien HelloAsso" required={false} value={edit.helloasso_url} onChange={(value) => updateEdit(volant.id, "helloasso_url", value)} />
+                  <VolantInput label="ID HelloAsso" required={false} value={edit.helloasso_item_id} onChange={(value) => updateEdit(volant.id, "helloasso_item_id", value)} />
+                  <VolantInput label="Instructions retrait" required={false} value={edit.instructions_retrait} onChange={(value) => updateEdit(volant.id, "instructions_retrait", value)} />
                   <label className="flex h-11 items-center gap-2 self-end rounded-lg border border-court-200 bg-court-50 px-3 text-sm font-semibold text-court-900">
                     <input
                       type="checkbox"
@@ -558,6 +626,22 @@ function VolantTypeSelect({ value, onChange }: { value: string; onChange: (value
             {type}
           </option>
         ))}
+      </select>
+    </label>
+  );
+}
+
+function VolantAvailabilitySelect({ value, onChange }: { value: string; onChange: (value: string) => void }) {
+  return (
+    <label className="grid gap-2 text-sm font-semibold text-court-900">
+      Disponibilité
+      <select
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className="h-11 rounded-lg border border-court-200 bg-court-50 px-3"
+      >
+        <option value="disponible">Disponible</option>
+        <option value="indisponible">Indisponible</option>
       </select>
     </label>
   );

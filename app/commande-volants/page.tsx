@@ -2,8 +2,8 @@
 import { CommandeVolants } from "@/components/member/commande-volants";
 
 export const metadata: Metadata = {
-  title: "Commander des volants - CF2V41",
-  description: "Réservation simple de volants pour les adhérents du CF2V41."
+  title: "Commander des volants - CFVV",
+  description: "Boutique de volants réservée aux adhérents du CFVV avec paiement HelloAsso."
 };
 
 export default function CommandeVolantsPage() {

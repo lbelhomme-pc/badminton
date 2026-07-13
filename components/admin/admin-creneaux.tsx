@@ -28,7 +28,13 @@ const initialForm = {
   public: "adultes",
   niveau: "Tous niveaux",
   places_max: "28",
-  responsable: "Didier Remule"
+  responsable: "Didier Remule",
+  reservation_active: "false",
+  reservation_open_days: "7",
+  reservation_open_time: "08:00",
+  reservation_close_minutes_before: "0",
+  cancellation_deadline_hours: "2",
+  reservation_message: ""
 };
 
 type CreneauForm = typeof initialForm;
@@ -45,6 +51,12 @@ function toCreneauInput(form: CreneauForm) {
     niveau: form.niveau.trim() || null,
     places_max: form.places_max ? Number(form.places_max) : null,
     responsable: form.responsable.trim() || null,
+    reservation_active: form.reservation_active === "true",
+    reservation_open_days: Number(form.reservation_open_days || 7),
+    reservation_open_time: form.reservation_open_time || "08:00",
+    reservation_close_minutes_before: Number(form.reservation_close_minutes_before || 0),
+    cancellation_deadline_hours: Number(form.cancellation_deadline_hours || 2),
+    reservation_message: form.reservation_message.trim() || null,
     actif: true
   };
 }
@@ -60,7 +72,13 @@ function formFromCreneau(creneau: CreneauRow): CreneauForm {
     public: creneau.public,
     niveau: creneau.niveau ?? "",
     places_max: creneau.places_max == null ? "" : String(creneau.places_max),
-    responsable: creneau.responsable ?? ""
+    responsable: creneau.responsable ?? "",
+    reservation_active: creneau.reservation_active ? "true" : "false",
+    reservation_open_days: String(creneau.reservation_open_days ?? 7),
+    reservation_open_time: (creneau.reservation_open_time ?? "08:00").slice(0, 5),
+    reservation_close_minutes_before: String(creneau.reservation_close_minutes_before ?? 0),
+    cancellation_deadline_hours: String(creneau.cancellation_deadline_hours ?? 2),
+    reservation_message: creneau.reservation_message ?? ""
   };
 }
 
@@ -215,6 +233,12 @@ function AdminCreneauxContent() {
           <AdminSelect label="Public" value={form.public} onChange={(value) => update("public", value)} options={["jeunes", "adultes", "loisirs", "competiteurs", "tous"]} />
           <AdminInput label="Niveau" required={false} value={form.niveau} onChange={(value) => update("niveau", value)} />
           <AdminInput label="Responsable créneau" required={false} value={form.responsable} onChange={(value) => update("responsable", value)} />
+          <AdminSelect label="Réservation active" value={form.reservation_active} onChange={(value) => update("reservation_active", value)} options={["false", "true"]} />
+          <AdminInput label="Ouverture J-" type="number" value={form.reservation_open_days} onChange={(value) => update("reservation_open_days", value)} />
+          <AdminInput label="Heure d'ouverture" type="time" value={form.reservation_open_time} onChange={(value) => update("reservation_open_time", value)} />
+          <AdminInput label="Fermeture avant séance (min)" type="number" value={form.reservation_close_minutes_before} onChange={(value) => update("reservation_close_minutes_before", value)} />
+          <AdminInput label="Délai annulation (h)" type="number" value={form.cancellation_deadline_hours} onChange={(value) => update("cancellation_deadline_hours", value)} />
+          <AdminInput label="Message réservation" required={false} value={form.reservation_message} onChange={(value) => update("reservation_message", value)} />
           <Button type="submit" className="md:col-span-3">Créer le créneau</Button>
         </form>
       </Card>
@@ -260,6 +284,12 @@ function AdminCreneauxContent() {
                 <AdminSelect label="Public" value={current.public} onChange={(value) => updateEdit(creneau.id, "public", value)} options={["jeunes", "adultes", "loisirs", "competiteurs", "tous"]} />
                 <AdminInput label="Niveau" required={false} value={current.niveau} onChange={(value) => updateEdit(creneau.id, "niveau", value)} />
                 <AdminInput label="Adresse" required={false} value={current.adresse} onChange={(value) => updateEdit(creneau.id, "adresse", value)} />
+                <AdminSelect label="Réservation active" value={current.reservation_active} onChange={(value) => updateEdit(creneau.id, "reservation_active", value)} options={["false", "true"]} />
+                <AdminInput label="Ouverture J-" type="number" value={current.reservation_open_days} onChange={(value) => updateEdit(creneau.id, "reservation_open_days", value)} />
+                <AdminInput label="Heure d'ouverture" type="time" value={current.reservation_open_time} onChange={(value) => updateEdit(creneau.id, "reservation_open_time", value)} />
+                <AdminInput label="Fermeture avant séance (min)" type="number" value={current.reservation_close_minutes_before} onChange={(value) => updateEdit(creneau.id, "reservation_close_minutes_before", value)} />
+                <AdminInput label="Délai annulation (h)" type="number" value={current.cancellation_deadline_hours} onChange={(value) => updateEdit(creneau.id, "cancellation_deadline_hours", value)} />
+                <AdminInput label="Message réservation" required={false} value={current.reservation_message} onChange={(value) => updateEdit(creneau.id, "reservation_message", value)} />
               </div>
               <Button className="mt-4 w-full" type="button" onClick={() => saveCreneau(creneau)}>
                 Enregistrer les modifications

@@ -2,7 +2,7 @@
 import { MemberDashboard } from "@/components/member/member-dashboard";
 
 export const metadata: Metadata = {
-  title: "Espace adhérent - CF2V41",
+  title: "Espace adhérent - CFVV",
   description: "Tableau de bord personnel, réservations et commandes de volants."
 };
 

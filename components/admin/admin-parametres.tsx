@@ -10,7 +10,7 @@ import { defaultPublicClubSettings, type PublicBureauMember } from "@/services/c
 import { fetchSiteSettings, upsertSiteSetting, type SiteSettingRow } from "@/services/supabase-data.service";
 
 const defaultClub = {
-  name: "CF2V41",
+  name: "CFVV",
   full_name: "Club des fous du Volant Vendômois",
   city: "Vendôme",
   registered_office: "Naveil",

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: SlotDetailPageProps): Promise
   const slot = getSlotById(occurrenceId);
 
   return {
-    title: slot ? `${slot.title} - CF2V41` : "Créneau introuvable",
+    title: slot ? `${slot.title} - CFVV` : "Créneau introuvable",
     description: slot ? `Détail du créneau ${slot.title} au ${slot.venueName}.` : undefined
   };
 }

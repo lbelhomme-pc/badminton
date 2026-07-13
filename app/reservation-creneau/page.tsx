@@ -2,8 +2,8 @@
 import { ReservationCreneau } from "@/components/member/reservation-creneau";
 
 export const metadata: Metadata = {
-  title: "Réserver un créneau - CF2V41",
-  description: "Réserver un créneau de badminton au CF2V41."
+  title: "Réserver un créneau - CFVV",
+  description: "Réserver un créneau de badminton au CFVV."
 };
 
 export default function ReservationCreneauPage() {

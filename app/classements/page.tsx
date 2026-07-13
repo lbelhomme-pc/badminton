@@ -3,7 +3,7 @@ import { RankingsBoard } from "@/components/rankings/rankings-board";
 import { getRankings } from "@/services/club.service";
 
 export const metadata: Metadata = {
-  title: "Classements du club - CF2V41",
+  title: "Classements du club - CFVV",
   description: "Classements joueurs synchronisés vers Supabase, avec affichage RGPD limité."
 };
 

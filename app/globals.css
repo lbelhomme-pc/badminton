@@ -4,6 +4,16 @@
 
 :root {
   color-scheme: light;
+  --cfvv-turquoise: #0c8a9c;
+  --cfvv-action: #0b7f90;
+  --cfvv-action-dark: #076b79;
+  --cfvv-anthracite: #1d1d1f;
+  --cfvv-white: #ffffff;
+  --cfvv-page: #f6fafb;
+  --cfvv-border: #c4e6ea;
+  --font-heading: Rajdhani, "Arial Narrow", ui-sans-serif, system-ui, sans-serif;
+  --font-body: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --container-max: 1200px;
 }
 
 * {
@@ -16,10 +26,40 @@ html {
 
 body {
   margin: 0;
-  background: #f7f9f7;
-  color: #10201b;
-  font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #ffffff;
+  color: var(--cfvv-anthracite);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.cfvv-section-title {
+  position: relative;
+  display: inline-block;
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 2.4vw, 2.25rem);
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #061b2a;
+}
+
+.cfvv-section-title::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.55rem;
+  width: 7.5rem;
+  height: 0.22rem;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0097a9, rgba(0, 151, 169, 0));
+}
+
+.cfvv-brush {
+  background-image:
+    linear-gradient(135deg, rgba(0, 151, 169, 0.92), rgba(0, 151, 169, 0.16)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0));
+  clip-path: polygon(0 23%, 100% 0, 90% 100%, 5% 78%);
 }
 
 button,
@@ -29,8 +69,31 @@ textarea {
   font: inherit;
 }
 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+nav,
+button,
+.font-display {
+  font-family: var(--font-heading);
+  letter-spacing: 0;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.05;
+}
+
+a {
+  text-underline-offset: 0.18em;
+}
+
 ::selection {
-  background: rgba(18, 183, 106, 0.22);
+  background: rgba(12, 138, 156, 0.22);
 }
 
 .skip-link {
@@ -39,24 +102,42 @@ textarea {
   top: 0.75rem;
   z-index: 100;
   transform: translateY(-160%);
-  border-radius: 0.75rem;
-  background: #10201b;
+  border-radius: 0.5rem;
+  background: var(--cfvv-anthracite);
   color: #fff;
   padding: 0.75rem 1rem;
   font-weight: 800;
-  box-shadow: 0 18px 40px rgba(16, 32, 27, 0.18);
+  box-shadow: 0 18px 40px rgba(29, 29, 31, 0.18);
   transition: transform 0.18s ease;
 }
 
 .skip-link:focus-visible {
   transform: translateY(0);
-  outline: 3px solid #12b76a;
+  outline: 3px solid var(--cfvv-action);
   outline-offset: 3px;
 }
 
 :where(a, button, input, select, textarea, [tabindex]:not([tabindex="-1"])):focus-visible {
-  outline: 3px solid #12b76a;
+  outline: 3px solid var(--cfvv-action);
   outline-offset: 3px;
+}
+
+.container-page {
+  margin-inline: auto;
+  max-width: var(--container-max);
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-page {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-page {
+    padding-inline: 2rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -39,8 +39,8 @@ export const demoMember: UserProfile = {
   id: "user-adherent",
   email: "adherent@example.com",
   firstName: "Adhérent",
-  lastName: "CF2V41",
-  displayName: "Adhérent CF2V41",
+  lastName: "CFVV",
+  displayName: "Adhérent CFVV",
   roles: ["member"],
   membershipStatus: "active",
   consentShowName: true
@@ -50,8 +50,8 @@ export const demoAdmin: UserProfile = {
   id: "user-admin",
   email: "responsable@example.com",
   firstName: "Responsable",
-  lastName: "CF2V41",
-  displayName: "Responsable CF2V41",
+  lastName: "CFVV",
+  displayName: "Responsable CFVV",
   roles: ["member", "admin", "slot_manager", "shuttle_manager"],
   membershipStatus: "active",
   consentShowName: true

@@ -2,8 +2,8 @@
 import { AdminVolants } from "@/components/admin/admin-volants";
 
 export const metadata: Metadata = {
-  title: "Admin volants - CF2V41",
-  description: "Gestion des volants du CF2V41."
+  title: "Admin volants - CFVV",
+  description: "Gestion des volants du CFVV."
 };
 
 export default function AdminVolantsPage() {

@@ -2,15 +2,15 @@
 import { InfoPage } from "@/components/public/info-page";
 
 export const metadata: Metadata = {
-  title: "Réservations - CF2V41",
-  description: "Réserver un créneau ou des volants au CF2V41."
+  title: "Réservations - CFVV",
+  description: "Réserver un créneau ou des volants au CFVV."
 };
 
 export default function ReservationsPage() {
   return (
     <InfoPage
       eyebrow="Réservations"
-      title="Réserver au CF2V41"
+      title="Réserver au CFVV"
       intro="La réservation doit être rapide : choisir un créneau, confirmer sa place, ou réserver des volants à régler sur place."
       cards={[
         { title: "Créneaux", text: "Voir les disponibilités et réserver une place.", href: "/reservations/creneaux" },

@@ -2,8 +2,8 @@
 import { MyReservations } from "@/components/member/my-reservations";
 
 export const metadata: Metadata = {
-  title: "Mes réservations - CF2V41",
-  description: "Réservations de créneaux de l'adhérent CF2V41."
+  title: "Mes réservations - CFVV",
+  description: "Réservations de créneaux de l'adhérent CFVV."
 };
 
 export default function MesReservationsPage() {

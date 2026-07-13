@@ -19,7 +19,9 @@ export default function robots(): MetadataRoute.Robots {
           "/reservation-creneau",
           "/reservation-creneau/",
           "/commande-volants",
-          "/commande-volants/"
+          "/commande-volants/",
+          "/documents",
+          "/documents/"
         ]
       }
     ],

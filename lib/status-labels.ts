@@ -27,6 +27,15 @@ const clubRoleLabels: Record<string, string> = {
   admin: "Admin"
 };
 
+const seasonStatusLabels: Record<string, string> = {
+  actif: "Actif",
+  en_attente: "En attente",
+  inactif: "Suspendu",
+  suspendu: "Suspendu",
+  ancien: "Non renouvelé",
+  non_renouvele: "Non renouvelé"
+};
+
 function fallbackLabel(value: string) {
   const normalized = value.replace(/_/g, " ").trim();
   return normalized.charAt(0).toUpperCase() + normalized.slice(1);
@@ -46,4 +55,8 @@ export function shuttleOrderStatusLabel(status: string) {
 
 export function clubRoleLabel(role: string) {
   return clubRoleLabels[role] ?? fallbackLabel(role);
+}
+
+export function seasonStatusLabel(status: string) {
+  return seasonStatusLabels[status] ?? fallbackLabel(status);
 }

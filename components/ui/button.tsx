@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from "react";
+import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger";
@@ -11,10 +11,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variants: Record<ButtonVariant, string> = {
   primary: "bg-court-500 text-white shadow-soft hover:bg-court-600 focus-visible:ring-court-500",
-  secondary: "bg-court-900 text-white hover:bg-ink-700 focus-visible:ring-court-900",
+  secondary: "bg-court-900 text-white shadow-soft hover:bg-ink-700 focus-visible:ring-court-900",
   outline: "border border-court-200 bg-white text-court-900 hover:border-court-300 hover:bg-court-50",
-  ghost: "text-ink-500 hover:bg-court-100 hover:text-court-900",
-  danger: "bg-danger text-white hover:bg-red-700 focus-visible:ring-danger"
+  ghost: "text-ink-600 hover:bg-court-100 hover:text-court-900",
+  danger: "bg-danger text-white shadow-soft hover:bg-red-700 focus-visible:ring-danger"
 };
 
 const sizes: Record<ButtonSize, string> = {
@@ -24,12 +24,16 @@ const sizes: Record<ButtonSize, string> = {
   icon: "h-10 w-10 p-0"
 };
 
-export function Button({ className, variant = "primary", size = "md", type = "button", ...props }: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { className, variant = "primary", size = "md", type = "button", ...props },
+  ref
+) {
   return (
     <button
+      ref={ref}
       type={type}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55",
+        "inline-flex items-center justify-center gap-2 rounded-lg font-display font-bold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-55 motion-reduce:transition-none",
         variants[variant],
         sizes[size],
         className
@@ -37,4 +41,4 @@ export function Button({ className, variant = "primary", size = "md", type = "bu
       {...props}
     />
   );
-}
+});

@@ -3,16 +3,14 @@ import Link from "next/link";
 import { ExternalLink, MapPin, Navigation, ParkingCircle, ThermometerSun } from "lucide-react";
 import { ClubPhoto } from "@/components/public/club-photo";
 import { InfoPage } from "@/components/public/info-page";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { clubPhotoSlots, hasClubPhoto } from "@/lib/club-photos";
 import { canonical } from "@/lib/seo";
 import { getVenues } from "@/services/club.service";
 
-const mapSrc =
-  "https://www.google.com/maps?q=Gymnase%20des%20Aigremonts%20554%20Rue%20de%20la%20Chappe%2041100%20Vend%C3%B4me&output=embed";
-
 export const metadata: Metadata = {
-  title: "Gymnase et accès - CF2V41",
+  title: "Lieux et accès - CFVV",
   description: "Adresse, accès et informations pratiques du Gymnase des Aigremonts à Vendôme.",
   alternates: canonical("/club/gymnases-acces")
 };
@@ -24,66 +22,75 @@ export default function GymnasesAccesPage() {
 
   return (
     <InfoPage
-      eyebrow="Le club"
-      title="Notre gymnase"
-      intro="Le CF2V41 joue au Gymnase des Aigremonts à Vendôme. Les créneaux indiquent toujours le lieu, l'horaire et le public concerné."
+      eyebrow="Lieux et accès"
+      title="Venir jouer au gymnase"
+      intro="Chaque créneau précise son lieu, son horaire et le public concerné. La carte intégrée n'est pas affichée par défaut afin d'éviter un outil tiers sans consentement."
       cards={[]}
     >
       <div className="grid gap-6 lg:grid-cols-[0.72fr_1.28fr]">
         <Card className="p-6">
           <MapPin className="h-7 w-7 text-court-500" aria-hidden="true" />
-          <h2 className="mt-5 text-3xl font-black text-court-900">Gymnase des Aigremonts</h2>
-          <p className="mt-5 text-lg leading-8 text-ink-600">
-            Nous disposons d'un gymnase de <strong className="text-court-900">7 terrains</strong>, chauffé l'hiver.
-          </p>
-
-          <div className="mt-8 space-y-3 text-lg leading-8 text-court-900">
-            <p className="font-black">Gymnase des Aigremonts</p>
-            <p>554 Rue de la Chappe,</p>
-            <p>41100 Vendôme</p>
-          </div>
-
-          {hasClubPhoto(gymnasePhoto) ? <ClubPhoto slot={gymnasePhoto} className="mt-6 h-56 w-full sm:h-64" /> : null}
+          <h2 className="mt-5 text-3xl font-black text-court-900">{mainVenue?.name ?? "Lieu à confirmer"}</h2>
+          {mainVenue ? (
+            <div className="mt-5 text-lg leading-8 text-ink-700">
+              <p className="font-black text-court-900">{mainVenue.name}</p>
+              <p>{mainVenue.address}</p>
+              <p>
+                {mainVenue.postalCode} {mainVenue.city}
+              </p>
+              <p className="mt-5 text-base leading-7 text-ink-600">{mainVenue.accessNotes}</p>
+            </div>
+          ) : (
+            <p className="mt-5 text-ink-600">Le lieu principal sera affiché ici dès qu'il sera confirmé dans les données du site.</p>
+          )}
 
           <div className="mt-6 grid gap-3 text-sm font-semibold text-court-900">
             <span className="inline-flex items-center gap-2 rounded-lg bg-court-100 px-3 py-3">
               <ParkingCircle className="h-4 w-4 text-court-500" aria-hidden="true" />
-              Stationnement à proximité
+              Stationnement à proximité si confirmé par le club
             </span>
             <span className="inline-flex items-center gap-2 rounded-lg bg-court-100 px-3 py-3">
               <ThermometerSun className="h-4 w-4 text-warning" aria-hidden="true" />
-              Gymnase chauffé l'hiver
+              Prévoir une tenue et des chaussures adaptées au gymnase
             </span>
           </div>
 
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <Link
-              href={mainVenue.mapUrl}
-              target="_blank"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-court-500 px-4 text-sm font-semibold text-white shadow-soft transition hover:bg-court-600"
-            >
-              Itinéraire
-              <Navigation className="h-4 w-4" aria-hidden="true" />
-            </Link>
-            <Link
-              href="/creneaux"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-court-200 bg-white px-4 text-sm font-semibold text-court-900 transition hover:bg-court-100"
-            >
-              Voir les créneaux
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
+            {mainVenue?.mapUrl ? (
+              <a
+                href={mainVenue.mapUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-court-500 px-4 font-display text-sm font-bold text-white shadow-soft transition hover:bg-court-600"
+              >
+                Itinéraire externe
+                <Navigation className="h-4 w-4" aria-hidden="true" />
+              </a>
+            ) : null}
+            <Link href="/creneaux">
+              <Button variant="outline" className="w-full sm:w-auto">
+                Voir les créneaux
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              </Button>
             </Link>
           </div>
         </Card>
 
-        <div className="overflow-hidden rounded-lg border border-court-200 bg-white shadow-soft">
-          <iframe
-            title="Carte du Gymnase des Aigremonts à Vendôme"
-            src={mapSrc}
-            className="h-[360px] w-full md:h-[520px]"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          />
-        </div>
+        <Card className="overflow-hidden p-0">
+          {hasClubPhoto(gymnasePhoto) ? (
+            <ClubPhoto slot={gymnasePhoto} className="h-full min-h-[360px] w-full" />
+          ) : (
+            <div className="grid min-h-[360px] place-items-center bg-court-50 p-6 text-center">
+              <div>
+                <MapPin className="mx-auto h-10 w-10 text-court-500" aria-hidden="true" />
+                <p className="mt-4 text-xl font-black text-court-900">Photo du lieu à ajouter</p>
+                <p className="mt-2 text-sm leading-6 text-ink-600">
+                  Une photo réelle du gymnase aidera les nouveaux adhérents et les parents à se repérer.
+                </p>
+              </div>
+            </div>
+          )}
+        </Card>
       </div>
     </InfoPage>
   );

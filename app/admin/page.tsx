@@ -2,8 +2,8 @@
 import { AdminHome } from "@/components/admin/admin-home";
 
 export const metadata: Metadata = {
-  title: "Admin - CF2V41",
-  description: "Interface de gestion du CF2V41."
+  title: "Admin - CFVV",
+  description: "Interface de gestion du CFVV."
 };
 
 export default function AdminPage() {

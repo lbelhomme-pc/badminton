@@ -3,8 +3,8 @@ import CreneauxPage from "@/app/jouer-au-club/creneaux/page";
 import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
-  title: "Créneaux - CF2V41",
-  description: "Horaires et créneaux publics du Club des fous du Volant Vendômois.",
+  title: "Créneaux - CFVV",
+  description: "Horaires et créneaux publics du Club des Fous du Volant du Vendômois.",
   alternates: canonical("/creneaux")
 };
 

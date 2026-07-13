@@ -14,6 +14,7 @@ export interface ClubProfile {
   email: string | null;
   telephone: string | null;
   role: ClubRole;
+  statut: "en_attente" | "actif" | "inactif" | "ancien" | "suspendu" | "non_renouvele";
   categorie: string | null;
   date_naissance: string | null;
   licence_ffbad: string | null;

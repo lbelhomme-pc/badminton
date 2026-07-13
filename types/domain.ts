@@ -71,6 +71,10 @@ export interface SlotOccurrence {
   registeredCount: number;
   status: SlotStatus;
   cancellationReason?: string;
+  validFrom?: string;
+  validUntil?: string;
+  practicalInfo?: string;
+  isReservable?: boolean;
 }
 
 export interface Reservation {
@@ -115,12 +119,33 @@ export interface Ranking {
   visibility: RankingVisibility;
 }
 
+export type ClubEventCategory = "competition" | "club_event" | "meeting" | "camp" | "closure";
+
+export type ClubEventStatus = "draft" | "published" | "scheduled" | "cancelled";
+
 export interface ClubEvent {
   id: string;
   title: string;
-  date: string;
-  type: string;
+  category: ClubEventCategory;
+  status: ClubEventStatus;
+  startsAt: string;
+  endsAt?: string;
+  venueName?: string;
+  audience?: string;
   description: string;
+  imageUrl?: string;
+  contactLabel?: string;
+  contactHref?: string;
+  externalUrl?: string;
+  attachmentUrl?: string;
+  publishedAt?: string;
+  scheduledFor?: string;
+  cancellationMessage?: string;
+  recurrenceRule?: string;
+  parentEventId?: string;
+  exceptionDate?: string;
+  date?: string;
+  type?: string;
 }
 
 export interface NewsPost {

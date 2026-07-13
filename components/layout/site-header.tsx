@@ -1,8 +1,8 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X } from "lucide-react";
 import { UserMenu } from "@/components/auth/user-menu";
 import { ClubLogo } from "@/components/brand/club-logo";
@@ -12,46 +12,64 @@ import { cn } from "@/lib/utils";
 const primaryLinks = [
   { href: "/", label: "Accueil" },
   { href: "/creneaux", label: "Créneaux" },
-  { href: "/tarifs", label: "Tarifs" },
-  { href: "/commande-volants", label: "Volants" },
-  { href: "/club", label: "Le club" },
+  { href: "/club/bureau-benevoles", label: "Le Bureau" },
+  { href: "/agenda", label: "Agenda" },
+  { href: "/club", label: "Le Club" },
   { href: "/contact", label: "Contact" }
 ];
 
 const mobileLinks = [
   ...primaryLinks,
-  { href: "/inscription", label: "S'inscrire" },
-  { href: "/connexion", label: "Connexion" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/classements", label: "Classements" },
-  { href: "/espace-adherent", label: "Espace adhérent" }
+  { href: "/espace-adherent", label: "Espace adhérent" },
+  { href: "/inscription", label: "Nous rejoindre" },
+  { href: "/tarifs", label: "Tarifs" },
+  { href: "/faq", label: "FAQ" }
 ];
 
 export function SiteHeader() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement | null>(null);
+  const firstMobileLinkRef = useRef<HTMLAnchorElement | null>(null);
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
+  useEffect(() => {
+    if (!mobileOpen) return;
+
+    firstMobileLinkRef.current?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMobileOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [mobileOpen]);
+
   return (
-    <header className="sticky top-0 z-40 border-b border-court-200 bg-white/92 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="Accueil du CF2V41">
-          <ClubLogo />
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-[0_6px_18px_rgba(2,24,35,0.08)]">
+      <div className="mx-auto flex min-h-[104px] max-w-[1180px] items-center justify-between gap-5 px-5 lg:px-8">
+        <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="Accueil du CFVV">
+          <ClubLogo compact />
         </Link>
 
-        <nav className="hidden items-center gap-1 lg:flex" aria-label="Navigation principale">
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Navigation principale">
           {primaryLinks.map((item) => (
             <Link
               key={item.href}
               href={item.href}
               aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
-                "rounded-lg px-3 py-2 text-sm font-semibold transition",
-                isActive(item.href) ? "bg-court-100 text-court-900" : "text-ink-500 hover:bg-court-100 hover:text-court-900"
+                "relative px-1 py-3 font-display text-[13px] font-black text-[#071b27] transition motion-reduce:transition-none",
+                "after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:origin-left after:rounded-full after:bg-[#0097a9] after:transition-transform",
+                isActive(item.href) ? "text-[#0097a9] after:scale-x-100" : "after:scale-x-0 hover:text-[#0097a9] hover:after:scale-x-100"
               )}
             >
               {item.label}
@@ -60,10 +78,11 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <div className="block">
+          <div className="hidden sm:block">
             <UserMenu />
           </div>
           <Button
+            ref={menuButtonRef}
             variant="ghost"
             size="icon"
             className="lg:hidden"
@@ -81,23 +100,27 @@ export function SiteHeader() {
         <nav
           id="mobile-main-menu"
           aria-label="Navigation principale mobile"
-          className="max-h-[calc(100vh-4rem)] overflow-y-auto border-t border-court-200 bg-white px-4 py-4 lg:hidden"
+          className="max-h-[calc(100vh-6.5rem)] overflow-y-auto border-t border-slate-200 bg-white px-5 py-4 shadow-soft lg:hidden"
         >
           <div className="grid gap-2">
-            {mobileLinks.map((item) => (
+            {mobileLinks.map((item, index) => (
               <Link
                 key={item.href}
+                ref={index === 0 ? firstMobileLinkRef : undefined}
                 href={item.href}
                 aria-current={isActive(item.href) ? "page" : undefined}
                 className={cn(
-                  "rounded-lg px-3 py-3 text-sm font-semibold transition",
-                  isActive(item.href) ? "bg-court-100 text-court-900" : "text-ink-500 hover:bg-court-100 hover:text-court-900"
+                  "rounded-lg px-3 py-3 font-display text-base font-bold transition motion-reduce:transition-none",
+                  isActive(item.href) ? "bg-court-100 text-court-900" : "text-ink-600 hover:bg-court-100 hover:text-court-900"
                 )}
                 onClick={() => setMobileOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
+            <div className="mt-3 border-t border-court-200 pt-3 sm:hidden">
+              <UserMenu />
+            </div>
           </div>
         </nav>
       ) : null}

@@ -7,11 +7,13 @@ import { fetchTarifs, type TarifRow } from "@/services/supabase-data.service";
 
 type PublicTarif = Omit<TarifRow, "id"> & { id: number | string };
 
+const demoDescription = "Donnée de démonstration à confirmer par le bureau avant publication officielle.";
+
 const fallbackTarifs: PublicTarif[] = [
   {
     id: "enfants-loisirs",
     titre: "Licence enfants loisirs",
-    description: "Licence jeune pour jouer en loisir sur les créneaux adaptés.",
+    description: demoDescription,
     montant: 50,
     public: "Jeunes",
     ordre: 1,
@@ -20,7 +22,7 @@ const fallbackTarifs: PublicTarif[] = [
   {
     id: "enfants-competiteurs",
     titre: "Licence enfants compétiteurs",
-    description: "Licence jeune pour les enfants qui participent aux compétitions.",
+    description: demoDescription,
     montant: 85,
     public: "Jeunes compétiteurs",
     ordre: 2,
@@ -29,7 +31,7 @@ const fallbackTarifs: PublicTarif[] = [
   {
     id: "adultes-loisirs",
     titre: "Licence loisirs",
-    description: "Accès aux créneaux loisirs et jeu libre adultes.",
+    description: demoDescription,
     montant: 60,
     public: "Loisirs",
     ordre: 3,
@@ -38,7 +40,7 @@ const fallbackTarifs: PublicTarif[] = [
   {
     id: "competition",
     titre: "Licence compétiteurs",
-    description: "Licence adaptée aux tournois, interclubs et créneaux compétiteurs.",
+    description: demoDescription,
     montant: 95,
     public: "Compétiteurs",
     ordre: 4,
@@ -47,7 +49,7 @@ const fallbackTarifs: PublicTarif[] = [
   {
     id: "essai",
     titre: "Essai",
-    description: "Jusqu’à 3 séances gratuites pour découvrir.",
+    description: demoDescription,
     montant: 0,
     public: "Découverte",
     ordre: 5,
@@ -70,12 +72,14 @@ function formatTarif(tarif: PublicTarif) {
 export function TarifsList() {
   const [tarifs, setTarifs] = useState<PublicTarif[]>(fallbackTarifs);
   const [message, setMessage] = useState<string | null>(null);
+  const [demoMode, setDemoMode] = useState(true);
 
   useEffect(() => {
     fetchTarifs().then((result) => {
       if (result.data.length > 0) {
         setTarifs(result.data);
         setMessage(null);
+        setDemoMode(false);
       } else if (result.error && result.error !== "Configuration Supabase manquante.") {
         setMessage(result.error);
       }
@@ -85,6 +89,11 @@ export function TarifsList() {
   return (
     <>
       {message ? <p className="mb-5 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">{message}</p> : null}
+      {demoMode ? (
+        <p className="mb-5 rounded-lg bg-yellow-50 px-4 py-3 text-sm font-semibold text-yellow-800">
+          Tarifs de démonstration : les montants doivent être validés par le bureau avant communication officielle.
+        </p>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {tarifs
           .filter((tarif) => tarif.actif)
@@ -94,8 +103,8 @@ export function TarifsList() {
               <CheckCircle2 className="h-6 w-6 text-court-500" aria-hidden="true" />
               <h2 className="mt-4 text-lg font-black text-court-900">{tarif.titre}</h2>
               <p className="mt-2 text-3xl font-black text-court-900">{formatTarif(tarif)}</p>
-              {tarif.public ? <p className="mt-1 text-xs font-bold uppercase text-court-600">{tarif.public}</p> : null}
-              <p className="mt-3 text-sm leading-6 text-ink-500">{tarif.description}</p>
+              {tarif.public ? <p className="mt-1 font-display text-xs font-bold uppercase text-court-600">{tarif.public}</p> : null}
+              <p className="mt-3 text-sm leading-6 text-ink-600">{tarif.description}</p>
             </Card>
           ))}
       </div>

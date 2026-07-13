@@ -81,7 +81,7 @@ export function PwaInstallPrompt() {
             <Download className="h-5 w-5" aria-hidden="true" />
           </div>
           <div className="min-w-0 flex-1">
-            <p className="font-black text-court-900">Installer l'app CF2V41</p>
+            <p className="font-black text-court-900">Installer l'app CFVV</p>
             <p className="mt-1 text-sm leading-5 text-ink-500">
               Accès rapide aux créneaux, réservations et infos du club.
             </p>

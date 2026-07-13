@@ -2,15 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Home, MapPin, Package, Shield, UserRound } from "lucide-react";
+import { CalendarDays, Home, MapPin, Shield, Trophy, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { cn } from "@/lib/utils";
 
 const memberItems = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/creneaux", label: "Créneaux", icon: CalendarDays },
+  { href: "/vie-du-club/evenements", label: "Agenda", icon: Trophy },
   { href: "/reservation-creneau", label: "Réserver", icon: MapPin },
-  { href: "/commande-volants", label: "Volants", icon: Package },
   { href: "/espace-adherent", label: "Compte", icon: UserRound }
 ];
 
@@ -22,7 +22,7 @@ export function MobileBottomNav() {
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-40 border-t border-court-200 bg-white/95 px-2 pb-2 pt-1 shadow-soft backdrop-blur md:hidden"
-      aria-label="Navigation mobile"
+      aria-label="Navigation mobile rapide"
     >
       <div className={cn("grid", items.length === 6 ? "grid-cols-6" : "grid-cols-5")}>
         {items.map((item) => {
@@ -35,8 +35,8 @@ export function MobileBottomNav() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg text-[11px] font-semibold transition",
-                active ? "bg-court-100 text-court-900" : "text-ink-500 hover:bg-court-100 hover:text-court-900"
+                "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg font-display text-[11px] font-bold transition motion-reduce:transition-none",
+                active ? "bg-court-100 text-court-900" : "text-ink-600 hover:bg-court-100 hover:text-court-900"
               )}
             >
               <Icon className="h-4 w-4" aria-hidden="true" />

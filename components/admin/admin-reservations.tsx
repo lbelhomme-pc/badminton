@@ -6,6 +6,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { buildReservationCsv } from "@/lib/reservation-rules";
 import { reservationStatusLabel } from "@/lib/status-labels";
 import {
   fetchAllReservations,
@@ -65,6 +66,30 @@ function AdminReservationsContent() {
     if (result.ok) await load();
   }
 
+  function exportCsv() {
+    const csv = buildReservationCsv(
+      filtered.map((reservation) => ({
+        date: reservation.date_reservation,
+        creneau: reservation.creneaux?.jour || "Créneau",
+        heure: reservation.creneaux
+          ? `${reservation.creneaux.heure_debut.slice(0, 5)}-${reservation.creneaux.heure_fin.slice(0, 5)}`
+          : "",
+        lieu: reservation.creneaux?.gymnase,
+        adherent: reservation.member_name || reservation.user_id,
+        email: reservation.member_email,
+        statut: reservationStatusLabel(reservation.statut)
+      }))
+    );
+    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `reservations-cfvv-${dateFilter || "toutes"}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    setFeedback(successFeedback("Export CSV généré."));
+  }
+
   return (
     <AdminShell title="Réservations" intro="Suivi simple des réservations et des annulations.">
       <Card className="grid gap-4 p-5 md:grid-cols-3">
@@ -92,9 +117,12 @@ function AdminReservationsContent() {
             ))}
           </select>
         </label>
-        <div className="flex items-end">
+        <div className="flex items-end gap-3">
           <Button className="w-full md:w-auto" variant="outline" onClick={() => { setDateFilter(""); setStatusFilter(""); }}>
             Réinitialiser
+          </Button>
+          <Button className="w-full md:w-auto" type="button" onClick={exportCsv} disabled={filtered.length === 0}>
+            Export CSV
           </Button>
         </div>
       </Card>

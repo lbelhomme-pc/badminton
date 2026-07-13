@@ -1,4 +1,4 @@
-export interface ClubPhotoSlot {
+﻿export interface ClubPhotoSlot {
   id: "homeHero" | "clubLife" | "gymnaseAigremonts" | "trialSession";
   src: string | null;
   recommendedFile: string;
@@ -13,32 +13,32 @@ export const clubPhotoSlots = {
   homeHero: {
     id: "homeHero",
     src: null,
-    recommendedFile: "/photos/accueil-badminton-cf2v41.webp",
-    alt: "Joueurs adultes du CF2V41 en échange de badminton au Gymnase des Aigremonts",
+    recommendedFile: "/photos/accueil-badminton-cfvv.webp",
+    alt: "Joueurs adultes du CFVV en Ã©change de badminton au Gymnase des Aigremonts",
     width: 1600,
     height: 1000
   },
   clubLife: {
     id: "clubLife",
     src: null,
-    recommendedFile: "/photos/vie-club-cf2v41.webp",
-    alt: "Bénévoles et adhérents adultes du CF2V41 pendant un moment convivial du club",
+    recommendedFile: "/photos/vie-club-cfvv.webp",
+    alt: "BÃ©nÃ©voles et adhÃ©rents adultes du CFVV pendant un moment convivial du club",
     width: 1400,
     height: 900
   },
   gymnaseAigremonts: {
     id: "gymnaseAigremonts",
     src: null,
-    recommendedFile: "/photos/gymnase-aigremonts-cf2v41.webp",
-    alt: "Terrains du Gymnase des Aigremonts préparés pour un créneau du CF2V41",
+    recommendedFile: "/photos/gymnase-aigremonts-cfvv.webp",
+    alt: "Terrains du Gymnase des Aigremonts prÃ©parÃ©s pour un crÃ©neau du CFVV",
     width: 1400,
     height: 900
   },
   trialSession: {
     id: "trialSession",
     src: null,
-    recommendedFile: "/photos/seance-essai-cf2v41.webp",
-    alt: "Accueil d'un joueur débutant lors d'une séance d'essai badminton du CF2V41",
+    recommendedFile: "/photos/seance-essai-cfvv.webp",
+    alt: "Accueil d'un joueur dÃ©butant lors d'une sÃ©ance d'essai badminton du CFVV",
     width: 1400,
     height: 900
   }

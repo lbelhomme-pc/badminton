@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
-  title: "Connexion - CF2V41",
+  title: "Connexion - CFVV",
   description: "Connexion à l'espace adhérent du Club des fous du Volant Vendômois."
 };
 

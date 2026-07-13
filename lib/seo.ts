@@ -3,14 +3,20 @@ export const defaultSiteUrl = "https://badminton-orcin.vercel.app";
 export const publicSitemapPaths = [
   "/",
   "/creneaux",
+  "/agenda",
   "/tarifs",
   "/contact",
   "/vie-du-club/actualites",
   "/vie-du-club/partenaires",
+  "/partenaires",
+  "/devenir-partenaire",
   "/club/gymnases-acces",
+  "/lieux-acces",
   "/inscriptions/seance-essai",
   "/mentions-legales",
-  "/confidentialite"
+  "/confidentialite",
+  "/cookies",
+  "/accessibilite"
 ] as const;
 
 export function getSiteUrl() {

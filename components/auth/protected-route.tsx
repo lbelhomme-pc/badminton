@@ -2,35 +2,41 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { ReactNode } from "react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Card } from "@/components/ui/card";
+import { getMemberAccessState, memberAccessMessage } from "@/lib/member-access";
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+interface ProtectedRouteProps {
+  children: ReactNode;
+  requireActiveMember?: boolean;
+}
+
+export function ProtectedRoute({ children, requireActiveMember = true }: ProtectedRouteProps) {
   const pathname = usePathname();
-  const { loading, isAuthenticated, configured } = useAuth();
+  const { loading, isAuthenticated, configured, profile, roles } = useAuth();
+  const accessState = getMemberAccessState({ configured, loading, isAuthenticated, profile, roles });
 
-  if (loading) {
-    return <RouteMessage title="Chargement de l’espace adhérent" text="Vérification de la session en cours." />;
+  if (accessState === "loading" || accessState === "not_configured") {
+    const message = memberAccessMessage(accessState);
+    return <RouteMessage title={message.title} text={message.text} />;
   }
 
-  if (!configured) {
+  if (accessState === "anonymous") {
+    const message = memberAccessMessage(accessState);
     return (
       <RouteMessage
-        title="Connexion à configurer"
-        text="Renseignez les variables Supabase pour activer l’espace adhérent."
-      />
-    );
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <RouteMessage
-        title="Connexion nécessaire"
-        text="Tu dois être connecté pour accéder à cette page."
+        title={message.title}
+        text={message.text}
         href={`/connexion?redirect=${encodeURIComponent(pathname)}`}
         label="Se connecter"
       />
     );
+  }
+
+  if (requireActiveMember && accessState !== "allowed") {
+    const message = memberAccessMessage(accessState);
+    return <RouteMessage title={message.title} text={message.text} href="/contact" label="Contacter le club" />;
   }
 
   return <>{children}</>;
