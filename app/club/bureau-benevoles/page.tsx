@@ -13,6 +13,7 @@ export const metadata: Metadata = {
 
 const iconsByKey = {
   presidence: ShieldCheck,
+  "vice-presidence": Handshake,
   tresorerie: WalletCards,
   secretariat: Mail,
   creneaux: CalendarCheck,

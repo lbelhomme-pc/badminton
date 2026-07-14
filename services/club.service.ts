@@ -76,6 +76,14 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       phone: ""
     },
     {
+      key: "vice-presidence",
+      role: "Vice-présidence",
+      name: "Clovis Bellan",
+      mission: "Appui à la présidence, relais du bureau et coordination des actions du club.",
+      email: "",
+      phone: ""
+    },
+    {
       key: "tresorerie",
       role: "Trésorerie",
       name: "Yeliz Ozogul",
