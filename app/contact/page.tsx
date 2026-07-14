@@ -10,7 +10,7 @@ import { getPublicClubSettings, getVenues } from "@/services/club.service";
 
 export const metadata: Metadata = {
   title: "Contact - CFVV",
-  description: "Contacter le Club des Fous du Volant du Vendômois.",
+  description: "Contacter le Club des fous du Volants Vendômois.",
   alternates: canonical("/contact")
 };
 
@@ -36,6 +36,9 @@ export default async function ContactPage() {
             <h2 className="mt-4 text-2xl font-black text-court-900">Coordonnées génériques</h2>
             {hasContact ? (
               <div className="mt-4 grid gap-3 text-sm font-semibold text-ink-600">
+                {settings.contact.genericContacts.length > 0 ? (
+                  <p className="font-bold text-court-900">Référents : {settings.contact.genericContacts.join(" / ")}</p>
+                ) : null}
                 {settings.contact.email ? (
                   <Link href={`mailto:${settings.contact.email}`} className="inline-flex items-center gap-2 hover:text-court-900">
                     <Mail className="h-4 w-4" aria-hidden="true" />

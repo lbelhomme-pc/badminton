@@ -3,9 +3,10 @@ import type { ClubEvent } from "@/types/domain";
 
 const club = {
   shortName: "CFVV",
-  fullName: "Club des Fous du Volant du Vendômois",
+  fullName: "Club des fous du Volants Vendômois",
   city: "Vendôme",
   email: "cfvv41@gmail.com",
+  phone: "+33660935185",
   sport: "Badminton"
 };
 
@@ -43,6 +44,7 @@ export function getLocalStructuredData() {
         logo: absoluteUrl("/logos/cfvv-horizontal.png"),
         image: absoluteUrl("/logos/cfvv-horizontal.png"),
         email: club.email,
+        telephone: club.phone,
         sport: club.sport,
         areaServed: {
           "@type": "City",

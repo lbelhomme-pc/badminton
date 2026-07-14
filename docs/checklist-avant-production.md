@@ -1,0 +1,22 @@
+# Checklist avant production
+
+- [ ] Verifier que toutes les migrations Supabase sont appliquees sur le bon projet.
+- [ ] Tester RLS avec un visiteur, un adherent, un manager et un admin.
+- [ ] Verifier les variables Vercel Production sans exposer les secrets.
+- [ ] Configurer `NEXT_PUBLIC_SITE_URL` avec l'URL finale.
+- [ ] Configurer les Redirect URLs Supabase Auth pour production, preview et local.
+- [ ] Tester connexion, deconnexion, refresh page et reset password avec un compte reel.
+- [ ] Corriger ou rediriger les routes prototype `/compte` et `/volants`.
+- [ ] Valider horaires, lieux, tarifs, contact et bureau.
+- [ ] Remplacer les actualites/evenements/partenaires statiques de l'accueil ou les marquer clairement comme temporaires.
+- [ ] Fournir et tester les liens HelloAsso officiels.
+- [ ] Tester une reservation reelle et une annulation reelle.
+- [ ] Tester deux reservations simultanees sur la derniere place.
+- [ ] Tester upload et telechargement d'un document prive.
+- [ ] Configurer ou documenter le service email.
+- [ ] Valider mentions legales, confidentialite, cookies et droit a l'image.
+- [ ] Definir une procedure de sauvegarde et tester une restauration Supabase.
+- [ ] Faire une recette mobile sur un telephone reel.
+- [ ] Faire une navigation clavier complete.
+- [ ] Relancer Lighthouse sur l'URL de production.
+- [ ] Valider le go/no-go par le bureau du club.

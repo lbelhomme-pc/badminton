@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
-import { news } from "@/lib/mock-data";
 import { fetchActualites, type ActualiteRow } from "@/services/supabase-data.service";
 
 interface ActualitesListProps {
@@ -28,37 +27,54 @@ function isExternalUrl(value: string) {
 }
 
 export function ActualitesList({ limit }: ActualitesListProps) {
-  const [actualites, setActualites] = useState<ActualiteRow[] | null>(null);
+  const [actualites, setActualites] = useState<ActualiteRow[]>([]);
+  const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<string | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     fetchActualites(false).then((result) => {
-      if (result.data.length > 0) {
-        setActualites(result.data);
-        setMessage(null);
-      } else if (result.error && result.error !== "Configuration Supabase manquante.") {
+      if (!mounted) return;
+
+      setActualites(result.data);
+      setLoading(false);
+
+      if (result.error && result.error !== "Configuration Supabase manquante.") {
         setMessage(result.error);
+      } else {
+        setMessage(null);
       }
     });
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const items = actualites
-    ? actualites.map((actualite) => ({
-        id: actualite.id,
-        title: actualite.titre,
-        category: "Actualité",
-        excerpt: actualite.contenu,
-        imageUrl: actualite.image_url,
-        linkUrl: actualite.lien_url,
-        linkLabel: actualite.lien_label
-      }))
-    : news.map((post) => ({ ...post, imageUrl: null, linkUrl: null, linkLabel: null }));
+  const items = actualites.map((actualite) => ({
+    id: actualite.id,
+    title: actualite.titre,
+    category: "Actualité",
+    excerpt: actualite.contenu,
+    imageUrl: actualite.image_url,
+    linkUrl: actualite.lien_url,
+    linkLabel: actualite.lien_label
+  }));
 
   const visibleItems = typeof limit === "number" ? items.slice(0, limit) : items;
 
   return (
     <>
       {message ? <p className="mb-5 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">{message}</p> : null}
+      {loading ? (
+        <p className="rounded-lg bg-court-50 px-4 py-3 text-sm font-semibold text-ink-600">Chargement des actualités...</p>
+      ) : null}
+      {!loading && visibleItems.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-court-200 bg-court-50 px-4 py-6 text-sm font-semibold text-ink-600">
+          Aucune actualité publique n'est publiée pour le moment. Les contenus ajoutés dans le back-office apparaîtront ici automatiquement.
+        </p>
+      ) : null}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {visibleItems.map((post) => (
           <Card key={post.id} className="overflow-hidden p-0">
@@ -101,12 +117,7 @@ function ActualiteLink({ href, label }: { href: string; label: string }) {
   }
 
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={className}
-    >
+    <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
       {label}
     </a>
   );

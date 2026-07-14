@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { canonical, getSiteUrl } from "@/lib/seo";
 import { getEventStructuredData, serializeStructuredData } from "@/lib/structured-data";
-import { getEvents } from "@/services/club.service";
+import { getPublicEvents } from "@/services/club.service";
 
 export const metadata: Metadata = {
   title: "Agenda du club - CFVV",
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
   alternates: canonical("/vie-du-club/evenements")
 };
 
-export default function EvenementsPage() {
-  const events = getEvents();
+export default async function EvenementsPage() {
+  const events = await getPublicEvents();
   const eventStructuredData = getEventStructuredData(events);
 
   return (

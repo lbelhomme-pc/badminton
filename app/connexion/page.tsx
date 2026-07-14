@@ -4,7 +4,7 @@ import { LoginForm } from "@/components/auth/login-form";
 
 export const metadata: Metadata = {
   title: "Connexion - CFVV",
-  description: "Connexion à l'espace adhérent du Club des fous du Volant Vendômois."
+  description: "Connexion à l'espace adhérent du Club des fous du Volants Vendômois."
 };
 
 export default function ConnexionPage() {

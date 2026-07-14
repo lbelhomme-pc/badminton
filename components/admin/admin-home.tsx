@@ -11,7 +11,9 @@ import { Card } from "@/components/ui/card";
 import {
   fetchActualites,
   fetchAllReservations,
+  fetchAdminEvents,
   fetchCreneaux,
+  fetchMediaAssetsForManager,
   fetchPrivateDocumentsForManager,
   fetchProfiles,
   fetchTarifs,
@@ -20,8 +22,10 @@ import {
 
 const adminLinks = [
   { href: "/admin/creneaux", label: "Gérer les créneaux", text: "Créer, modifier, désactiver ou annuler une date.", minRole: "manager" },
+  { href: "/admin/agenda", label: "Agenda", text: "Créer, publier, programmer, annuler ou dupliquer un événement.", minRole: "manager" },
   { href: "/admin/reservations", label: "Voir les réservations", text: "Suivre les demandes avec le nom des adhérents.", minRole: "manager" },
   { href: "/admin/actualites", label: "Publier une actualité", text: "Informer les adhérents et les visiteurs.", minRole: "manager" },
+  { href: "/admin/medias", label: "Médiathèque", text: "Ajouter images, fichiers publics, textes alternatifs et crédits.", minRole: "manager" },
   { href: "/admin/volants", label: "Volants", text: "Suivre le stock et les demandes simples.", minRole: "manager" },
   { href: "/admin/documents", label: "Documents privés", text: "Publier, archiver ou retirer les fichiers réservés aux adhérents.", minRole: "manager" },
   { href: "/admin/tarifs", label: "Modifier les tarifs", text: "Mettre à jour les prix affichés sur le site.", minRole: "admin" },
@@ -43,7 +47,9 @@ function AdminHomeContent() {
     adherents: 0,
     reservations: 0,
     creneaux: 0,
+    evenements: 0,
     actualites: 0,
+    medias: 0,
     documents: 0,
     brouillons: 0,
     tarifs: 0,
@@ -54,13 +60,15 @@ function AdminHomeContent() {
 
   useEffect(() => {
     async function load() {
-      const [reservations, creneaux, actualites, volants] = await Promise.all([
+      const [reservations, creneaux, evenements, actualites, volants] = await Promise.all([
         fetchAllReservations(),
         fetchCreneaux(),
+        fetchAdminEvents(),
         fetchActualites(true),
         fetchVolants()
       ]);
       const documents = await fetchPrivateDocumentsForManager();
+      const medias = await fetchMediaAssetsForManager();
       const profiles = isAdmin ? await fetchProfiles() : { data: [], error: null };
       const tarifs = isAdmin ? await fetchTarifs(true) : { data: [], error: null };
 
@@ -68,14 +76,16 @@ function AdminHomeContent() {
         adherents: profiles.data.length,
         reservations: reservations.data.length,
         creneaux: creneaux.data.length,
+        evenements: evenements.data.length,
         actualites: actualites.data.length,
+        medias: medias.data.length,
         documents: documents.data.length,
         brouillons: documents.data.filter((document) => document.statut === "brouillon").length,
         tarifs: tarifs.data.length,
         volants: volants.data.length
       });
 
-      setFeedback(errorFeedback(profiles.error || reservations.error || creneaux.error || actualites.error || documents.error || tarifs.error || volants.error));
+      setFeedback(errorFeedback(profiles.error || reservations.error || creneaux.error || evenements.error || actualites.error || medias.error || documents.error || tarifs.error || volants.error));
     }
 
     load();
@@ -87,7 +97,9 @@ function AdminHomeContent() {
     ...(isAdmin ? [["Adhérents", stats.adherents], ["Tarifs", stats.tarifs]] : []),
     ["Réservations", stats.reservations],
     ["Créneaux", stats.creneaux],
+    ["Événements", stats.evenements],
     ["Actualités", stats.actualites],
+    ["Médias", stats.medias],
     ["Documents", stats.documents],
     ["Brouillons", stats.brouillons],
     ["Volants", stats.volants]

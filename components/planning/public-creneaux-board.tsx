@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -14,7 +14,6 @@ import {
   UsersRound,
   XCircle
 } from "lucide-react";
-import { useAuth } from "@/components/auth/auth-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -42,18 +41,18 @@ const typeOptions: Array<{ value: SlotType | "all"; label: string }> = [
   { value: "free_play", label: "Jeu libre" },
   { value: "youth_training", label: "Jeunes" },
   { value: "adult_training", label: "Adultes" },
-  { value: "competitive_training", label: "Compétiteurs" },
-  { value: "beginner_course", label: "Débutants" },
+  { value: "competitive_training", label: "CompÃ©titeurs" },
+  { value: "beginner_course", label: "DÃ©butants" },
   { value: "interclub", label: "Interclubs" },
   { value: "tournament", label: "Tournoi" },
   { value: "camp", label: "Stage" },
-  { value: "special_event", label: "Événement" }
+  { value: "special_event", label: "Ã‰vÃ©nement" }
 ];
 
 const statusConfig: Record<PublicSlotStatus, { label: string; variant: "success" | "warning" | "danger" | "info"; icon: typeof CheckCircle2 }> = {
   usual: { label: "Habituel", variant: "success", icon: CheckCircle2 },
-  modified: { label: "Modifié", variant: "warning", icon: AlertTriangle },
-  exceptionally_closed: { label: "Fermé exceptionnellement", variant: "danger", icon: XCircle },
+  modified: { label: "ModifiÃ©", variant: "warning", icon: AlertTriangle },
+  exceptionally_closed: { label: "FermÃ© exceptionnellement", variant: "danger", icon: XCircle },
   school_holiday: { label: "Vacances scolaires", variant: "info", icon: CalendarDays },
   full: { label: "Complet", variant: "warning", icon: UsersRound }
 };
@@ -88,7 +87,6 @@ function SelectField({
 }
 
 export function PublicCreneauxBoard({ slots, onlyOpen = false }: PublicCreneauxBoardProps) {
-  const { isAuthenticated } = useAuth();
   const [filters, setFilters] = useState<SlotFilters>({ type: "all" });
 
   const visibleBaseSlots = useMemo(() => {
@@ -128,12 +126,12 @@ export function PublicCreneauxBoard({ slots, onlyOpen = false }: PublicCreneauxB
               Filtres
             </p>
             <h2 id="creneaux-list-title" className="mt-2 text-2xl font-black text-court-900">
-              Trouver le bon créneau
+              Trouver le bon crÃ©neau
             </h2>
           </div>
           {hasActiveFilters ? (
             <Button variant="ghost" onClick={() => setFilters({ type: "all" })}>
-              Réinitialiser
+              RÃ©initialiser
             </Button>
           ) : null}
         </div>
@@ -188,13 +186,13 @@ export function PublicCreneauxBoard({ slots, onlyOpen = false }: PublicCreneauxB
       {filteredSlots.length > 0 ? (
         <div className="grid gap-4">
           {filteredSlots.map((slot) => (
-            <SlotPublicCard key={slot.id} slot={slot} isAuthenticated={isAuthenticated} />
+            <SlotPublicCard key={slot.id} slot={slot} />
           ))}
         </div>
       ) : (
         <EmptyState
-          title="Aucun créneau ne correspond aux filtres"
-          text="Essaie d'élargir le public, le jour ou le type de pratique. Le club peut aussi confirmer un créneau adapté via le formulaire de contact."
+          title="Aucun crÃ©neau ne correspond aux filtres"
+          text="Essaie d'Ã©largir le public, le jour ou le type de pratique. Le club peut aussi confirmer un crÃ©neau adaptÃ© via le formulaire de contact."
           action={
             <Link href="/contact">
               <Button variant="outline">Contacter le club</Button>
@@ -206,12 +204,12 @@ export function PublicCreneauxBoard({ slots, onlyOpen = false }: PublicCreneauxB
   );
 }
 
-function SlotPublicCard({ slot, isAuthenticated }: { slot: SlotOccurrence; isAuthenticated: boolean }) {
+function SlotPublicCard({ slot }: { slot: SlotOccurrence }) {
   const publicStatus = getPublicSlotStatus(slot);
   const status = statusConfig[publicStatus];
   const StatusIcon = status.icon;
   const isClosed = publicStatus === "exceptionally_closed" || publicStatus === "school_holiday";
-  const canReserve = isAuthenticated && slot.isReservable !== false && !isClosed && publicStatus !== "full";
+  const canReserve = slot.isReservable === true && !isClosed && publicStatus !== "full";
 
   return (
     <Card className={cn("p-5", isClosed ? "border-red-200 bg-red-50/40" : "bg-white")}>
@@ -243,18 +241,13 @@ function SlotPublicCard({ slot, isAuthenticated }: { slot: SlotOccurrence; isAut
 
           <div className="mt-4 grid gap-3 text-sm text-ink-700 sm:grid-cols-2">
             <p>
-              <span className="font-bold text-court-900">Encadrant :</span> {slot.managerName || "À confirmer"}
+              <span className="font-bold text-court-900">Encadrant :</span> {slot.managerName || "Ã€ confirmer"}
             </p>
             <p>
-              <span className="font-bold text-court-900">Terrains :</span> {slot.courtsCount || "À confirmer"}
+              <span className="font-bold text-court-900">Terrains :</span> {slot.courtsCount || "Ã€ confirmer"}
             </p>
-            {slot.capacityMax > 0 ? (
-              <p>
-                <span className="font-bold text-court-900">Capacité :</span> {slot.capacityMax} places
-              </p>
-            ) : null}
             <p>
-              <span className="font-bold text-court-900">Période :</span> {slot.validFrom || slot.validUntil ? `${slot.validFrom ?? "début"} - ${slot.validUntil ?? "fin"}` : "saison en cours"}
+              <span className="font-bold text-court-900">PÃ©riode :</span> {slot.validFrom || slot.validUntil ? `${slot.validFrom ?? "dÃ©but"} - ${slot.validUntil ?? "fin"}` : "saison en cours"}
             </p>
           </div>
 
@@ -263,7 +256,7 @@ function SlotPublicCard({ slot, isAuthenticated }: { slot: SlotOccurrence; isAut
             <span>
               <strong className="text-court-900">{slot.venueName}</strong>
               <br />
-              {slot.address || "Adresse à confirmer par le club."}
+              {slot.address || "Adresse Ã  confirmer par le club."}
             </span>
           </p>
 
@@ -272,26 +265,19 @@ function SlotPublicCard({ slot, isAuthenticated }: { slot: SlotOccurrence; isAut
         </div>
 
         <div className="grid gap-3">
-          <Link href="/inscriptions/seance-essai">
-            <Button className="w-full">Demander un essai</Button>
-          </Link>
-          <Link href="/inscription">
-            <Button variant="outline" className="w-full">
-              S'inscrire
-            </Button>
-          </Link>
           {canReserve ? (
-            <Link href="/reservation-creneau">
+            <Link href="/connexion">
               <Button variant="secondary" className="w-full">
                 Réserver
               </Button>
             </Link>
           ) : null}
           <Link href="/lieux-acces" className="text-center font-display text-sm font-bold text-court-600 hover:text-court-900 hover:underline">
-            Voir le plan d'accès
+            Voir le plan d'accÃ¨s
           </Link>
         </div>
       </div>
     </Card>
   );
 }
+

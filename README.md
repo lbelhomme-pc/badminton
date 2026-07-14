@@ -1,6 +1,6 @@
 # Site CFVV
 
-Site web du Club des Fous du Volant du Vendômois.
+Site web du Club des fous du Volants Vendômois.
 
 Le projet couvre :
 

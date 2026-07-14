@@ -11,8 +11,10 @@ import { Card } from "@/components/ui/card";
 import {
   createActualite,
   deleteActualite,
+  deleteActualitePermanently,
   fetchActualites,
   updateActualite,
+  updateActualiteStatus,
   type ActualiteRow
 } from "@/services/supabase-data.service";
 
@@ -120,7 +122,7 @@ export function AdminActualites() {
 }
 
 function AdminActualitesContent() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [actualites, setActualites] = useState<ActualiteRow[]>([]);
   const [form, setForm] = useState<ActualiteForm>(emptyActualiteForm);
   const [editing, setEditing] = useState<Record<number, ActualiteForm>>({});
@@ -157,12 +159,37 @@ function AdminActualitesContent() {
   }
 
   async function remove(actualite: ActualiteRow) {
-    const confirmed = window.confirm(`Supprimer l'actualité "${actualite.titre}" ? Cette action est définitive.`);
+    const confirmed = window.confirm(`Mettre l'actualité "${actualite.titre}" dans la corbeille ?`);
     if (!confirmed) return;
 
-    setFeedback(loadingFeedback("Suppression de l'actualité en cours..."));
+    setFeedback(loadingFeedback("Mise en corbeille de l'actualité..."));
     const result = await deleteActualite(actualite.id);
-    setFeedback(result.ok ? successFeedback("Actualité supprimée.") : actionFeedback(result));
+    setFeedback(result.ok ? successFeedback("Actualité placée dans la corbeille.") : actionFeedback(result));
+    if (result.ok) await load();
+  }
+
+  async function changeStatus(actualite: ActualiteRow, statut: "brouillon" | "publie" | "archive" | "corbeille") {
+    const confirmed = window.confirm(`Passer "${actualite.titre}" au statut ${statut} ?`);
+    if (!confirmed) return;
+
+    setFeedback(loadingFeedback("Changement de statut..."));
+    const result = await updateActualiteStatus(actualite.id, statut);
+    setFeedback(actionFeedback(result));
+    if (result.ok) await load();
+  }
+
+  async function removePermanently(actualite: ActualiteRow) {
+    if (!isAdmin) {
+      setFeedback(errorFeedback("Suppression définitive réservée aux admins."));
+      return;
+    }
+
+    const confirmed = window.confirm(`Supprimer définitivement "${actualite.titre}" ? Cette action est irréversible.`);
+    if (!confirmed) return;
+
+    setFeedback(loadingFeedback("Suppression définitive..."));
+    const result = await deleteActualitePermanently(actualite.id);
+    setFeedback(actionFeedback(result));
     if (result.ok) await load();
   }
 
@@ -290,6 +317,9 @@ function AdminActualitesContent() {
             onChange={updateEdit}
             onSave={save}
             onRemove={remove}
+            onStatus={changeStatus}
+            onPermanentRemove={removePermanently}
+            isAdmin={isAdmin}
           />
         ))}
       </section>
@@ -302,23 +332,30 @@ function ActualiteEditor({
   value,
   onChange,
   onSave,
-  onRemove
+  onRemove,
+  onStatus,
+  onPermanentRemove,
+  isAdmin
 }: {
   actualite: ActualiteRow;
   value: ActualiteForm;
   onChange: (id: number, field: keyof ActualiteForm, value: string | boolean) => void;
   onSave: (actualite: ActualiteRow) => void;
   onRemove: (actualite: ActualiteRow) => void;
+  onStatus: (actualite: ActualiteRow, statut: "brouillon" | "publie" | "archive" | "corbeille") => void;
+  onPermanentRemove: (actualite: ActualiteRow) => void;
+  isAdmin: boolean;
 }) {
   const safeEditorLink = cleanOptionalUrl(value.lien_url);
   const canPreviewLink = isSafeActualiteUrl(safeEditorLink);
+  const statut = actualite.deleted_at ? "corbeille" : actualite.statut ?? (actualite.visible_public ? "publie" : "brouillon");
 
   return (
     <Card className="p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-black text-court-900">Modifier l’actualité</h2>
         <span className="rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-600">
-          {value.visible_public ? "Public" : "Interne"}
+          {statut}
         </span>
       </div>
 
@@ -387,6 +424,20 @@ function ActualiteEditor({
         <Button className="w-full sm:w-auto" type="button" onClick={() => onSave(actualite)}>
           Enregistrer
         </Button>
+        <Button className="w-full sm:w-auto" variant="outline" type="button" onClick={() => onStatus(actualite, "brouillon")}>
+          Dépublier
+        </Button>
+        <Button className="w-full sm:w-auto" variant="outline" type="button" onClick={() => onStatus(actualite, "publie")}>
+          Publier
+        </Button>
+        <Button className="w-full sm:w-auto" variant="outline" type="button" onClick={() => onStatus(actualite, "archive")}>
+          Archiver
+        </Button>
+        {statut === "corbeille" ? (
+          <Button className="w-full sm:w-auto" variant="outline" type="button" onClick={() => onStatus(actualite, "brouillon")}>
+            Restaurer
+          </Button>
+        ) : null}
         {safeEditorLink && canPreviewLink ? (
           <a
             href={safeEditorLink}
@@ -399,8 +450,13 @@ function ActualiteEditor({
           </a>
         ) : null}
         <Button className="w-full sm:w-auto" variant="danger" type="button" onClick={() => onRemove(actualite)}>
-          Supprimer
+          Mettre à la corbeille
         </Button>
+        {isAdmin && statut === "corbeille" ? (
+          <Button className="w-full sm:w-auto" variant="danger" type="button" onClick={() => onPermanentRemove(actualite)}>
+            Supprimer définitivement
+          </Button>
+        ) : null}
       </div>
     </Card>
   );

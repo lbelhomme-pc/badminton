@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { PublicCreneauxBoard } from "@/components/planning/public-creneaux-board";
@@ -44,9 +44,9 @@ function WeeklySummary({ slots }: { slots: SlotOccurrence[] }) {
       <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
         <div>
           <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Semaine type</p>
-          <h2 className="mt-2 text-2xl font-black text-court-900">Créneaux habituels</h2>
+          <h2 className="mt-2 text-2xl font-black text-court-900">CrÃ©neaux habituels</h2>
           <p className="mt-3 text-sm leading-6 text-ink-500">
-            Ces horaires viennent de l'administration quand Supabase est configuré. Les disponibilités réelles sont affichées juste après.
+            Ces horaires viennent de l'administration quand Supabase est configurÃ©. Les disponibilitÃ©s rÃ©elles sont affichÃ©es juste aprÃ¨s.
           </p>
         </div>
         <div className="grid gap-3">
@@ -65,12 +65,12 @@ function WeeklySummary({ slots }: { slots: SlotOccurrence[] }) {
                 <div>
                   <p className="font-black text-court-900">{slot.title}</p>
                   <p className="mt-1 text-sm text-ink-500">
-                    {slotTypeLabel(slot.type)} · {slot.audience} · {slot.venueName}
+                    {slotTypeLabel(slot.type)} Â· {slot.audience} Â· {slot.venueName}
                   </p>
                   <p className="mt-1 text-sm text-ink-500">Responsable : {slot.managerName}</p>
                 </div>
                 <p className="rounded-lg bg-white px-3 py-2 text-center text-sm font-black text-court-700">
-                  Capacité {slot.capacityMax} places
+                  {slot.isReservable ? "Réservable" : "Sans réservation"}
                 </p>
               </div>
             );
@@ -80,3 +80,4 @@ function WeeklySummary({ slots }: { slots: SlotOccurrence[] }) {
     </Card>
   );
 }
+

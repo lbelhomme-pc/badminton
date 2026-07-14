@@ -6,11 +6,11 @@ import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Confidentialité - CFVV",
-  description: "Politique de confidentialité du site du Club des Fous du Volant du Vendômois.",
+  description: "Politique de confidentialité du site du Club des fous du Volants Vendômois.",
   alternates: canonical("/confidentialite")
 };
 
-const clubName = "Club des Fous du Volant du Vendômois - CFVV";
+const clubName = "Club des fous du Volants Vendômois - CFVV";
 const contactEmail = "cfvv41@gmail.com";
 
 const treatments = [

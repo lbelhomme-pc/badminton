@@ -2,16 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Home, MapPin, Shield, Trophy, UserRound } from "lucide-react";
+import { CalendarDays, Handshake, Home, Shield, Trophy, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { cn } from "@/lib/utils";
 
 const memberItems = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/creneaux", label: "Créneaux", icon: CalendarDays },
-  { href: "/vie-du-club/evenements", label: "Agenda", icon: Trophy },
-  { href: "/reservation-creneau", label: "Réserver", icon: MapPin },
-  { href: "/espace-adherent", label: "Compte", icon: UserRound }
+  { href: "/agenda", label: "Agenda", icon: Trophy },
+  { href: "/partenaires", label: "Partenaires", icon: Handshake },
+  { href: "/connexion", label: "Compte", icon: UserRound }
 ];
 
 export function MobileBottomNav() {
@@ -33,6 +33,7 @@ export function MobileBottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch={false}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "flex min-h-12 flex-col items-center justify-center gap-1 rounded-lg font-display text-[11px] font-bold transition motion-reduce:transition-none",

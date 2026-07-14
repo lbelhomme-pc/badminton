@@ -1,4 +1,4 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -16,7 +16,7 @@ import { getPublicClubSettings, getRegistrationLinkStatus } from "@/services/clu
 
 export const metadata: Metadata = {
   title: "Inscription au club - CFVV",
-  description: "Ã‰tapes d'inscription, sÃ©ance d'essai, tarifs et licence FFBaD du CFVV."
+  description: "Étapes d'inscription, séance d'essai, tarifs et licence FFBaD du CFVV."
 };
 
 export default async function InscriptionPage() {
@@ -33,22 +33,22 @@ export default async function InscriptionPage() {
             Rejoindre le {settings.club.name}
           </h1>
           <p className="mt-4 max-w-3xl text-lg leading-8 text-ink-500">
-            Tu veux rejoindre le club ? Commence par consulter les crÃ©neaux ou demander une sÃ©ance d'essai.
-            Le bureau confirme ensuite les documents utiles, le bon tarif et la licence Ã  finaliser.
+            Tu veux rejoindre le club ? Commence par consulter les créneaux ou demander une séance d'essai.
+            Pour la saison 2026/2027, l'inscription en ligne via Poona est prévue à partir du 1er août 2026.
           </p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Link
               href="/creneaux"
               className="inline-flex h-12 items-center justify-center rounded-lg bg-court-500 px-5 font-semibold text-white shadow-soft transition hover:bg-court-600"
             >
-              Voir les crÃ©neaux
+              Voir les créneaux
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
             </Link>
             <Link
               href="/inscriptions/seance-essai"
               className="inline-flex h-12 items-center justify-center rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-50"
             >
-              Demander une sÃ©ance d'essai
+              Demander une séance d'essai
             </Link>
             <Link
               href={registration.url}
@@ -56,7 +56,7 @@ export default async function InscriptionPage() {
               rel="noreferrer"
               className="inline-flex h-12 items-center justify-center rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-50"
             >
-              {registration.isFallback ? "Lien Ã  confirmer" : "Finaliser l'inscription"}
+              {registration.isFallback ? "Lien à confirmer" : "Finaliser l'inscription"}
               <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -72,7 +72,7 @@ export default async function InscriptionPage() {
           <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-court-600">{registration.sourceLabel}</p>
           <p className="mt-3 text-sm leading-6 text-ink-500">{registration.confirmationMessage}</p>
           <p className="mt-4 rounded-lg bg-white px-4 py-3 text-sm leading-6 text-ink-600">
-            En cas de doute, demande au club avant de finaliser la licence ou le paiement.
+            Le bureau vise une ouverture des inscriptions Poona au 1er août 2026. En cas de doute, demande au club avant de finaliser la licence ou le paiement.
           </p>
         </aside>
       </section>
@@ -80,20 +80,20 @@ export default async function InscriptionPage() {
       <section className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {[
           {
-            title: "1. Choisir un crÃ©neau",
-            text: "Regarde les jours, horaires, publics concernÃ©s et places disponibles.",
+            title: "1. Choisir un créneau",
+            text: "Regarde les jours, horaires, publics concernés et les créneaux réservables.",
             href: "/creneaux",
             icon: CalendarDays
           },
           {
             title: "2. Essayer si besoin",
-            text: "Jusqu'Ã  3 sÃ©ances d'essai sont possibles sur inscription prÃ©alable.",
+            text: "Jusqu'à 3 séances d'essai sont possibles sur inscription préalable.",
             href: "/inscriptions/seance-essai",
             icon: HeartPulse
           },
           {
-            title: "3. PrÃ©parer les documents",
-            text: "Questionnaire santÃ©, certificat si nÃ©cessaire et autorisation parentale pour les mineurs.",
+            title: "3. Préparer les documents",
+            text: "Questionnaire santé, certificat si nécessaire et autorisation parentale pour les mineurs.",
             href: "/inscriptions/documents-utiles",
             icon: FileText
           },
@@ -129,16 +129,15 @@ export default async function InscriptionPage() {
       <section className="mt-10 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <Card className="p-6">
           <FileText className="h-6 w-6 text-info" aria-hidden="true" />
-          <h2 className="mt-4 text-2xl font-black text-court-900">Documents Ã  prÃ©voir</h2>
+          <h2 className="mt-4 text-2xl font-black text-court-900">Documents à prévoir</h2>
           <ul className="mt-4 grid gap-3 text-sm leading-6 text-ink-500">
-            <li>Questionnaire santÃ© ou certificat mÃ©dical selon les rÃ¨gles FFBaD en vigueur.</li>
-            <li>Autorisation parentale et coordonnÃ©es du responsable lÃ©gal pour les mineurs.</li>
-            <li>Choix de la formule : loisirs, compÃ©titeur, jeune loisir ou jeune compÃ©titeur.</li>
+            <li>Questionnaire santé ou certificat médical selon les règles FFBaD en vigueur.</li>
+            <li>Autorisation parentale et coordonnées du responsable légal pour les mineurs.</li>
+            <li>Choix de la formule : jeune ou adulte pour la saison 2026/2027.</li>
             <li>Moyen de paiement ou justificatif si le club utilise une plateforme externe.</li>
           </ul>
           <p className="mt-4 rounded-lg bg-court-50 px-4 py-3 text-sm leading-6 text-ink-600">
-            Les informations administratives peuvent Ã©voluer selon la saison. La page d'inscription et les consignes du
-            bureau font foi.
+            Les informations administratives peuvent évoluer selon la saison. La page d'inscription et les consignes du bureau font foi.
           </p>
         </Card>
 
@@ -146,8 +145,8 @@ export default async function InscriptionPage() {
           <MessageCircle className="h-6 w-6 text-court-500" aria-hidden="true" />
           <h2 className="mt-4 text-2xl font-black text-court-900">Besoin d'aide ?</h2>
           <p className="mt-3 leading-7 text-ink-500">
-            Pas besoin d'Ãªtre dÃ©jÃ  bon : viens simplement avec une tenue de sport, on t'explique le reste.
-            Pour un enfant, indique son Ã¢ge et son niveau approximatif dans la demande.
+            Pas besoin d'être déjà bon : viens simplement avec une tenue de sport, on t'explique le reste.
+            Pour un enfant, indique son âge et son niveau approximatif dans la demande.
           </p>
           <div className="mt-5 flex flex-col gap-3 sm:flex-row">
             <Link

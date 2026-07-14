@@ -39,6 +39,18 @@ const initialForm = {
 
 type CreneauForm = typeof initialForm;
 
+function normalizeDay(value: string) {
+  return value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
+}
+
+function isDefaultReservableDay(value: string) {
+  return ["mercredi", "vendredi"].includes(normalizeDay(value));
+}
+
 function toCreneauInput(form: CreneauForm) {
   return {
     jour: form.jour.trim(),
@@ -115,7 +127,11 @@ function AdminCreneauxContent() {
   }, []);
 
   function update(field: keyof typeof form, value: string) {
-    setForm((current) => ({ ...current, [field]: value }));
+    setForm((current) => ({
+      ...current,
+      [field]: value,
+      ...(field === "jour" && isDefaultReservableDay(value) ? { reservation_active: "true" } : {})
+    }));
   }
 
   function updateEdit(id: number, field: keyof CreneauForm, value: string) {
@@ -126,7 +142,8 @@ function AdminCreneauxContent() {
       ...current,
       [id]: {
         ...(current[id] ?? formFromCreneau(creneau)),
-        [field]: value
+        [field]: value,
+        ...(field === "jour" && isDefaultReservableDay(value) ? { reservation_active: "true" } : {})
       }
     }));
   }

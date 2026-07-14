@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s | CFVV"
   },
   description:
-    "Site du Club des Fous du Volant du Vendômois : créneaux, agenda, inscriptions, réservations, volants et espace adhérent.",
+    "Site du Club des fous du Volants Vendômois : créneaux, agenda, inscriptions, réservations, volants et espace adhérent.",
   alternates: {
     canonical: "/"
   },
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "CFVV - Club de badminton à Vendôme",
-    description: "Créneaux, agenda, inscriptions et vie du Club des Fous du Volant du Vendômois.",
+    description: "Créneaux, agenda, inscriptions et vie du Club des fous du Volants Vendômois.",
     url: "/",
     siteName: "CFVV",
     locale: "fr_FR",
@@ -45,14 +45,14 @@ export const metadata: Metadata = {
         url: "/logos/cfvv-illustration.png",
         width: 1200,
         height: 630,
-        alt: "CFVV - Club des Fous du Volant du Vendômois"
+        alt: "CFVV - Club des fous du Volants Vendômois"
       }
     ]
   },
   twitter: {
     card: "summary_large_image",
     title: "CFVV - Club de badminton à Vendôme",
-    description: "Créneaux, agenda, inscriptions et vie du Club des Fous du Volant du Vendômois.",
+    description: "Créneaux, agenda, inscriptions et vie du Club des fous du Volants Vendômois.",
     images: ["/logos/cfvv-illustration.png"]
   }
 };

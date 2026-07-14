@@ -40,6 +40,7 @@ const memberAccess = loadTsModule("lib/member-access.ts", { "@/lib/roles": roles
 const invitations = loadTsModule("lib/member-invitations.ts");
 const reservationRules = loadTsModule("lib/reservation-rules.ts");
 const helloAsso = loadTsModule("lib/helloasso.ts");
+const mediaLibrary = loadTsModule("lib/media-library.ts");
 const privateDocuments = loadTsModule("lib/private-documents.ts", { "@/lib/roles": roles });
 const backOfficeRules = loadTsModule("lib/back-office-rules.ts", {
   "@/lib/private-documents": privateDocuments,
@@ -49,6 +50,7 @@ const backOfficeRules = loadTsModule("lib/back-office-rules.ts", {
 const {
   filterSlots,
   generateEventIcs,
+  getNextPublicEvents,
   getPublicSlotStatus,
   getUpcomingPublicEvents,
   validateEvent,
@@ -61,7 +63,7 @@ const {
   isActiveSeasonStatus
 } = memberAccess;
 
-const { getInvitationAccessState, isInvitationUsable } = invitations;
+const { buildActivationUrl, canPrepareInvitationReminder, getDefaultInvitationExpiration, getInvitationAccessState, isInvitationUsable } = invitations;
 
 const {
   buildReservationCsv,
@@ -71,6 +73,14 @@ const {
 } = reservationRules;
 
 const { buildHelloAssoProductUrl, isValidHelloAssoUrl } = helloAsso;
+
+const {
+  canDeleteMediaAsset,
+  getMediaKind,
+  isAllowedPublicMediaFile,
+  sanitizeMediaFileName,
+  validateMediaAssetInput
+} = mediaLibrary;
 
 const {
   canAccessPrivateDocument,
@@ -169,8 +179,36 @@ assert.deepEqual(
   "publication, programmation et annulation"
 );
 
+const nextHomeEvents = getNextPublicEvents(
+  [
+    { ...event, id: "far", startsAt: "2026-12-10T18:00:00+02:00", endsAt: "2026-12-10T20:00:00+02:00" },
+    { ...event, id: "first", startsAt: "2026-08-03T18:00:00+02:00", endsAt: "2026-08-03T20:00:00+02:00" },
+    { ...event, id: "draft-home", status: "draft", startsAt: "2026-08-04T18:00:00+02:00", endsAt: "2026-08-04T20:00:00+02:00" },
+    { ...event, id: "second", startsAt: "2026-08-05T18:00:00+02:00", endsAt: "2026-08-05T20:00:00+02:00" },
+    { ...event, id: "past", startsAt: "2026-07-01T18:00:00+02:00", endsAt: "2026-07-01T20:00:00+02:00" },
+    { ...event, id: "third", startsAt: "2026-08-06T18:00:00+02:00", endsAt: "2026-08-06T20:00:00+02:00" }
+  ],
+  3,
+  new Date("2026-08-02T10:00:00+02:00")
+);
+
+assert.deepEqual(
+  nextHomeEvents.map((item) => item.id),
+  ["first", "second", "third"],
+  "accueil : trois prochains evenements publics uniquement"
+);
+
 assert.equal(validateEvent(event).length, 0, "événement valide");
 assert.ok(validateEvent({ ...cancelled, cancellationMessage: "" }).includes("message d'annulation manquant"), "annulation documentée");
+assert.ok(
+  validateEvent({ ...event, status: "scheduled", scheduledFor: undefined }).some((message) => message.includes("publication")),
+  "programmation sans date refusee"
+);
+assert.equal(
+  validateEvent({ ...event, status: "scheduled", scheduledFor: "2026-08-01T10:00:00+02:00" }).length,
+  0,
+  "programmation avec date valide"
+);
 
 const ics = generateEventIcs(event, "https://cfvv.example");
 assert.ok(ics.includes("BEGIN:VCALENDAR"), "iCal démarre");
@@ -235,6 +273,10 @@ const usableInvitation = { status: "pending", expires_at: "2026-09-01T10:00:00+0
 assert.equal(isInvitationUsable(usableInvitation, new Date("2026-08-01T10:00:00+02:00")), true, "invitation utilisable");
 assert.equal(getInvitationAccessState(usableInvitation, new Date("2026-10-01T10:00:00+02:00")), "expired", "invitation expirée");
 assert.equal(getInvitationAccessState({ ...usableInvitation, used_at: "2026-08-02T10:00:00+02:00" }), "used", "invitation à usage unique");
+assert.equal(canPrepareInvitationReminder(usableInvitation, new Date("2026-08-01T10:00:00+02:00")), true, "relance possible avant expiration");
+assert.equal(canPrepareInvitationReminder({ ...usableInvitation, revoked_at: "2026-08-02T10:00:00+02:00" }), false, "relance interdite apres revocation");
+assert.equal(buildActivationUrl("https://cfvv.example/", "abc 123"), "https://cfvv.example/creation-compte?invitation=abc%20123", "url activation stable");
+assert.equal(getDefaultInvitationExpiration(new Date("2026-08-01T10:00:00+02:00"), 14), "2026-08-15T08:00:00.000Z", "expiration invitation");
 
 const baseReservationRule = {
   reservationActive: true,
@@ -362,6 +404,18 @@ assert.equal(csvPreview.rows.length, 3, "import CSV produit un apercu");
 assert.ok(csvPreview.issues.some((issue) => issue.message.includes("Doublon")), "import CSV detecte les doublons");
 assert.ok(csvPreview.issues.some((issue) => issue.message.includes("Email invalide")), "import CSV detecte les emails invalides");
 
+const csvPreviewWithExistingData = parseMemberCsvPreview(
+  'email,prenom,nom,licence_ffbad,role\n"membre@example.test",Marie,Club,999,member\ninvite@example.test,Paul,Invite,888,member',
+  {
+    existingEmails: ["membre@example.test"],
+    existingLicences: ["999"],
+    pendingInvitationEmails: ["invite@example.test"]
+  }
+);
+assert.equal(csvPreviewWithExistingData.rows.length, 2, "import CSV accepte aussi la virgule");
+assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("deja present")), "import CSV detecte un adherent deja present");
+assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("deja en attente")), "import CSV detecte une invitation deja en attente");
+
 assert.equal(nextContentStatus("brouillon", "publish"), "publie", "publication brouillon");
 assert.equal(nextContentStatus("publie", "unpublish"), "brouillon", "depublication");
 assert.equal(nextContentStatus("brouillon", "schedule", "2026-09-01T10:00:00+02:00"), "programme", "planification");
@@ -381,5 +435,38 @@ assert.equal(
   false,
   "texte alternatif obligatoire pour image informative"
 );
+
+assert.equal(getMediaKind("image/webp"), "image", "mediatheque reconnait image webp");
+assert.equal(getMediaKind("application/pdf"), "document", "mediatheque reconnait document public");
+assert.equal(isAllowedPublicMediaFile({ mimeType: "image/png", sizeBytes: 2048 }), true, "mediatheque accepte image valide");
+assert.equal(isAllowedPublicMediaFile({ mimeType: "image/png", sizeBytes: 9 * 1024 * 1024 }), false, "mediatheque refuse fichier trop lourd");
+assert.equal(sanitizeMediaFileName("Photo rentree CFVV!!.webp"), "photo-rentree-cfvv.webp", "nom media nettoye");
+assert.equal(
+  validateMediaAssetInput({
+    fileName: "hero.webp",
+    mimeType: "image/webp",
+    sizeBytes: 4096,
+    title: "Hero accueil",
+    informative: true,
+    altText: ""
+  }).ok,
+  false,
+  "alt obligatoire pour image informative"
+);
+assert.equal(
+  validateMediaAssetInput({
+    fileName: "hero.webp",
+    mimeType: "image/webp",
+    sizeBytes: 4096,
+    title: "Hero accueil",
+    informative: true,
+    altText: "Joueur de badminton en action"
+  }).ok,
+  true,
+  "image informative valide avec alt"
+);
+assert.equal(canDeleteMediaAsset({ knownUsage: ["accueil"], status: "archived" }).ok, false, "suppression bloquee si usage connu");
+assert.equal(canDeleteMediaAsset({ knownUsage: [], status: "active" }).ok, false, "suppression impose archivage");
+assert.equal(canDeleteMediaAsset({ knownUsage: [], status: "archived" }).ok, true, "suppression autorisee apres archivage sans usage");
 
 console.log("Public planning and member access tests passed");

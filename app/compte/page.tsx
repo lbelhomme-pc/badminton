@@ -1,15 +1,11 @@
-﻿import type { Metadata } from "next";
-import { MemberDashboard } from "@/components/member/member-dashboard";
+import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Espace adhérent - CFVV",
-  description: "Tableau de bord personnel, réservations et commandes de volants."
+  title: "Espace adherent - CFVV",
+  description: "Redirection vers le tableau de bord adherent securise du CFVV."
 };
 
 export default function ComptePage() {
-  return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <MemberDashboard />
-    </div>
-  );
+  redirect("/espace-adherent");
 }

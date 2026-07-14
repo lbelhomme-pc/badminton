@@ -1,5 +1,7 @@
-﻿import { events, ffbadRegistrationUrl, rankings, shuttleProducts, slots, venues } from "@/lib/mock-data";
+import { events, ffbadRegistrationUrl, rankings, shuttleProducts, slots, venues } from "@/lib/mock-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { fetchPublicEvents } from "@/services/supabase-data.service";
+import type { ClubEvent } from "@/types/domain";
 
 export interface PublicClubSettings {
   club: {
@@ -12,10 +14,12 @@ export interface PublicClubSettings {
   contact: {
     email: string;
     phone: string;
+    genericContacts: string[];
     facebookUrl: string;
     instagramUrl: string;
   };
   bureau: PublicBureauMember[];
+  partners: PublicPartner[];
 }
 
 export interface PublicBureauMember {
@@ -25,6 +29,17 @@ export interface PublicBureauMember {
   mission: string;
   email: string;
   phone: string;
+}
+
+export interface PublicPartner {
+  id: string;
+  name: string;
+  description: string;
+  level: string;
+  logoUrl: string;
+  websiteUrl: string;
+  altText: string;
+  active: boolean;
 }
 
 export interface RegistrationLinkStatus {
@@ -38,17 +53,19 @@ export interface RegistrationLinkStatus {
 export const defaultPublicClubSettings: PublicClubSettings = {
   club: {
     name: "CFVV",
-    fullName: "Club des fous du Volant Vendômois",
+    fullName: "Club des fous du Volants Vendômois",
     city: "Vendôme",
-    registeredOffice: "Naveil",
+    registeredOffice: "10 Imp. de la Devallerie, 41100 Naveil",
     ffbadUrl: ffbadRegistrationUrl
   },
   contact: {
     email: "cfvv41@gmail.com",
-    phone: "",
+    phone: "06 60 93 51 85",
+    genericContacts: ["Clovis Bellan", "Didier Remule", "Julie Remule"],
     facebookUrl: "",
     instagramUrl: ""
   },
+  partners: [],
   bureau: [
     {
       key: "presidence",
@@ -77,7 +94,7 @@ export const defaultPublicClubSettings: PublicClubSettings = {
     {
       key: "creneaux",
       role: "Responsables créneaux",
-      name: "Didier Remule",
+      name: "Julie Remule / Didier Remule",
       mission: "Accueil des joueurs, suivi des présences, annulations exceptionnelles et organisation des terrains.",
       email: "",
       phone: ""
@@ -91,6 +108,14 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       phone: ""
     },
     {
+      key: "contact",
+      role: "Contacts génériques",
+      name: "Clovis Bellan / Didier Remule / Julie Remule",
+      mission: "Référents publics pour orienter les demandes d'essai, d'inscription, de créneaux, de volants et de partenariat.",
+      email: "cfvv41@gmail.com",
+      phone: "06 60 93 51 85"
+    },
+    {
       key: "benevoles",
       role: "Bénévoles",
       name: "Tous les coups de main comptent",
@@ -102,12 +127,30 @@ export const defaultPublicClubSettings: PublicClubSettings = {
 };
 
 interface SettingRow {
-  key: "club" | "contact" | "bureau";
+  key: "club" | "contact" | "bureau" | "partners";
   value: Record<string, unknown> | null;
 }
 
 function cleanText(value: unknown, fallback = "") {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
+}
+
+function cleanStringList(value: unknown, fallback: string[]) {
+  if (Array.isArray(value)) {
+    const cleaned = value.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((item) => item.trim());
+    return cleaned.length > 0 ? cleaned : fallback;
+  }
+
+  if (typeof value === "string" && value.trim().length > 0) {
+    const cleaned = value
+      .split("/")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    return cleaned.length > 0 ? cleaned : fallback;
+  }
+
+  return fallback;
 }
 
 function getSettingValue(rows: SettingRow[], key: SettingRow["key"]) {
@@ -134,6 +177,31 @@ function cleanBureau(value: unknown) {
   });
 }
 
+function cleanPartners(value: unknown): PublicPartner[] {
+  const source = Array.isArray(value) ? value : [];
+
+  return source
+    .map((item, index) => {
+      const record = typeof item === "object" && item !== null ? (item as Record<string, unknown>) : {};
+      const name = cleanText(record.name);
+
+      if (!name) return null;
+
+      return {
+        id: cleanText(record.id, name.toLowerCase().replace(/[^a-z0-9]+/g, "-") || `partner-${index + 1}`),
+        name,
+        description: cleanText(record.description),
+        level: cleanText(record.level, "Partenaire"),
+        logoUrl: cleanText(record.logo_url ?? record.logoUrl),
+        websiteUrl: cleanText(record.website_url ?? record.websiteUrl),
+        altText: cleanText(record.alt_text ?? record.altText, `Logo ${name}`),
+        active: typeof record.active === "boolean" ? record.active : true
+      };
+    })
+    .filter((partner): partner is PublicPartner => Boolean(partner))
+    .filter((partner) => partner.active);
+}
+
 export async function getPublicClubSettings(): Promise<PublicClubSettings> {
   const supabase = createSupabaseBrowserClient();
 
@@ -145,7 +213,7 @@ export async function getPublicClubSettings(): Promise<PublicClubSettings> {
     const { data, error } = await supabase
       .from("settings_site")
       .select("key, value")
-      .in("key", ["club", "contact", "bureau"]);
+      .in("key", ["club", "contact", "bureau", "partners"]);
 
     if (error) {
       return defaultPublicClubSettings;
@@ -155,6 +223,7 @@ export async function getPublicClubSettings(): Promise<PublicClubSettings> {
     const club = getSettingValue(rows, "club");
     const contact = getSettingValue(rows, "contact");
     const bureau = getSettingValue(rows, "bureau");
+    const partners = getSettingValue(rows, "partners");
 
     return {
       club: {
@@ -167,10 +236,12 @@ export async function getPublicClubSettings(): Promise<PublicClubSettings> {
       contact: {
         email: cleanText(contact.email, defaultPublicClubSettings.contact.email),
         phone: cleanText(contact.phone, defaultPublicClubSettings.contact.phone),
+        genericContacts: cleanStringList(contact.generic_contacts ?? contact.genericContacts, defaultPublicClubSettings.contact.genericContacts),
         facebookUrl: cleanText(contact.facebook_url, defaultPublicClubSettings.contact.facebookUrl),
         instagramUrl: cleanText(contact.instagram_url, defaultPublicClubSettings.contact.instagramUrl)
       },
-      bureau: cleanBureau(bureau.members)
+      bureau: cleanBureau(bureau.members),
+      partners: cleanPartners(partners.items)
     };
   } catch {
     return defaultPublicClubSettings;
@@ -203,6 +274,11 @@ export function getRankings() {
 
 export function getEvents() {
   return events;
+}
+
+export async function getPublicEvents(): Promise<ClubEvent[]> {
+  const result = await fetchPublicEvents();
+  return result.data.length > 0 ? result.data : events;
 }
 
 export function getFfbadRegistrationUrl() {

@@ -66,11 +66,15 @@ export default function CreneauxPage() {
 
       <Card className="mb-8 p-5">
         <h2 className="text-2xl font-black text-court-900">À savoir avant de venir</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
             {
+              title: "Été 2026",
+              text: "Les créneaux d'été sont ouverts jusqu'au 17 juillet 2026. Reprise prévue le 17 août 2026, sous réserve de confirmation du gymnase."
+            },
+            {
               title: "Statuts lisibles",
-              text: "Un créneau peut être habituel, modifié, fermé exceptionnellement, en vacances scolaires ou complet si une capacité réelle est suivie."
+              text: "Un créneau peut être habituel, modifié, fermé exceptionnellement ou en vacances scolaires."
             },
             {
               title: "Mobile d'abord",
@@ -78,7 +82,7 @@ export default function CreneauxPage() {
             },
             {
               title: "Réservation",
-              text: "Le bouton Réserver apparaît seulement pour un adhérent connecté et sur un créneau réservable."
+              text: "Le bouton Réserver apparaît uniquement sur les créneaux du mercredi et du vendredi, puis dirige vers la connexion."
             }
           ].map((item) => (
             <div key={item.title} className="rounded-lg bg-court-50 p-4">

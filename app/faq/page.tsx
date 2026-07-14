@@ -23,7 +23,7 @@ const faqItems = [
   },
   {
     question: "À partir de quel âge ?",
-    answer: "L'âge d'accueil des jeunes doit être confirmé par le club selon les groupes ouverts, l'encadrement et les places disponibles."
+    answer: "L'âge d'accueil des jeunes doit être confirmé par le club selon les groupes ouverts et l'encadrement disponible."
   },
   {
     question: "Faut-il une raquette ?",

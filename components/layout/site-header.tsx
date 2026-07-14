@@ -15,14 +15,16 @@ const primaryLinks = [
   { href: "/club/bureau-benevoles", label: "Le Bureau" },
   { href: "/agenda", label: "Agenda" },
   { href: "/club", label: "Le Club" },
+  { href: "/partenaires", label: "Partenaires" },
   { href: "/contact", label: "Contact" }
 ];
 
 const mobileLinks = [
   ...primaryLinks,
-  { href: "/espace-adherent", label: "Espace adhérent" },
+  { href: "/connexion", label: "Espace adhérent" },
   { href: "/inscription", label: "Nous rejoindre" },
   { href: "/tarifs", label: "Tarifs" },
+  { href: "/lieux-acces", label: "Lieux et accès" },
   { href: "/faq", label: "FAQ" }
 ];
 
@@ -56,15 +58,16 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-[0_6px_18px_rgba(2,24,35,0.08)]">
       <div className="mx-auto flex min-h-[104px] max-w-[1180px] items-center justify-between gap-5 px-5 lg:px-8">
-        <Link href="/" className="flex min-w-0 items-center gap-3" aria-label="Accueil du CFVV">
-          <ClubLogo compact />
+        <Link href="/" prefetch={false} className="flex min-w-0 items-center gap-3" aria-label="Accueil du CFVV">
+          <ClubLogo compact priority />
         </Link>
 
-        <nav className="hidden items-center gap-7 lg:flex" aria-label="Navigation principale">
+        <nav className="hidden items-center gap-5 xl:gap-7 lg:flex" aria-label="Navigation principale">
           {primaryLinks.map((item) => (
             <Link
               key={item.href}
               href={item.href}
+              prefetch={false}
               aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
                 "relative px-1 py-3 font-display text-[13px] font-black text-[#071b27] transition motion-reduce:transition-none",
@@ -108,6 +111,7 @@ export function SiteHeader() {
                 key={item.href}
                 ref={index === 0 ? firstMobileLinkRef : undefined}
                 href={item.href}
+                prefetch={false}
                 aria-current={isActive(item.href) ? "page" : undefined}
                 className={cn(
                   "rounded-lg px-3 py-3 font-display text-base font-bold transition motion-reduce:transition-none",

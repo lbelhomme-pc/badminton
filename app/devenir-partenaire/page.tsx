@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Devenir partenaire - CFVV",
-  description: "Parcours de demande de partenariat pour soutenir le Club des Fous du Volant du Vendômois."
+  description: "Parcours de demande de partenariat pour soutenir le Club des fous du Volants Vendômois."
 };
 
 const steps = [

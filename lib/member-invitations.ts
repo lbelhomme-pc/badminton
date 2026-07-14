@@ -9,6 +9,8 @@ export interface MemberInvitationLike {
 
 export type InvitationAccessState = "usable" | "used" | "expired" | "revoked";
 
+export const defaultInvitationValidityDays = 14;
+
 export function getInvitationAccessState(invitation: MemberInvitationLike, now = new Date()): InvitationAccessState {
   if (invitation.status === "used" || invitation.used_at) return "used";
   if (invitation.status === "revoked" || invitation.revoked_at) return "revoked";
@@ -31,4 +33,33 @@ export function invitationAccessMessage(state: InvitationAccessState) {
     default:
       return "Invitation valide.";
   }
+}
+
+export function invitationStatusLabel(invitation: MemberInvitationLike, now = new Date()) {
+  const state = getInvitationAccessState(invitation, now);
+
+  switch (state) {
+    case "used":
+      return "Utilisée";
+    case "expired":
+      return "Expirée";
+    case "revoked":
+      return "Révoquée";
+    default:
+      return "En attente";
+  }
+}
+
+export function getDefaultInvitationExpiration(now = new Date(), validityDays = defaultInvitationValidityDays) {
+  const expiresAt = new Date(now);
+  expiresAt.setDate(expiresAt.getDate() + validityDays);
+  return expiresAt.toISOString();
+}
+
+export function buildActivationUrl(origin: string, token: string) {
+  return `${origin.replace(/\/+$/, "")}/creation-compte?invitation=${encodeURIComponent(token)}`;
+}
+
+export function canPrepareInvitationReminder(invitation: MemberInvitationLike, now = new Date()) {
+  return getInvitationAccessState(invitation, now) === "usable";
 }

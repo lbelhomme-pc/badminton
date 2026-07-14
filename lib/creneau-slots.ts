@@ -62,6 +62,7 @@ export function creneauxToSlotOccurrences(creneaux: CreneauRow[]): SlotOccurrenc
     .map((creneau) => {
       const date = nextDateForDay(creneau.jour);
       const capacity = creneau.places_max ?? 28;
+      const isReservationDay = ["mercredi", "vendredi"].includes(normalizeDay(creneau.jour));
 
       return {
         id: `creneau-${creneau.id}`,
@@ -79,7 +80,8 @@ export function creneauxToSlotOccurrences(creneaux: CreneauRow[]): SlotOccurrenc
         courtsCount: 7,
         capacityMax: capacity,
         registeredCount: 0,
-        status: "open" as const
+        status: "open" as const,
+        isReservable: Boolean(creneau.reservation_active) || isReservationDay
       };
     })
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt));

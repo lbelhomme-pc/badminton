@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Accessibilité - CFVV",
-  description: "Engagements d'accessibilité numérique du site du Club des Fous du Volant du Vendômois."
+  description: "Engagements d'accessibilité numérique du site du Club des fous du Volants Vendômois."
 };
 
 export default function AccessibilitePage() {

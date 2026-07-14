@@ -8,6 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node scripts/run-public-planning-tests.mjs",
+    "test:e2e": "node scripts/run-e2e-tests.mjs",
+    "test:e2e:ci": "npm run build && node scripts/run-e2e-tests.mjs",
     "audit:lighthouse": "node scripts/lighthouse-audit.mjs"
   },
   "dependencies": {

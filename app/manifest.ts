@@ -2,14 +2,14 @@
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "CFVV - Club des Fous du Volant du Vendômois",
+    name: "CFVV - Club des fous du Volants Vendômois",
     short_name: "CFVV",
     description: "Planning, réservations et espace adhérent du CFVV.",
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#F6FAFB",
-    theme_color: "#1D1D1F",
+    background_color: "#A5D7DE",
+    theme_color: "#0C8A9C",
     orientation: "portrait",
     icons: [
       {

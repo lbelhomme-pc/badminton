@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { CalendarDays, Clock, MapPin, UserRound, UsersRound } from "lucide-react";
+import { CalendarDays, Clock, MapPin, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { formatDate, formatTime, slotStatusClass, slotStatusLabel, slotTypeLabel } from "@/lib/utils";
@@ -13,24 +13,21 @@ interface SlotCardProps {
 }
 
 export function SlotCard({ slot, compact = false }: SlotCardProps) {
-  const taken = slot.registeredCount;
-  const remaining = Math.max(slot.capacityMax - taken, 0);
-  const canReserve = slot.status === "open" && remaining > 0;
+  const canReserve = slot.status === "open" && slot.isReservable === true;
 
   return (
     <Card className="group flex h-full flex-col p-4">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <Badge className={slotStatusClass(canReserve ? "open" : slot.status)}>
-            {canReserve ? "Ouvert" : slotStatusLabel(slot.status)}
-          </Badge>
+          <Badge className={slotStatusClass(slot.status)}>{slotStatusLabel(slot.status)}</Badge>
           <h3 className="mt-3 text-lg font-black leading-tight text-court-900">{slot.title}</h3>
           <p className="mt-1 text-sm font-semibold text-court-600">{slotTypeLabel(slot.type)}</p>
         </div>
-        <div className="rounded-lg bg-court-100 px-3 py-2 text-right">
-          <p className="text-xl font-black text-court-900">{remaining}</p>
-          <p className="text-[11px] font-semibold uppercase text-ink-500">places</p>
-        </div>
+        {canReserve ? (
+          <span className="rounded-lg bg-court-100 px-3 py-2 text-right text-xs font-black uppercase text-court-900">
+            Réservable
+          </span>
+        ) : null}
       </div>
 
       <div className="mt-4 grid gap-2 text-sm text-ink-500">
@@ -48,10 +45,7 @@ export function SlotCard({ slot, compact = false }: SlotCardProps) {
         </p>
         {!compact ? (
           <>
-            <p className="flex items-center gap-2">
-              <UsersRound className="h-4 w-4 text-court-500" aria-hidden="true" />
-              {taken}/{slot.capacityMax} inscrits · {slot.recommendedLevel}
-            </p>
+            <p className="text-sm font-semibold text-ink-500">{slot.recommendedLevel}</p>
             <p className="flex items-center gap-2">
               <UserRound className="h-4 w-4 text-court-500" aria-hidden="true" />
               Responsable : {slot.managerName}
@@ -66,11 +60,11 @@ export function SlotCard({ slot, compact = false }: SlotCardProps) {
             href="/reservation-creneau"
             className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-court-500 px-4 text-sm font-semibold text-white shadow-soft transition hover:bg-court-600"
           >
-            Réserver ma place
+            Réserver
           </Link>
         ) : (
           <span className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-ink-100 px-4 text-sm font-semibold text-ink-500">
-            Indisponible
+            Réservation non ouverte
           </span>
         )}
         <Link

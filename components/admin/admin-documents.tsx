@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AdminFeedback, actionFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
+import { useAuth } from "@/components/auth/auth-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -26,7 +27,8 @@ const roleOptions = [
 const statusOptions = [
   { value: "brouillon", label: "Brouillon" },
   { value: "publie", label: "Publié" },
-  { value: "archive", label: "Archivé" }
+  { value: "archive", label: "Archivé" },
+  { value: "corbeille", label: "Corbeille" }
 ];
 
 export function AdminDocuments() {
@@ -38,6 +40,7 @@ export function AdminDocuments() {
 }
 
 function AdminDocumentsContent() {
+  const { isAdmin } = useAuth();
   const [documents, setDocuments] = useState<PrivateDocumentRow[]>([]);
   const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
   const [filter, setFilter] = useState("");
@@ -100,7 +103,7 @@ function AdminDocumentsContent() {
   }
 
   async function changeStatus(document: PrivateDocumentRow, statut: string) {
-    const sensitive = statut === "archive" || statut === "brouillon";
+    const sensitive = statut === "archive" || statut === "brouillon" || statut === "corbeille";
     if (sensitive) {
       const confirmed = window.confirm(`Passer "${document.titre}" en statut ${statut} ?`);
       if (!confirmed) return;
@@ -115,10 +118,15 @@ function AdminDocumentsContent() {
   }
 
   async function remove(document: PrivateDocumentRow) {
-    if (document.statut !== "archive") {
-      const archiveFirst = window.confirm("Par sécurité, le document doit d'abord être archivé. L'archiver maintenant ?");
-      if (!archiveFirst) return;
-      await changeStatus(document, "archive");
+    if (document.statut !== "corbeille") {
+      const trashFirst = window.confirm("Par sécurité, le document doit d'abord passer par la corbeille. Le déplacer maintenant ?");
+      if (!trashFirst) return;
+      await changeStatus(document, "corbeille");
+      return;
+    }
+
+    if (!isAdmin) {
+      setFeedback(errorFeedback("Suppression définitive réservée aux admins."));
       return;
     }
 
@@ -260,8 +268,18 @@ function AdminDocumentsContent() {
                 <Button type="button" variant="outline" disabled={pendingId === document.id} onClick={() => changeStatus(document, "archive")}>
                   Archiver
                 </Button>
+                {document.statut === "corbeille" ? (
+                  <Button type="button" variant="outline" disabled={pendingId === document.id} onClick={() => changeStatus(document, "brouillon")}>
+                    Restaurer
+                  </Button>
+                ) : null}
+                {document.statut !== "corbeille" ? (
+                  <Button type="button" variant="outline" disabled={pendingId === document.id} onClick={() => changeStatus(document, "corbeille")}>
+                    Corbeille
+                  </Button>
+                ) : null}
                 <Button type="button" variant="danger" disabled={pendingId === document.id} onClick={() => remove(document)}>
-                  Supprimer
+                  {document.statut === "corbeille" && isAdmin ? "Supprimer définitivement" : "Supprimer"}
                 </Button>
               </div>
             </div>

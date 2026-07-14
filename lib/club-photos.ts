@@ -1,49 +1,54 @@
-﻿export interface ClubPhotoSlot {
-  id: "homeHero" | "clubLife" | "gymnaseAigremonts" | "trialSession";
-  src: string | null;
-  recommendedFile: string;
+export type ClubPhotoKey = "homeHero" | "clubLife" | "gymnaseAigremonts" | "trialSession";
+
+export interface ClubPhoto {
+  id: ClubPhotoKey;
+  src: string;
   alt: string;
+  credit?: string;
+}
+
+export interface ConfiguredClubPhotoSlot extends ClubPhoto {
   width: number;
   height: number;
 }
 
-export type ConfiguredClubPhotoSlot = ClubPhotoSlot & { src: string };
-
-export const clubPhotoSlots = {
+export const clubPhotoSlots: Record<ClubPhotoKey, ConfiguredClubPhotoSlot> = {
   homeHero: {
     id: "homeHero",
-    src: null,
-    recommendedFile: "/photos/accueil-badminton-cfvv.webp",
-    alt: "Joueurs adultes du CFVV en Ã©change de badminton au Gymnase des Aigremonts",
-    width: 1600,
-    height: 1000
+    src: "/images/cfvv-hero-badminton.png",
+    alt: "Joueurs adultes du CFVV en échange de badminton au Gymnase des Aigremonts",
+    width: 1400,
+    height: 900
   },
   clubLife: {
     id: "clubLife",
-    src: null,
-    recommendedFile: "/photos/vie-club-cfvv.webp",
-    alt: "BÃ©nÃ©voles et adhÃ©rents adultes du CFVV pendant un moment convivial du club",
-    width: 1400,
+    src: "/images/cfvv-vie-club.png",
+    alt: "Bénévoles et adhérents adultes du CFVV pendant un moment convivial du club",
+    width: 1200,
     height: 900
   },
   gymnaseAigremonts: {
     id: "gymnaseAigremonts",
-    src: null,
-    recommendedFile: "/photos/gymnase-aigremonts-cfvv.webp",
-    alt: "Terrains du Gymnase des Aigremonts prÃ©parÃ©s pour un crÃ©neau du CFVV",
-    width: 1400,
+    src: "/images/cfvv-gymnase-aigremonts.png",
+    alt: "Terrains du Gymnase des Aigremonts préparés pour un créneau du CFVV",
+    width: 1200,
     height: 900
   },
   trialSession: {
     id: "trialSession",
-    src: null,
-    recommendedFile: "/photos/seance-essai-cfvv.webp",
-    alt: "Accueil d'un joueur dÃ©butant lors d'une sÃ©ance d'essai badminton du CFVV",
-    width: 1400,
+    src: "/images/cfvv-seance-essai.png",
+    alt: "Accueil d'un joueur débutant lors d'une séance d'essai badminton du CFVV",
+    width: 1200,
     height: 900
   }
-} satisfies Record<ClubPhotoSlot["id"], ClubPhotoSlot>;
+};
 
-export function hasClubPhoto(slot: ClubPhotoSlot): slot is ConfiguredClubPhotoSlot {
-  return typeof slot.src === "string" && slot.src.length > 0;
+export const clubPhotos = clubPhotoSlots;
+
+export function getClubPhoto(key: ClubPhotoKey) {
+  return clubPhotoSlots[key];
+}
+
+export function hasClubPhoto(slot: ConfiguredClubPhotoSlot | null | undefined) {
+  return Boolean(slot?.src);
 }

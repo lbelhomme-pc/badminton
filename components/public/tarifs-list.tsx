@@ -7,52 +7,34 @@ import { fetchTarifs, type TarifRow } from "@/services/supabase-data.service";
 
 type PublicTarif = Omit<TarifRow, "id"> & { id: number | string };
 
-const demoDescription = "Donnée de démonstration à confirmer par le bureau avant publication officielle.";
+const seasonDescription = "Tarif propose pour la saison 2026/2027, a confirmer lors de l'ouverture des inscriptions Poona.";
 
 const fallbackTarifs: PublicTarif[] = [
   {
-    id: "enfants-loisirs",
-    titre: "Licence enfants loisirs",
-    description: demoDescription,
-    montant: 50,
+    id: "jeunes-2026",
+    titre: "Licence jeunes",
+    description: seasonDescription,
+    montant: 90,
     public: "Jeunes",
     ordre: 1,
     actif: true
   },
   {
-    id: "enfants-competiteurs",
-    titre: "Licence enfants compétiteurs",
-    description: demoDescription,
-    montant: 85,
-    public: "Jeunes compétiteurs",
+    id: "adultes-2026",
+    titre: "Licence adultes",
+    description: seasonDescription,
+    montant: 100,
+    public: "Adultes",
     ordre: 2,
-    actif: true
-  },
-  {
-    id: "adultes-loisirs",
-    titre: "Licence loisirs",
-    description: demoDescription,
-    montant: 60,
-    public: "Loisirs",
-    ordre: 3,
-    actif: true
-  },
-  {
-    id: "competition",
-    titre: "Licence compétiteurs",
-    description: demoDescription,
-    montant: 95,
-    public: "Compétiteurs",
-    ordre: 4,
     actif: true
   },
   {
     id: "essai",
     titre: "Essai",
-    description: demoDescription,
+    description: "Jusqu'a 3 seances d'essai gratuites pour decouvrir le club avant inscription.",
     montant: 0,
-    public: "Découverte",
-    ordre: 5,
+    public: "Decouverte",
+    ordre: 3,
     actif: true
   }
 ];
@@ -91,7 +73,8 @@ export function TarifsList() {
       {message ? <p className="mb-5 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">{message}</p> : null}
       {demoMode ? (
         <p className="mb-5 rounded-lg bg-yellow-50 px-4 py-3 text-sm font-semibold text-yellow-800">
-          Tarifs de démonstration : les montants doivent être validés par le bureau avant communication officielle.
+          Tarifs 2026/2027 issus du compte rendu du bureau : 90 euros jeunes et 100 euros adultes. Ils restent a confirmer au moment de l'ouverture
+          Poona.
         </p>
       ) : null}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

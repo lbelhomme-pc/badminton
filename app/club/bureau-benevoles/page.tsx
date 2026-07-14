@@ -17,6 +17,7 @@ const iconsByKey = {
   secretariat: Mail,
   creneaux: CalendarCheck,
   communication: Megaphone,
+  contact: Mail,
   benevoles: Handshake
 };
 

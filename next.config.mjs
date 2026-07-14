@@ -103,6 +103,20 @@ const privateNoIndexHeaders = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/compte",
+        destination: "/espace-adherent",
+        permanent: true
+      },
+      {
+        source: "/volants",
+        destination: "/commande-volants",
+        permanent: true
+      }
+    ];
+  },
   async headers() {
     return [
       {

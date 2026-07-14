@@ -4,7 +4,7 @@ import { canonical } from "@/lib/seo";
 
 export const metadata: Metadata = {
   title: "Agenda - CFVV",
-  description: "Agenda public du Club des Fous du Volant du Vendômois.",
+  description: "Agenda public du Club des fous du Volants Vendômois.",
   alternates: canonical("/agenda")
 };
 
