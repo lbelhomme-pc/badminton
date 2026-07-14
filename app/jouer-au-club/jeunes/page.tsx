@@ -8,11 +8,11 @@ export default function JeunesPage() {
     <InfoPage
       eyebrow="Jouer au club"
       title="Jeunes"
-      intro="Les sÃ©ances jeunes permettent de dÃ©couvrir le badminton, de progresser techniquement et de prendre plaisir Ã  jouer en groupe dans un cadre adaptÃ©."
+      intro="Les séances jeunes permettent de découvrir le badminton, de progresser techniquement et de prendre plaisir à jouer en groupe dans un cadre adapté."
       cards={[
-        { title: "Ã‚ge minimum", text: "L'age exact d'accueil est a confirmer par le bureau selon les groupes ouverts et l'encadrement disponible.", href: "/contact" },
-        { title: "Encadrement", text: "Les sÃ©ances sont organisÃ©es par niveau autant que possible, avec des exercices courts, des rÃ¨gles claires et des temps de jeu." },
-        { title: "CompÃ©tition possible", text: "Les jeunes qui le souhaitent peuvent Ãªtre accompagnÃ©s vers les tournois ou interclubs selon leur Ã¢ge, leur niveau et leur motivation.", href: "/jouer-au-club/competition" }
+        { title: "Âge minimum", text: "L'âge exact d'accueil est à confirmer par le bureau selon les groupes ouverts et l'encadrement disponible.", href: "/contact" },
+        { title: "Encadrement", text: "Les séances sont organisées par niveau autant que possible, avec des exercices courts, des règles claires et des temps de jeu." },
+        { title: "Compétition possible", text: "Les jeunes qui le souhaitent peuvent être accompagnés vers les tournois ou interclubs selon leur âge, leur niveau et leur motivation.", href: "/jouer-au-club/competition" }
       ]}
     >
       <div className="grid gap-4 lg:grid-cols-[1fr_0.9fr]">
@@ -28,7 +28,7 @@ export default function JeunesPage() {
               href="/creneaux"
               className="inline-flex h-11 items-center justify-center rounded-lg bg-court-500 px-4 text-sm font-semibold text-white shadow-soft transition hover:bg-court-600"
             >
-              Voir les crÃ©neaux jeunes
+              Voir les créneaux jeunes
             </Link>
             <Link
               href="/inscriptions/documents-utiles"
@@ -41,7 +41,7 @@ export default function JeunesPage() {
 
         <Card className="p-6">
           <ClipboardList className="h-6 w-6 text-info" aria-hidden="true" />
-          <h2 className="mt-4 text-2xl font-black text-court-900">Ã€ prÃ©voir</h2>
+          <h2 className="mt-4 text-2xl font-black text-court-900">À prévoir</h2>
           <ul className="mt-4 grid gap-3 text-sm leading-6 text-ink-500">
             <li className="flex gap-2">
               <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-court-500" aria-hidden="true" />
@@ -49,11 +49,11 @@ export default function JeunesPage() {
             </li>
             <li className="flex gap-2">
               <HeartHandshake className="mt-0.5 h-4 w-4 shrink-0 text-court-500" aria-hidden="true" />
-              Raquette personnelle si possible ; prÃªt Ã  confirmer pour l'essai.
+              Raquette personnelle si possible ; prêt à confirmer pour l'essai.
             </li>
             <li className="flex gap-2">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-court-500" aria-hidden="true" />
-              Autorisation parentale et Ã©lÃ©ments mÃ©dicaux selon les rÃ¨gles FFBaD en vigueur.
+              Autorisation parentale et éléments médicaux selon les règles FFBaD en vigueur.
             </li>
           </ul>
         </Card>

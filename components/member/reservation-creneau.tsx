@@ -24,12 +24,12 @@ type Feedback = { tone: "success" | "error" | "info"; text: string };
 
 function publicReservationMessage(value: string) {
   return value === "Configuration Supabase manquante."
-    ? "Le service de rÃ©servation n'est pas encore disponible. Contacte le club si tu veux rÃ©server."
+    ? "Le service de réservation n'est pas encore disponible. Contacte le club si tu veux réserver."
     : value;
 }
 
 function formatDateTime(value: string | null | undefined) {
-  if (!value) return "non configurÃ©";
+  if (!value) return "non configuré";
   return new Intl.DateTimeFormat("fr-FR", {
     dateStyle: "short",
     timeStyle: "short"
@@ -96,7 +96,7 @@ function ReservationCreneauContent() {
 
   async function reserve(creneau: CreneauAvailabilityRow) {
     if (!user) {
-      setMessage({ tone: "error", text: "Tu dois Ãªtre connectÃ© pour rÃ©server un crÃ©neau." });
+      setMessage({ tone: "error", text: "Tu dois être connecté pour réserver un créneau." });
       return;
     }
 
@@ -104,7 +104,7 @@ function ReservationCreneauContent() {
     if (pendingActionKey === actionKey) return;
 
     setPendingActionKey(actionKey);
-    setMessage({ tone: "info", text: "RÃ©servation en cours..." });
+    setMessage({ tone: "info", text: "Réservation en cours..." });
 
     try {
       const result = await createReservation(user.id, creneau.id, creneau.occurrence_date);
@@ -117,7 +117,7 @@ function ReservationCreneauContent() {
 
   async function cancel(creneau: CreneauAvailabilityRow) {
     const label = `${creneau.jour} ${creneau.heure_debut.slice(0, 5)} - ${creneau.heure_fin.slice(0, 5)}`;
-    const confirmed = window.confirm(`Annuler ta rÃ©servation pour ${label} ?`);
+    const confirmed = window.confirm(`Annuler ta réservation pour ${label} ?`);
     if (!confirmed) return;
 
     const actionKey = `${creneau.id}-${creneau.occurrence_date}-cancel`;
@@ -149,17 +149,17 @@ function ReservationCreneauContent() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <div className="mb-6">
-        <p className="font-display text-sm font-bold uppercase text-court-600">RÃ©servation adhÃ©rent</p>
-        <h1 className="mt-2 text-4xl font-black text-court-900">RÃ©server un crÃ©neau</h1>
+        <p className="font-display text-sm font-bold uppercase text-court-600">Réservation adhérent</p>
+        <h1 className="mt-2 text-4xl font-black text-court-900">Réserver un créneau</h1>
         <p className="mt-3 max-w-3xl text-ink-500">
-          Choisis une date, vÃ©rifie les rÃ¨gles affichÃ©es, puis confirme ta place. La validation finale se fait en base pour Ã©viter les doubles
-          rÃ©servations et les dÃ©passements de capacitÃ©.
+          Choisis une date, vérifie les règles affichées, puis confirme ta place. La validation finale se fait en base pour éviter les doubles
+          réservations et les dépassements de capacit?.
         </p>
       </div>
 
       <Card className="mb-6 p-5">
         <label className="grid max-w-xs gap-2 text-sm font-semibold text-court-900">
-          Date de rÃ©servation
+          Date de réservation
           <input
             type="date"
             value={dateReservation}
@@ -176,7 +176,7 @@ function ReservationCreneauContent() {
         </p>
       ) : null}
 
-      {loading ? <Card className="p-5 text-sm font-semibold text-ink-500">Chargement des disponibilitÃ©s...</Card> : null}
+      {loading ? <Card className="p-5 text-sm font-semibold text-ink-500">Chargement des disponibilités...</Card> : null}
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {creneaux.map((creneau) => (
@@ -189,7 +189,7 @@ function ReservationCreneauContent() {
           />
         ))}
         {!loading && creneaux.length === 0 ? (
-          <Card className="p-5 text-sm font-semibold text-ink-500">Aucun crÃ©neau habituel n'est prÃ©vu ce jour-lÃ .</Card>
+          <Card className="p-5 text-sm font-semibold text-ink-500">Aucun créneau habituel n'est prévu ce jour-là.</Card>
         ) : null}
       </div>
     </div>
@@ -239,7 +239,7 @@ function ReservationCard({
 
     return (
       <Button className="mt-5 w-full" disabled={pendingReserve || !canClickReserve} onClick={() => onReserve(creneau)}>
-        {pendingReserve ? "RÃ©servation..." : reservationActionLabel(actionState)}
+        {pendingReserve ? "Réservation..." : reservationActionLabel(actionState)}
       </Button>
     );
   }
@@ -249,7 +249,7 @@ function ReservationCard({
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-xl font-black text-court-900">
-            {creneau.jour} Â· {creneau.type}
+            {creneau.jour} · {creneau.type}
           </h2>
           <p className="mt-2 text-sm text-ink-500">
             {creneau.heure_debut.slice(0, 5)} - {creneau.heure_fin.slice(0, 5)}
@@ -259,9 +259,9 @@ function ReservationCard({
             {creneau.gymnase}
           </p>
           <p className="mt-1 text-sm text-ink-500">
-            {creneau.public} Â· {creneau.niveau}
+            {creneau.public} · {creneau.niveau}
           </p>
-          <p className="mt-1 text-sm font-semibold text-court-700">Responsable : {creneau.responsable || "Responsable non prÃ©cisÃ©"}</p>
+          <p className="mt-1 text-sm font-semibold text-court-700">Responsable : {creneau.responsable || "Responsable non précisé"}</p>
         </div>
         <Badge variant={stateTone(actionState)}>{reservationActionLabel(actionState)}</Badge>
       </div>
@@ -280,12 +280,12 @@ function ReservationCard({
       <div className="mt-4 rounded-lg border border-court-100 bg-white p-3 text-sm leading-6 text-ink-600">
         <p className="flex gap-2 font-bold text-court-900">
           <ShieldCheck className="mt-1 h-4 w-4 shrink-0 text-court-500" aria-hidden="true" />
-          RÃ¨gles applicables
+          Règles applicables
         </p>
         <p className="mt-2">
-          Ouverture : {formatDateTime(creneau.opens_at)} Â· Fermeture : {formatDateTime(creneau.closes_at)}
+          Ouverture : {formatDateTime(creneau.opens_at)} · Fermeture : {formatDateTime(creneau.closes_at)}
         </p>
-        <p>Annulation possible jusqu'Ã  : {formatDateTime(creneau.cancellation_deadline_at)}</p>
+        <p>Annulation possible jusqu'à : {formatDateTime(creneau.cancellation_deadline_at)}</p>
         {creneau.reservation_message ? (
           <p className="mt-2 flex gap-2 rounded-lg bg-court-50 px-3 py-2">
             <Info className="mt-1 h-4 w-4 shrink-0 text-court-500" aria-hidden="true" />
@@ -296,7 +296,7 @@ function ReservationCard({
 
       <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-ink-500">
         <CalendarClock className="h-4 w-4 text-court-500" aria-hidden="true" />
-        Confirmation immÃ©diate aprÃ¨s validation Supabase.
+        Confirmation immédiate après validation Supabase.
       </p>
 
       {renderAction()}

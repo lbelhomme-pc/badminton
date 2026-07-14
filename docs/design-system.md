@@ -1,24 +1,24 @@
 ﻿# Design system CFVV
 
-RÃ©fÃ©rences :
+Références :
 
 - `docs/cahier-des-charges/cahier-des-charges-cfvv.md`
 - `docs/cahier-des-charges/cahier-des-charges-cfvv-v0.1.docx`
 - `docs/audit-cahier-des-charges.md`
 
-Ce document fixe les rÃ¨gles visuelles et d'interface Ã  respecter pendant la migration progressive du site.
+Ce document fixe les règles visuelles et d'interface à respecter pendant la migration progressive du site.
 
 ## 1. Positionnement visuel
 
-Le site doit donner une impression sportive, locale et fiable. L'Ã©nergie du badminton est portÃ©e par les photos, le logo, les titres courts et les actions visibles, sans multiplier les effets dÃ©coratifs.
+Le site doit donner une impression sportive, locale et fiable. L'énergie du badminton est portée par les photos, le logo, les titres courts et les actions visibles, sans multiplier les effets décoratifs.
 
 Principes :
 
-- interface claire avant d'Ãªtre spectaculaire ;
+- interface claire avant d'être spectaculaire ;
 - navigation courte ;
-- boutons d'action immÃ©diatement visibles ;
-- mise en avant de VendÃ´me, des crÃ©neaux, de l'essai et de l'espace adhÃ©rent ;
-- peu d'animations, jamais indispensables Ã  la comprÃ©hension ;
+- boutons d'action immédiatement visibles ;
+- mise en avant de Vendôme, des créneaux, de l'essai et de l'espace adhérent ;
+- peu d'animations, jamais indispensables à la compréhension ;
 - design maintenable par une association.
 
 ## 2. Couleurs
@@ -27,59 +27,59 @@ Palette issue du cahier des charges :
 
 | Token | Valeur | Usage |
 |---|---:|---|
-| `cfvv.turquoise` | `#0C8A9C` | Accents, Ã©lÃ©ments de marque, surfaces lÃ©gÃ¨res |
-| `cfvv.action` | `#0B7F90` | Boutons et liens importants avec contraste renforcÃ© |
+| `cfvv.turquoise` | `#0C8A9C` | Accents, éléments de marque, surfaces légères |
+| `cfvv.action` | `#0B7F90` | Boutons et liens importants avec contraste renforcé |
 | `cfvv.actionDark` | `#076B79` | Survol des actions principales |
 | `cfvv.anthracite` | `#1D1D1F` | Texte principal, navigation, surfaces sombres |
 | `cfvv.white` | `#FFFFFF` | Fonds et respiration |
 
-Dans Tailwind, les anciens tokens `court-*` sont conservÃ©s pour compatibilitÃ©, mais ils pointent maintenant vers la palette CFVV.
+Dans Tailwind, les anciens tokens `court-*` sont conservés pour compatibilit?, mais ils pointent maintenant vers la palette CFVV.
 
 ## 3. Typographies
 
-- Titres, navigation et boutons : `Rajdhani`, puis fallback systÃ¨me.
-- Texte courant : pile systÃ¨me lisible.
+- Titres, navigation et boutons : `Rajdhani`, puis fallback système.
+- Texte courant : pile système lisible.
 - Taille de base : 16 px minimum.
 - Interlignage : confortable, surtout sur mobile.
 
-Point restant : les fichiers de police Rajdhani ne sont pas encore prÃ©sents dans `public/fonts/`. Le CSS utilise la famille `Rajdhani`, mais il faudra ajouter les fichiers locaux officiels avant de considÃ©rer l'exigence "police hÃ©bergÃ©e localement" comme totalement conforme.
+Point restant : les fichiers de police Rajdhani ne sont pas encore présents dans `public/fonts/`. Le CSS utilise la famille `Rajdhani`, mais il faudra ajouter les fichiers locaux officiels avant de considérer l'exigence "police hébergée localement" comme totalement conforme.
 
 ## 4. Logos et images de marque
 
-Originaux conservÃ©s :
+Originaux conservés :
 
 - `docs/cahier-des-charges/logos/`
 - `docs/cahier-des-charges/photos-reference/`
 
-Assets utilisÃ©s par le site :
+Assets utilisés par le site :
 
 - `public/logos/cfvv-horizontal.png`
 - `public/logos/cfvv-blason.png`
 - `public/logos/cfvv-illustration.png`
 
-RÃ¨gles :
+Règles :
 
-- ne pas dÃ©former le logo ;
+- ne pas déformer le logo ;
 - ne pas l'ombrer ;
 - ne pas recolorer les originaux ;
-- toujours prÃ©voir un nom textuel accessible autour du logo ;
+- toujours prévoir un nom textuel accessible autour du logo ;
 - optimiser les variantes finales avant production.
 
-Ã€ fournir plus tard :
+? fournir plus tard :
 
 - `cfvv-horizontal.svg` officiel ;
 - `cfvv-blanc.svg` officiel ;
 - `cfvv-monochrome.svg` officiel ;
-- favicon et icÃ´nes PWA optimisÃ©s aux formats 32, 192 et 512 px ;
+- favicon et icônes PWA optimisés aux formats 32, 192 et 512 px ;
 - fichiers Rajdhani locaux.
 
 ## 5. Layout
 
-- Conteneur principal recommandÃ© : `max-w-7xl`.
-- Largeur de lecture Ã©ditoriale : `max-w-3xl` Ã  `max-w-4xl`.
-- Cartes : rayon 8 px (`rounded-lg`), bordure claire, ombre lÃ©gÃ¨re.
+- Conteneur principal recommandé : `max-w-7xl`.
+- Largeur de lecture éditoriale : `max-w-3xl` ? `max-w-4xl`.
+- Cartes : rayon 8 px (`rounded-lg`), bordure claire, ombre légère.
 - Pas de carte dans une carte pour les sections de page.
-- Espacement vertical gÃ©nÃ©reux entre sections.
+- Espacement vertical génèreux entre sections.
 
 Une classe utilitaire globale existe :
 
@@ -98,16 +98,16 @@ Variantes :
 - `primary` : action principale turquoise accessible ;
 - `secondary` : action forte anthracite ;
 - `outline` : action secondaire ;
-- `ghost` : action discrÃ¨te ;
+- `ghost` : action discrète ;
 - `danger` : action destructive.
 
-RÃ¨gles :
+Règles :
 
-- libellÃ© court et explicite ;
-- Ã©tat dÃ©sactivÃ© visible ;
+- libellé court et explicite ;
+- état désactivé visible ;
 - focus clavier visible ;
-- icÃ´ne utile si elle aide Ã  identifier l'action ;
-- confirmation avant suppression, annulation sensible ou modification de rÃ´le.
+- icône utile si elle aide à identifier l'action ;
+- confirmation avant suppression, annulation sensible ou modification de rôle.
 
 ## 7. Badges
 
@@ -121,7 +121,7 @@ Variantes :
 - `danger`
 - `info`
 
-RÃ¨gle importante : ne jamais transmettre une information uniquement par la couleur. Ajouter un texte clair et, si utile, une icÃ´ne.
+Règle importante : ne jamais transmettre une information uniquement par la couleur. Ajouter un texte clair et, si utile, une icône.
 
 ## 8. Cartes
 
@@ -129,17 +129,17 @@ Composant de base : `components/ui/card.tsx`
 
 Types attendus :
 
-- carte d'Ã©vÃ©nement ;
-- carte de crÃ©neau ;
-- carte d'actualitÃ© ;
+- carte d'événement ;
+- carte de créneau ;
+- carte d'actualité ;
 - carte partenaire.
 
-Structure recommandÃ©e :
+Structure recommandée :
 
-1. badge ou catÃ©gorie ;
+1. badge ou catégorie ;
 2. titre ;
-3. mÃ©tadonnÃ©es utiles : date, lieu, public, statut ;
-4. court rÃ©sumÃ© ;
+3. métadonnées utiles : date, lieu, public, statut ;
+4. court résumé ;
 5. action claire.
 
 ## 9. Formulaires
@@ -149,92 +149,92 @@ Composants :
 - `components/ui/form-field.tsx`
 - `components/ui/feedback-message.tsx`
 
-RÃ¨gles :
+Règles :
 
 - labels visibles ;
 - aide proche du champ ;
 - erreur proche du champ ;
 - messages persistants ou suffisamment longs ;
-- pas de placeholder comme seul libellÃ© ;
-- rÃ©sumÃ© ou confirmation avant action sensible.
+- pas de placeholder comme seul libellé ;
+- résumé ou confirmation avant action sensible.
 
 ## 10. Navigation
 
 Navigation principale :
 
 - Accueil ;
-- CrÃ©neaux ;
+- Créneaux ;
 - Le Bureau ;
 - Agenda ;
 - Le Club ;
 - Partenaires ;
 - Contact ;
-- Espace adhÃ©rent.
+- Espace adhérent.
 
 Le header contient aussi :
 
 - logo horizontal ;
 - raccourci "Nous rejoindre" ;
-- Ã©tat connectÃ© avec initiales ;
-- accÃ¨s admin si l'utilisateur est admin ;
+- état connect? avec initiales ;
+- accès admin si l'utilisateur est admin ;
 - menu mobile utilisable au clavier ;
-- fermeture du menu avec Ã‰chap.
+- fermeture du menu avec Échap.
 
 ## 11. Footer
 
 Le footer regroupe :
 
 - tarifs et inscriptions ;
-- lieux et catÃ©gories ;
+- lieux et catégories ;
 - club, bureau, agenda, partenaires ;
-- rÃ¨glement intÃ©rieur, FAQ, mentions lÃ©gales, confidentialitÃ©, cookies, accessibilitÃ© ;
-- FFBaD, HelloAsso, rÃ©seaux sociaux configurÃ©s ;
-- contact et plan d'accÃ¨s.
+- règlement intérieur, FAQ, mentions légales, confidentialité, cookies, accessibilité ;
+- FFBaD, HelloAsso, réseaux sociaux configurés ;
+- contact et plan d'accès.
 
-## 12. AccessibilitÃ©
+## 12. Accessibilité
 
-RÃ¨gles appliquÃ©es ou Ã  conserver :
+Règles appliquées ou à conserver :
 
-- lien d'Ã©vitement ;
+- lien d'évitement ;
 - focus visible ;
-- textes de base Ã  16 px minimum ;
-- contraste renforcÃ© sur les actions ;
-- menu mobile contrÃ´lable au clavier ;
-- fermeture par Ã‰chap ;
+- textes de base ? 16 px minimum ;
+- contraste renforcé sur les actions ;
+- menu mobile contrôlable au clavier ;
+- fermeture par Échap ;
 - respect de `prefers-reduced-motion` ;
-- textes alternatifs utiles pour les images non dÃ©coratives.
+- textes alternatifs utiles pour les images non décoratives.
 
-Ã€ vÃ©rifier lors de la recette :
+? vérifier lors de la recette :
 
 - ordre du focus sur toutes les pages ;
 - contraste des contenus administrables ;
-- textes alternatifs des actualitÃ©s et partenaires ;
+- textes alternatifs des actualités et partenaires ;
 - zoom 200 % ;
 - parcours mobile 320 px et 375 px.
 
-## 13. Ã‰tats UI
+## 13. états UI
 
-Chaque module doit prÃ©voir :
+Chaque module doit prévoir :
 
 - chargement ;
 - vide ;
-- succÃ¨s ;
+- succès ;
 - erreur ;
-- dÃ©sactivÃ© ;
-- accÃ¨s refusÃ© ;
+- désactivé ;
+- accès refus? ;
 - action en cours.
 
 Les messages doivent expliquer ce que l'utilisateur peut faire ensuite.
 
 ## 14. Notes de migration
 
-Le site contient encore plusieurs pages avec l'ancien libellÃ© `CFVV`. La migration complÃ¨te du contenu doit Ãªtre faite par lots, en validant le nom officiel avec le club avant remplacement massif.
+Le site contient encore plusieurs pages avec l'ancien libellé `CFVV`. La migration complète du contenu doit être faite par lots, en validant le nom officiel avec le club avant remplacement massif.
 
-La prioritÃ© visuelle actuelle est :
+La priorit? visuelle actuelle est :
 
 1. charte et tokens ;
 2. header/footer/navigation ;
 3. composants communs ;
-4. pages publiques clÃ©s ;
-5. espace adhÃ©rent ;
+4. pages publiques clés ;
+5. espace adhérent ;
 6. back-office.

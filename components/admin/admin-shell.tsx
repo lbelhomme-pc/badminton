@@ -8,16 +8,16 @@ import { cn } from "@/lib/utils";
 
 const adminNavItems = [
   { href: "/admin", label: "Vue d'ensemble", icon: Home, minRole: "manager" },
-  { href: "/admin/creneaux", label: "CrÃ©neaux", icon: CalendarDays, minRole: "manager" },
+  { href: "/admin/creneaux", label: "Créneaux", icon: CalendarDays, minRole: "manager" },
   { href: "/admin/agenda", label: "Agenda", icon: CalendarDays, minRole: "manager" },
-  { href: "/admin/reservations", label: "RÃ©servations", icon: ClipboardList, minRole: "manager" },
-  { href: "/admin/actualites", label: "ActualitÃ©s", icon: Newspaper, minRole: "manager" },
-  { href: "/admin/medias", label: "MÃ©dias", icon: Image, minRole: "manager" },
+  { href: "/admin/reservations", label: "Réservations", icon: ClipboardList, minRole: "manager" },
+  { href: "/admin/actualites", label: "Actualités", icon: Newspaper, minRole: "manager" },
+  { href: "/admin/medias", label: "Médias", icon: Image, minRole: "manager" },
   { href: "/admin/volants", label: "Volants", icon: Package, minRole: "manager" },
   { href: "/admin/documents", label: "Documents", icon: FileText, minRole: "manager" },
   { href: "/admin/adherents", label: "Membres", icon: UsersRound, minRole: "admin" },
   { href: "/admin/tarifs", label: "Tarifs", icon: Euro, minRole: "admin" },
-  { href: "/admin/parametres", label: "ParamÃ¨tres", icon: Settings, minRole: "admin" }
+  { href: "/admin/parametres", label: "Paramètres", icon: Settings, minRole: "admin" }
 ] as const;
 
 interface AdminShellProps {
@@ -43,7 +43,7 @@ export function AdminShell({ title, intro, eyebrow = "Administration", children 
       </div>
 
       <label className="mb-4 grid gap-2 text-sm font-semibold text-court-900 md:hidden">
-        Aller Ã 
+        Aller ?
         <select
           value={activeItem?.href ?? "/admin"}
           onChange={(event) => router.push(event.target.value)}

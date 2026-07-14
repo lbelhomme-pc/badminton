@@ -41,18 +41,18 @@ const typeOptions: Array<{ value: SlotType | "all"; label: string }> = [
   { value: "free_play", label: "Jeu libre" },
   { value: "youth_training", label: "Jeunes" },
   { value: "adult_training", label: "Adultes" },
-  { value: "competitive_training", label: "CompÃ©titeurs" },
-  { value: "beginner_course", label: "DÃ©butants" },
+  { value: "competitive_training", label: "Compétiteurs" },
+  { value: "beginner_course", label: "Débutants" },
   { value: "interclub", label: "Interclubs" },
   { value: "tournament", label: "Tournoi" },
   { value: "camp", label: "Stage" },
-  { value: "special_event", label: "Ã‰vÃ©nement" }
+  { value: "special_event", label: "Événement" }
 ];
 
 const statusConfig: Record<PublicSlotStatus, { label: string; variant: "success" | "warning" | "danger" | "info"; icon: typeof CheckCircle2 }> = {
   usual: { label: "Habituel", variant: "success", icon: CheckCircle2 },
-  modified: { label: "ModifiÃ©", variant: "warning", icon: AlertTriangle },
-  exceptionally_closed: { label: "FermÃ© exceptionnellement", variant: "danger", icon: XCircle },
+  modified: { label: "Modifié", variant: "warning", icon: AlertTriangle },
+  exceptionally_closed: { label: "Fermé exceptionnellement", variant: "danger", icon: XCircle },
   school_holiday: { label: "Vacances scolaires", variant: "info", icon: CalendarDays },
   full: { label: "Complet", variant: "warning", icon: UsersRound }
 };
@@ -126,12 +126,12 @@ export function PublicCreneauxBoard({ slots, onlyOpen = false }: PublicCreneauxB
               Filtres
             </p>
             <h2 id="creneaux-list-title" className="mt-2 text-2xl font-black text-court-900">
-              Trouver le bon crÃ©neau
+              Trouver le bon créneau
             </h2>
           </div>
           {hasActiveFilters ? (
             <Button variant="ghost" onClick={() => setFilters({ type: "all" })}>
-              RÃ©initialiser
+              Réinitialiser
             </Button>
           ) : null}
         </div>
@@ -191,8 +191,8 @@ export function PublicCreneauxBoard({ slots, onlyOpen = false }: PublicCreneauxB
         </div>
       ) : (
         <EmptyState
-          title="Aucun crÃ©neau ne correspond aux filtres"
-          text="Essaie d'Ã©largir le public, le jour ou le type de pratique. Le club peut aussi confirmer un crÃ©neau adaptÃ© via le formulaire de contact."
+          title="Aucun créneau ne correspond aux filtres"
+          text="Essaie d'élargir le public, le jour ou le type de pratique. Le club peut aussi confirmer un créneau adapté via le formulaire de contact."
           action={
             <Link href="/contact">
               <Button variant="outline">Contacter le club</Button>
@@ -241,13 +241,13 @@ function SlotPublicCard({ slot }: { slot: SlotOccurrence }) {
 
           <div className="mt-4 grid gap-3 text-sm text-ink-700 sm:grid-cols-2">
             <p>
-              <span className="font-bold text-court-900">Encadrant :</span> {slot.managerName || "Ã€ confirmer"}
+              <span className="font-bold text-court-900">Encadrant :</span> {slot.managerName || "à confirmer"}
             </p>
             <p>
-              <span className="font-bold text-court-900">Terrains :</span> {slot.courtsCount || "Ã€ confirmer"}
+              <span className="font-bold text-court-900">Terrains :</span> {slot.courtsCount || "à confirmer"}
             </p>
             <p>
-              <span className="font-bold text-court-900">PÃ©riode :</span> {slot.validFrom || slot.validUntil ? `${slot.validFrom ?? "dÃ©but"} - ${slot.validUntil ?? "fin"}` : "saison en cours"}
+              <span className="font-bold text-court-900">Période :</span> {slot.validFrom || slot.validUntil ? `${slot.validFrom ?? "début"} - ${slot.validUntil ?? "fin"}` : "saison en cours"}
             </p>
           </div>
 
@@ -256,7 +256,7 @@ function SlotPublicCard({ slot }: { slot: SlotOccurrence }) {
             <span>
               <strong className="text-court-900">{slot.venueName}</strong>
               <br />
-              {slot.address || "Adresse Ã  confirmer par le club."}
+              {slot.address || "Adresse à confirmer par le club."}
             </span>
           </p>
 
@@ -273,7 +273,7 @@ function SlotPublicCard({ slot }: { slot: SlotOccurrence }) {
             </Link>
           ) : null}
           <Link href="/lieux-acces" className="text-center font-display text-sm font-bold text-court-600 hover:text-court-900 hover:underline">
-            Voir le plan d'accÃ¨s
+            Voir le plan d'accès
           </Link>
         </div>
       </div>

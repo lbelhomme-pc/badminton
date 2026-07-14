@@ -65,9 +65,9 @@ export function validateSlot(slot: SlotOccurrence) {
   const errors: string[] = [];
   if (!slot.id) errors.push("id manquant");
   if (!slot.title) errors.push("titre manquant");
-  if (!slot.startsAt || Number.isNaN(new Date(slot.startsAt).getTime())) errors.push("date de dÃ©but invalide");
+  if (!slot.startsAt || Number.isNaN(new Date(slot.startsAt).getTime())) errors.push("date de début invalide");
   if (!slot.endsAt || Number.isNaN(new Date(slot.endsAt).getTime())) errors.push("date de fin invalide");
-  if (slot.startsAt && slot.endsAt && new Date(slot.endsAt) <= new Date(slot.startsAt)) errors.push("heure de fin avant le dÃ©but");
+  if (slot.startsAt && slot.endsAt && new Date(slot.endsAt) <= new Date(slot.startsAt)) errors.push("heure de fin avant le début");
   if (!slot.audience) errors.push("public manquant");
   if (!slot.recommendedLevel) errors.push("niveau manquant");
   if (!slot.venueName) errors.push("lieu manquant");
@@ -76,9 +76,9 @@ export function validateSlot(slot: SlotOccurrence) {
 
 export function eventCategoryLabel(category: ClubEventCategory) {
   const labels: Record<ClubEventCategory, string> = {
-    competition: "CompÃ©tition",
-    club_event: "Ã‰vÃ©nement club",
-    meeting: "RÃ©union",
+    competition: "Compétition",
+    club_event: "Événement club",
+    meeting: "Réunion",
     camp: "Stage",
     closure: "Fermeture"
   };
@@ -113,8 +113,8 @@ export function validateEvent(event: ClubEvent) {
   const errors: string[] = [];
   if (!event.id) errors.push("id manquant");
   if (!event.title) errors.push("titre manquant");
-  if (!event.startsAt || Number.isNaN(new Date(event.startsAt).getTime())) errors.push("date de dÃ©but invalide");
-  if (event.endsAt && new Date(event.endsAt) <= new Date(event.startsAt)) errors.push("date de fin avant le dÃ©but");
+  if (!event.startsAt || Number.isNaN(new Date(event.startsAt).getTime())) errors.push("date de début invalide");
+  if (event.endsAt && new Date(event.endsAt) <= new Date(event.startsAt)) errors.push("date de fin avant le début");
   if (!event.description) errors.push("description manquante");
   if (event.status === "scheduled" && !event.scheduledFor) errors.push("date de publication programmee manquante");
   if (event.status === "cancelled" && !event.cancellationMessage) errors.push("message d'annulation manquant");

@@ -1520,7 +1520,7 @@ Les services centralisent les acces donnees et les appels RPC.
 1. L'utilisateur ouvre `/planning`.
 2. Il filtre les creneaux.
 3. Il clique "Reserver ma place".
-4. Si non connecte, redirection `/connexion?next=/planning/[id]`.
+4. Si non connecté, redirection `/connexion?next=/planning/[id]`.
 5. La modale affiche recapitulatif, places et regle d'annulation.
 6. La Server Action appelle `reserve_slot(occurrence_id)`.
 7. La base verifie role, statut, capacite, quota et unicite.

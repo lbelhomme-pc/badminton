@@ -7,7 +7,7 @@ import { fetchTarifs, type TarifRow } from "@/services/supabase-data.service";
 
 type PublicTarif = Omit<TarifRow, "id"> & { id: number | string };
 
-const seasonDescription = "Tarif propose pour la saison 2026/2027, a confirmer lors de l'ouverture des inscriptions Poona.";
+const seasonDescription = "Tarif proposé pour la saison 2026/2027, à confirmer lors de l'ouverture des inscriptions Poona.";
 
 const fallbackTarifs: PublicTarif[] = [
   {
@@ -31,9 +31,9 @@ const fallbackTarifs: PublicTarif[] = [
   {
     id: "essai",
     titre: "Essai",
-    description: "Jusqu'a 3 seances d'essai gratuites pour decouvrir le club avant inscription.",
+    description: "Jusqu'à 3 séances d'essai gratuites pour découvrir le club avant inscription.",
     montant: 0,
-    public: "Decouverte",
+    public: "Découverte",
     ordre: 3,
     actif: true
   }
@@ -73,7 +73,7 @@ export function TarifsList() {
       {message ? <p className="mb-5 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">{message}</p> : null}
       {demoMode ? (
         <p className="mb-5 rounded-lg bg-yellow-50 px-4 py-3 text-sm font-semibold text-yellow-800">
-          Tarifs 2026/2027 issus du compte rendu du bureau : 90 euros jeunes et 100 euros adultes. Ils restent a confirmer au moment de l'ouverture
+          Tarifs 2026/2027 issus du compte rendu du bureau : 90 euros jeunes et 100 euros adultes. Ils restent à confirmer au moment de l'ouverture
           Poona.
         </p>
       ) : null}

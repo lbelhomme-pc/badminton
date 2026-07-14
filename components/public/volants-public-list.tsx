@@ -30,12 +30,12 @@ const fallbackVolants: VolantRow[] = [
 
 function stockLabel(volant: VolantRow) {
   if (volant.id < 0) {
-    return "Disponibilite et stock a confirmer par le responsable volants.";
+    return "Disponibilité et stock à confirmer par le responsable volants.";
   }
 
   return volant.stock > 0
     ? `${volant.stock} tube${volant.stock > 1 ? "s" : ""} actuellement disponible${volant.stock > 1 ? "s" : ""}.`
-    : "Stock momentanement epuise.";
+    : "Stock momentanément épuisé.";
 }
 
 export function VolantsPublicList() {
@@ -62,7 +62,7 @@ export function VolantsPublicList() {
       {message ? <p className="rounded-lg bg-yellow-50 px-4 py-3 text-sm font-semibold text-yellow-800">{message}</p> : null}
       {fallbackMode ? (
         <p className="rounded-lg bg-yellow-50 px-4 py-3 text-sm font-semibold text-yellow-800">
-          Prix issus du compte rendu du bureau : RSL rouges a 25 euros et Forza Hybride a 16 euros. Le stock reste a confirmer.
+          Prix issus du compte rendu du bureau : RSL rouges à 25 euros et Forza Hybride à 16 euros. Le stock reste à confirmer.
         </p>
       ) : null}
       <div className="grid gap-4 md:grid-cols-3">
@@ -81,8 +81,8 @@ export function VolantsPublicList() {
       <Card className="p-5">
         <h2 className="text-2xl font-black text-court-900">Commander ou retirer des volants</h2>
         <p className="mt-3 max-w-3xl text-sm leading-6 text-ink-500">
-          Les prix et stocks affiches viennent de l'administration du club lorsqu'elle est configuree. Connecte-toi pour reserver, ou demande au responsable
-          volants d'enregistrer une vente rapide si tu achetes directement sur place.
+          Les prix et stocks affichés viennent de l'administration du club lorsqu'elle est configurée. Connecte-toi pour réserver, ou demande au responsable
+          volants d'enregistrer une vente rapide si tu achètes directement sur place.
         </p>
         <Link href="/commande-volants">
           <Button className="mt-5">Commander des volants</Button>
