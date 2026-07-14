@@ -207,6 +207,59 @@ export interface CreneauAvailabilityRow extends CreneauRow {
   can_reserve: boolean | null;
 }
 
+function normalizeCreneauIdentityPart(value: string | null | undefined) {
+  return (value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function creneauIdentityKey(creneau: CreneauRow) {
+  return [
+    normalizeCreneauIdentityPart(creneau.jour),
+    creneau.heure_debut.slice(0, 5),
+    creneau.heure_fin.slice(0, 5),
+    normalizeCreneauIdentityPart(creneau.gymnase),
+    normalizeCreneauIdentityPart(creneau.type),
+    normalizeCreneauIdentityPart(creneau.public)
+  ].join("|");
+}
+
+function dedupePublicCreneaux(rows: CreneauRow[]) {
+  const unique = new Map<string, CreneauRow>();
+
+  for (const row of rows) {
+    if (!row.actif) continue;
+    const key = creneauIdentityKey(row);
+    const current = unique.get(key);
+    if (!current || row.id > current.id || (row.reservation_active && !current.reservation_active)) {
+      unique.set(key, row);
+    }
+  }
+
+  return Array.from(unique.values()).sort((a, b) => a.jour.localeCompare(b.jour) || a.heure_debut.localeCompare(b.heure_debut) || a.id - b.id);
+}
+
+function dedupeCreneauAvailability(rows: CreneauAvailabilityRow[]) {
+  const unique = new Map<string, CreneauAvailabilityRow>();
+
+  for (const row of rows) {
+    const key = `${row.occurrence_date}|${creneauIdentityKey(row)}`;
+    const current = unique.get(key);
+    const rowHasUserState = Boolean(row.user_reservation_id || row.user_reservation_status || row.user_waiting_status);
+    const currentHasUserState = Boolean(current?.user_reservation_id || current?.user_reservation_status || current?.user_waiting_status);
+
+    if (!current || (rowHasUserState && !currentHasUserState) || row.id > current.id) {
+      unique.set(key, row);
+    }
+  }
+
+  return Array.from(unique.values()).sort((a, b) => a.heure_debut.localeCompare(b.heure_debut) || a.id - b.id);
+}
+
 interface ReservationManagerRpcRow {
   id: number;
   user_id: string;
@@ -383,7 +436,7 @@ export async function fetchPublicCreneaux() {
   if (!supabase) return { data: [] as CreneauRow[], error: "Configuration Supabase manquante." };
 
   const { data, error } = await supabase.from("creneaux").select("*").eq("actif", true).order("id", { ascending: true });
-  return { data: (data ?? []) as CreneauRow[], error: friendlyDatabaseError(error) };
+  return { data: dedupePublicCreneaux((data ?? []) as CreneauRow[]), error: friendlyDatabaseError(error) };
 }
 
 export async function fetchCreneauAvailability(startDate: string, endDate: string) {
@@ -395,7 +448,7 @@ export async function fetchCreneauAvailability(startDate: string, endDate: strin
     end_date: endDate
   });
 
-  return { data: (data ?? []) as CreneauAvailabilityRow[], error: friendlyDatabaseError(error) };
+  return { data: dedupeCreneauAvailability((data ?? []) as CreneauAvailabilityRow[]), error: friendlyDatabaseError(error) };
 }
 
 export async function createCreneau(input: Omit<CreneauRow, "id">) {

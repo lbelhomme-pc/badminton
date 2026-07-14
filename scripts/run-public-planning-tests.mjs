@@ -35,6 +35,7 @@ function loadTsModule(path, requireMap = {}) {
 }
 
 const planning = loadTsModule("lib/public-planning.ts");
+const creneauSlots = loadTsModule("lib/creneau-slots.ts");
 const roles = loadTsModule("lib/roles.ts");
 const memberAccess = loadTsModule("lib/member-access.ts", { "@/lib/roles": roles });
 const invitations = loadTsModule("lib/member-invitations.ts");
@@ -56,6 +57,8 @@ const {
   validateEvent,
   validateSlot
 } = planning;
+
+const { creneauxToSlotOccurrences, dedupeCreneauxForPublicDisplay } = creneauSlots;
 
 const {
   appRolesToMemberAccessRoles,
@@ -141,6 +144,42 @@ assert.equal(filterSlots(slots, { type: "youth_training" }).length, 1, "filtre t
 assert.equal(filterSlots(slots, { venue: "Gymnase des Aigremonts" }).length, 2, "filtre lieu");
 assert.equal(getPublicSlotStatus(slots[1]), "full", "complet seulement avec capacité suivie");
 assert.equal(validateSlot(slots[0]).length, 0, "créneau valide");
+
+const duplicateCreneaux = [
+  {
+    id: 1,
+    jour: "Mercredi",
+    heure_debut: "18:00:00",
+    heure_fin: "20:30:00",
+    gymnase: "Gymnase des Aigremonts",
+    adresse: "554 Rue de la Chappe, 41100 Vendome",
+    type: "jeu_libre",
+    public: "adultes",
+    niveau: "Tous niveaux",
+    places_max: 28,
+    responsable: "Didier Remule",
+    actif: true,
+    reservation_active: true
+  },
+  {
+    id: 2,
+    jour: "mercredi",
+    heure_debut: "18:00:00",
+    heure_fin: "20:30:00",
+    gymnase: "Gymnase des Aigremonts",
+    adresse: "554 Rue de la Chappe, 41100 Vendome",
+    type: "jeu libre",
+    public: "adultes",
+    niveau: "Tous niveaux",
+    places_max: 28,
+    responsable: "Didier Remule",
+    actif: true,
+    reservation_active: true
+  }
+];
+
+assert.equal(dedupeCreneauxForPublicDisplay(duplicateCreneaux).length, 1, "doublons de creneaux supprimes cote affichage");
+assert.equal(creneauxToSlotOccurrences(duplicateCreneaux).length, 1, "cartes publiques sans doublon");
 
 const event = {
   id: "tournoi-2026",

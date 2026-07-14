@@ -290,10 +290,12 @@ export default async function HomePage() {
               })}
             </div>
           </div>
-          <Link href="/connexion" prefetch={false} className="absolute bottom-[-22px] left-1/2 hidden h-14 -translate-x-1/2 items-center gap-3 rounded bg-[#0097a9] px-8 font-display text-sm font-black uppercase text-white shadow-[0_12px_26px_rgba(0,151,169,0.35)] transition hover:bg-[#007f8f] sm:inline-flex">
-            <UserRound className="h-5 w-5" aria-hidden="true" />
-            Accéder à mon espace
-          </Link>
+          <div className="relative mt-8 flex justify-center">
+            <Link href="/connexion" prefetch={false} className="inline-flex min-h-14 items-center justify-center gap-3 rounded bg-[#0097a9] px-8 text-center font-display text-sm font-black uppercase text-white shadow-[0_12px_26px_rgba(0,151,169,0.35)] transition hover:bg-[#007f8f] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              <UserRound className="h-5 w-5 shrink-0" aria-hidden="true" />
+              Accéder à mon espace
+            </Link>
+          </div>
         </div>
       </section>
 

@@ -19,6 +19,42 @@ function normalizeDay(value: string) {
     .trim();
 }
 
+function normalizeIdentityPart(value: string | null | undefined) {
+  return (value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function creneauIdentityKey(creneau: CreneauRow) {
+  return [
+    normalizeIdentityPart(creneau.jour),
+    creneau.heure_debut.slice(0, 5),
+    creneau.heure_fin.slice(0, 5),
+    normalizeIdentityPart(creneau.gymnase),
+    normalizeIdentityPart(creneau.type),
+    normalizeIdentityPart(creneau.public)
+  ].join("|");
+}
+
+export function dedupeCreneauxForPublicDisplay(creneaux: CreneauRow[]) {
+  const unique = new Map<string, CreneauRow>();
+
+  for (const creneau of creneaux) {
+    if (!creneau.actif) continue;
+    const key = creneauIdentityKey(creneau);
+    const current = unique.get(key);
+    if (!current || creneau.id > current.id || (creneau.reservation_active && !current.reservation_active)) {
+      unique.set(key, creneau);
+    }
+  }
+
+  return Array.from(unique.values());
+}
+
 function nextDateForDay(day: string) {
   const target = dayIndexes[normalizeDay(day)] ?? 1;
   const now = new Date();
@@ -57,8 +93,7 @@ function titleForCreneau(creneau: CreneauRow) {
 }
 
 export function creneauxToSlotOccurrences(creneaux: CreneauRow[]): SlotOccurrence[] {
-  return creneaux
-    .filter((creneau) => creneau.actif)
+  return dedupeCreneauxForPublicDisplay(creneaux)
     .map((creneau) => {
       const date = nextDateForDay(creneau.jour);
       const capacity = creneau.places_max ?? 28;
