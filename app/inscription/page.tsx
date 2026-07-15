@@ -56,7 +56,7 @@ export default async function InscriptionPage() {
               rel="noreferrer"
               className="inline-flex h-12 items-center justify-center rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-50"
             >
-              {registration.isFallback ? "Lien à confirmer" : "Finaliser l'inscription"}
+              {registration.isFallback ? "Lien FFBaD à confirmer" : "S'inscrire via FFBaD / Poona"}
               <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -68,11 +68,11 @@ export default async function InscriptionPage() {
           ) : (
             <CheckCircle2 className="h-6 w-6 text-court-500" aria-hidden="true" />
           )}
-          <h2 className="mt-4 text-2xl font-black text-court-900">Lien d'inscription</h2>
+          <h2 className="mt-4 text-2xl font-black text-court-900">Lien d'inscription FFBaD</h2>
           <p className="mt-2 text-sm font-semibold uppercase tracking-wide text-court-600">{registration.sourceLabel}</p>
           <p className="mt-3 text-sm leading-6 text-ink-500">{registration.confirmationMessage}</p>
           <p className="mt-4 rounded-lg bg-white px-4 py-3 text-sm leading-6 text-ink-600">
-            Le bureau vise une ouverture des inscriptions Poona au 1er août 2026. En cas de doute, demande au club avant de finaliser la licence ou le paiement.
+            Le bureau vise une ouverture des inscriptions FFBaD / Poona au 1er août 2026. En cas de doute, demande au club avant de finaliser la licence ou le paiement.
           </p>
         </aside>
       </section>
@@ -98,8 +98,8 @@ export default async function InscriptionPage() {
             icon: FileText
           },
           {
-            title: "4. Finaliser avec le club",
-            text: "Le bureau confirme la formule, le tarif et le lien officiel d'inscription.",
+            title: "4. Finaliser sur la FFBaD",
+            text: "Le bureau confirme la formule, le tarif et le lien officiel d'inscription FFBaD / Poona.",
             href: registration.url,
             icon: UserPlus,
             external: true

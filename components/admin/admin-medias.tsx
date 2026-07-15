@@ -88,7 +88,7 @@ function AdminMediasContent() {
     event.preventDefault();
 
     if (!file) {
-      setFeedback(errorFeedback("Choisis un fichier a televerser."));
+      setFeedback(errorFeedback("Choisis un fichier à téléverser."));
       return;
     }
 
@@ -97,7 +97,7 @@ function AdminMediasContent() {
       return;
     }
 
-    setFeedback(loadingFeedback("Televersement du media en cours..."));
+    setFeedback(loadingFeedback("Téléversement du média en cours..."));
     const result = await uploadMediaAsset({
       file,
       title: form.title,
@@ -109,7 +109,7 @@ function AdminMediasContent() {
       uploadedBy: user?.id
     });
 
-    setFeedback(result.ok ? successFeedback("Media ajoute.") : actionFeedback(result));
+    setFeedback(result.ok ? successFeedback("Média ajouté.") : actionFeedback(result));
     if (result.ok) {
       setForm(emptyForm);
       setFile(null);
@@ -121,7 +121,7 @@ function AdminMediasContent() {
 
   async function saveMetadata(asset: MediaAssetRow, next: Partial<MediaAssetRow>) {
     setPendingId(asset.id);
-    setFeedback(loadingFeedback("Mise a jour du media..."));
+    setFeedback(loadingFeedback("Mise à jour du média..."));
     const result = await updateMediaAsset(asset.id, next);
     setFeedback(actionFeedback(result));
     if (result.ok) await load();
@@ -163,11 +163,11 @@ function AdminMediasContent() {
       return;
     }
 
-    const confirmed = window.confirm(`Supprimer definitivement "${asset.title}" et son fichier ?`);
+    const confirmed = window.confirm(`Supprimer définitivement "${asset.title}" et son fichier ?`);
     if (!confirmed) return;
 
     setPendingId(asset.id);
-    setFeedback(loadingFeedback("Suppression definitive..."));
+    setFeedback(loadingFeedback("Suppression définitive..."));
     const result = await deleteMediaAssetPermanently(asset);
     setFeedback(actionFeedback(result));
     if (result.ok) await load();
@@ -175,14 +175,14 @@ function AdminMediasContent() {
   }
 
   return (
-    <AdminShell title="Mediatheque" intro="Images et fichiers publics du site, avec textes alternatifs, credits et suppression controlee.">
+    <AdminShell title="Médiathèque" intro="Images et fichiers publics du site, avec textes alternatifs, crédits et suppression contrôlée.">
       <AdminFeedback feedback={feedback} className="mb-6" />
 
       <Card className="p-5">
-        <h2 className="text-xl font-black text-court-900">Ajouter un media</h2>
+        <h2 className="text-xl font-black text-court-900">Ajouter un média</h2>
         <form className="mt-5 grid gap-4 lg:grid-cols-3" onSubmit={submit}>
           <MediaInput label="Titre" value={form.title} onChange={(value) => setForm((current) => ({ ...current, title: value }))} />
-          <MediaInput label="Credit photo / source" value={form.credit} onChange={(value) => setForm((current) => ({ ...current, credit: value }))} />
+          <MediaInput label="Crédit photo / source" value={form.credit} onChange={(value) => setForm((current) => ({ ...current, credit: value }))} />
           <label className="grid gap-2 text-sm font-semibold text-court-900">
             Fichier
             <input
@@ -225,13 +225,13 @@ function AdminMediasContent() {
             label="Usages connus"
             value={form.knownUsage}
             onChange={(value) => setForm((current) => ({ ...current, knownUsage: value }))}
-            hint="Exemple : accueil, actualite rentree. Separe par des virgules."
+            hint="Exemple : accueil, actualité rentrée. Sépare par des virgules."
           />
           {validation && validation.issues.length > 0 ? (
             <p className="rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700 lg:col-span-3">{validation.issues.join(" ")}</p>
           ) : null}
           <Button type="submit" className="lg:col-span-3">
-            Ajouter a la mediatheque
+            Ajouter à la médiathèque
           </Button>
         </form>
       </Card>
@@ -239,8 +239,8 @@ function AdminMediasContent() {
       <Card className="mt-8 p-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h2 className="text-xl font-black text-court-900">Medias existants</h2>
-            <p className="mt-2 text-sm text-ink-500">Recherche par titre, fichier ou credit. Archive avant suppression definitive.</p>
+            <h2 className="text-xl font-black text-court-900">Médias existants</h2>
+            <p className="mt-2 text-sm text-ink-500">Recherche par titre, fichier ou crédit. Archive avant suppression définitive.</p>
           </div>
           <form
             className="flex gap-2"
@@ -277,7 +277,7 @@ function AdminMediasContent() {
 
         {assets.length === 0 ? (
           <div className="mt-5">
-            <EmptyState title="Aucun media" text="Ajoute un media ou modifie la recherche." />
+            <EmptyState title="Aucun média" text="Ajoute un média ou modifie la recherche." />
           </div>
         ) : null}
       </Card>
@@ -343,7 +343,7 @@ function MediaCard({
         {asset.kind === "image" ? (
           <MediaInput label="Texte alternatif" value={altText} onChange={setAltText} />
         ) : null}
-        <MediaInput label="Credit" value={credit} onChange={setCredit} />
+        <MediaInput label="Crédit" value={credit} onChange={setCredit} />
         <MediaInput label="Usages connus" value={knownUsage} onChange={setKnownUsage} />
         <Button
           type="button"

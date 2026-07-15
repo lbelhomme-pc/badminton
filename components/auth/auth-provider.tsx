@@ -26,6 +26,8 @@ interface SignupInput {
   email: string;
   telephone: string;
   password: string;
+  categorie?: string | null;
+  licence_ffbad?: string | null;
 }
 
 interface AuthContextValue {
@@ -641,7 +643,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               data: {
                 prenom: input.prenom.trim(),
                 nom: input.nom.trim(),
-                telephone: input.telephone.trim()
+                telephone: input.telephone.trim(),
+                categorie: input.categorie?.trim() ?? null,
+                licence_ffbad: input.licence_ffbad?.trim() ?? null
               }
             }
           }),

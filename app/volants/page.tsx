@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Volants - CFVV",
-  description: "Redirection vers la boutique de volants securisee reservee aux adherents."
+  description: "Redirection vers la boutique de volants sécurisée réservée aux adhérents."
 };
 
 export default function VolantsPage() {

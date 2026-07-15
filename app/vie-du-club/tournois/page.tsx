@@ -12,7 +12,7 @@ export default function TournoisPage() {
       cards={[
         { title: "Tournois internes", text: "Formats conviviaux, doubles surprises et animations club quand le calendrier le permet." },
         { title: "Tournois officiels", text: "Les inscriptions et catégories dépendent des règlements FFBaD et des informations officielles de chaque tournoi." },
-        { title: "Bénévoles", text: "Aide ? l'organisation, installation, accueil et buvette lors des temps forts du club." }
+        { title: "Bénévoles", text: "Aide à l'organisation, installation, accueil et buvette lors des temps forts du club." }
       ]}
     >
       <div className="grid gap-4 md:grid-cols-3">
@@ -20,7 +20,7 @@ export default function TournoisPage() {
           <Trophy className="h-6 w-6 text-court-500" aria-hidden="true" />
           <h2 className="mt-4 text-xl font-black text-court-900">Jouer</h2>
           <p className="mt-2 text-sm leading-6 text-ink-500">
-            Les compétiteurs peuvent demander conseil au club pour choisir un tournoi adapt? ? leur niveau.
+            Les compétiteurs peuvent demander conseil au club pour choisir un tournoi adapté à leur niveau.
           </p>
         </Card>
         <Card className="p-5">

@@ -372,11 +372,11 @@ function AdminAgendaContent() {
                     </Button>
                   ) : null}
                   <Button type="button" variant="danger" onClick={() => remove(event)}>
-                    Mettre a la corbeille
+                    Mettre à la corbeille
                   </Button>
                   {isAdmin && event.deleted_at ? (
                     <Button type="button" variant="danger" onClick={() => removePermanently(event)}>
-                      Supprimer definitivement
+                      Supprimer définitivement
                     </Button>
                   ) : null}
                 </div>

@@ -21,7 +21,7 @@ const defaultContact = {
   email: "cfvv41@gmail.com",
   phone: "06 60 93 51 85",
   generic_contacts: "Clovis Bellan / Didier Remule / Julie Remule",
-  facebook_url: "",
+  facebook_url: "https://www.facebook.com/CFVVBadminton/",
   instagram_url: ""
 };
 
@@ -92,6 +92,19 @@ function getPartnersSetting(rows: SiteSettingRow[]): PartnersForm {
   };
 }
 
+function getContactSetting(rows: SiteSettingRow[]): ContactForm {
+  const value = getSetting(rows, "contact");
+
+  return {
+    ...defaultContact,
+    ...value,
+    facebook_url:
+      typeof value.facebook_url === "string" && value.facebook_url.trim().length > 0
+        ? value.facebook_url
+        : defaultContact.facebook_url
+  };
+}
+
 export function AdminParametres() {
   return (
     <AdminRoute>
@@ -117,7 +130,7 @@ function AdminParametresContent() {
     }
 
     setClub({ ...defaultClub, ...getSetting(result.data, "club") });
-    setContact({ ...defaultContact, ...getSetting(result.data, "contact") });
+    setContact(getContactSetting(result.data));
     setBureau(getBureauSetting(result.data));
     setPartners(getPartnersSetting(result.data));
   }

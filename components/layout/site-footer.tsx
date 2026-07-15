@@ -55,9 +55,9 @@ const organismLinks = [
 export async function SiteFooter() {
   const settings = await getPublicClubSettings();
   const socialLinks = [
-    settings.contact.facebookUrl ? { label: "Facebook", href: settings.contact.facebookUrl } : null,
-    settings.contact.instagramUrl ? { label: "Instagram", href: settings.contact.instagramUrl } : null
-  ].filter((item): item is { label: string; href: string } => Boolean(item));
+    settings.contact.facebookUrl ? { label: "Facebook", href: settings.contact.facebookUrl, icon: "facebook" } : null,
+    settings.contact.instagramUrl ? { label: "Instagram", href: settings.contact.instagramUrl, icon: "external" } : null
+  ].filter((item): item is { label: string; href: string; icon: "facebook" | "external" } => Boolean(item));
 
   return (
     <footer className="bg-[#031d2b] pb-24 text-white md:pb-0">
@@ -138,10 +138,12 @@ export async function SiteFooter() {
                     href={item.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-display font-bold text-slate-200 hover:text-white hover:underline"
+                    aria-label={`Ouvrir ${item.label} du CFVV`}
+                    className="inline-flex items-center gap-2 rounded-full border border-white/20 px-3 py-1.5 font-display font-bold text-slate-200 transition hover:border-[#00a8bc] hover:bg-white/10 hover:text-white"
                   >
+                    {item.icon === "facebook" ? <FacebookLogo className="h-4 w-4" /> : null}
                     {item.label}
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                    {item.icon !== "facebook" ? <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" /> : null}
                   </a>
                 ))
               ) : (
@@ -152,5 +154,16 @@ export async function SiteFooter() {
         </div>
       </div>
     </footer>
+  );
+}
+
+function FacebookLogo({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M13.6 21v-7.7h2.6l.4-3h-3V8.4c0-.9.3-1.5 1.6-1.5h1.6V4.2c-.8-.1-1.6-.2-2.4-.2-2.4 0-4 1.5-4 4.1v2.2H7.8v3h2.6V21h3.2Z"
+      />
+    </svg>
   );
 }

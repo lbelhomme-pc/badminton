@@ -56,11 +56,11 @@ export function canDeleteMediaAsset(input: { knownUsage?: string[] | null; statu
   const usages = input.knownUsage?.filter(Boolean) ?? [];
 
   if (usages.length > 0) {
-    return { ok: false, message: `Suppression bloquee : media utilise dans ${usages.join(", ")}.` };
+    return { ok: false, message: `Suppression bloquée : média utilisé dans ${usages.join(", ")}.` };
   }
 
   if (input.status !== "archived") {
-    return { ok: false, message: "Archive le media avant suppression definitive." };
+    return { ok: false, message: "Archive le média avant suppression définitive." };
   }
 
   return { ok: true, message: "Suppression autorisee." };

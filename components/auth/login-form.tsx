@@ -150,6 +150,10 @@ export function LoginForm() {
       <p className="mt-2 text-sm leading-6 text-ink-500">
         Connecte-toi pour accéder à ton espace adhérent, tes réservations et les services du club.
       </p>
+      <p className="mt-3 rounded-lg bg-court-50 px-4 py-3 text-sm leading-6 text-ink-600">
+        La connexion se fait avec l'email de ton compte et ton mot de passe. Le numéro de licence FFBaD sert de référence
+        adhérent dans ton profil, mais il n'est pas nécessaire pour se connecter.
+      </p>
       {!configured ? (
         <p className="mt-4 rounded-lg bg-orange-50 px-4 py-3 text-sm font-semibold text-orange-700">
           Le service de connexion n’est pas encore disponible. Réessaie plus tard ou contacte le club.
@@ -193,6 +197,9 @@ export function LoginForm() {
         </Link>
         <Link href="/mot-de-passe-oublie" className="text-ink-500 hover:text-court-900">
           Mot de passe oublié
+        </Link>
+        <Link href="/inscriptions/licence-ffbad" className="text-ink-500 hover:text-court-900">
+          S'inscrire sur la FFBaD
         </Link>
       </div>
     </Card>

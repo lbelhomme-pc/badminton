@@ -94,6 +94,7 @@ const {
 const {
   canPerformBackOfficeAction,
   nextContentStatus,
+  parseLicenceCsvPreview,
   parseMemberCsvPreview,
   validateMediaUpload
 } = backOfficeRules;
@@ -452,8 +453,18 @@ const csvPreviewWithExistingData = parseMemberCsvPreview(
   }
 );
 assert.equal(csvPreviewWithExistingData.rows.length, 2, "import CSV accepte aussi la virgule");
-assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("deja present")), "import CSV detecte un adherent deja present");
-assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("deja en attente")), "import CSV detecte une invitation deja en attente");
+assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("déjà présent")), "import CSV detecte un adherent deja present");
+assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("déjà en attente")), "import CSV detecte une invitation deja en attente");
+
+const licenceCsvPreview = parseLicenceCsvPreview(
+  "Nom;Prénom;Licence;Catégorie\nAUBRY;Pauline;07172923;Veteran 1\nAUTRIVE;Kévin;07705663;Senior"
+);
+assert.equal(licenceCsvPreview.rows.length, 2, "import licences FFBaD accepte le CSV federation");
+assert.equal(licenceCsvPreview.rows[1].prenom, "Kévin", "import licences conserve les accents");
+assert.equal(licenceCsvPreview.rows[0].licence_ffbad, "07172923", "import licences conserve les zeros initiaux");
+
+const licenceCsvWithDuplicate = parseLicenceCsvPreview("Nom;Prenom;Licence\nA;B;123\nC;D;123");
+assert.ok(licenceCsvWithDuplicate.issues.some((issue) => issue.message.includes("Doublon")), "import licences detecte les doublons");
 
 assert.equal(nextContentStatus("brouillon", "publish"), "publie", "publication brouillon");
 assert.equal(nextContentStatus("publie", "unpublish"), "brouillon", "depublication");

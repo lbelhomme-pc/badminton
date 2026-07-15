@@ -1,5 +1,5 @@
 import { isAllowedPrivateDocumentFile, sanitizePrivateDocumentFileName } from "@/lib/private-documents";
-import type { CsvImportRow } from "@/lib/back-office-rules";
+import type { CsvImportRow, LicenceCsvImportRow } from "@/lib/back-office-rules";
 import { canDeleteMediaAsset, mediaBucketName, sanitizeMediaFileName, validateMediaAssetInput, type MediaKind } from "@/lib/media-library";
 import { buildActivationUrl, getDefaultInvitationExpiration, type MemberInvitationStatus } from "@/lib/member-invitations";
 import { appRolesToLegacyClubRole, legacyClubRoleToAppRoles, normalizeAppRoles, type AppRole, type LegacyClubRole } from "@/lib/roles";
@@ -338,6 +338,33 @@ export interface CreatedMemberInvitation {
   nom: string;
   activationUrl: string;
   expiresAt: string;
+}
+
+export interface MemberLicenceRow {
+  id: string;
+  licence_ffbad: string;
+  prenom: string;
+  nom: string;
+  categorie: string | null;
+  statut: "actif" | "inactif" | "archive";
+  role: LegacyClubRole;
+  roles: AppRole[];
+  claimed_by: string | null;
+  claimed_email: string | null;
+  claimed_at: string | null;
+  source: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LicenceLookupResult {
+  found: boolean;
+  available: boolean;
+  licence_ffbad: string | null;
+  prenom: string | null;
+  nom: string | null;
+  categorie: string | null;
+  message: string;
 }
 
 function friendlyDatabaseError(error: { message: string; code?: string } | null | undefined) {
@@ -827,7 +854,7 @@ export async function restoreEvent(id: number) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("events").update({ deleted_at: null, statut: "draft" }).eq("id", id);
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Evenement restaure en brouillon." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Événement restauré en brouillon." };
 }
 
 export async function deleteEventPermanently(id: number) {
@@ -835,7 +862,7 @@ export async function deleteEventPermanently(id: number) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("events").delete().eq("id", id).not("deleted_at", "is", null);
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Evenement supprime definitivement." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Événement supprimé définitivement." };
 }
 
 export async function duplicateEvent(event: EventRow) {
@@ -912,7 +939,7 @@ export async function updateActualiteStatus(id: number, statut: "brouillon" | "p
     })
     .eq("id", id);
 
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Statut de l'actualite mis a jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Statut de l'actualité mis à jour." };
 }
 
 export async function deleteActualitePermanently(id: number) {
@@ -920,7 +947,7 @@ export async function deleteActualitePermanently(id: number) {
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("actualites").delete().eq("id", id).not("deleted_at", "is", null);
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Actualite supprimee definitivement." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Actualité supprimée définitivement." };
 }
 
 export async function fetchVolants() {
@@ -1078,7 +1105,7 @@ export async function uploadMediaAsset(input: {
   });
 
   if (!validation.ok || !validation.kind) {
-    return { ok: false, message: validation.issues.join(" ") || "Media refuse." };
+    return { ok: false, message: validation.issues.join(" ") || "Média refusé." };
   }
 
   const safeName = validation.cleanName || sanitizeMediaFileName(input.file.name);
@@ -1089,7 +1116,7 @@ export async function uploadMediaAsset(input: {
   });
 
   if (upload.error) {
-    return { ok: false, message: friendlyDatabaseError(upload.error) ?? "Le media n'a pas pu etre televerse." };
+    return { ok: false, message: friendlyDatabaseError(upload.error) ?? "Le média n'a pas pu être téléversé." };
   }
 
   const publicUrl = supabase.storage.from(mediaBucketName).getPublicUrl(filePath).data.publicUrl;
@@ -1115,7 +1142,7 @@ export async function uploadMediaAsset(input: {
     await supabase.storage.from(mediaBucketName).remove([filePath]);
   }
 
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Media ajoute a la mediatheque." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Média ajouté à la médiathèque." };
 }
 
 export async function updateMediaAsset(
@@ -1126,7 +1153,7 @@ export async function updateMediaAsset(
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   const { error } = await supabase.from("media_assets").update(input).eq("id", id);
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Media mis a jour." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Média mis à jour." };
 }
 
 export async function replaceMediaAssetFile(asset: MediaAssetRow, file: File) {
@@ -1147,7 +1174,7 @@ export async function replaceMediaAssetFile(asset: MediaAssetRow, file: File) {
   }
 
   if (validation.kind !== asset.kind) {
-    return { ok: false, message: "Le remplacement doit conserver le meme type de media." };
+    return { ok: false, message: "Le remplacement doit conserver le même type de média." };
   }
 
   const safeName = validation.cleanName || sanitizeMediaFileName(file.name);
@@ -1158,7 +1185,7 @@ export async function replaceMediaAssetFile(asset: MediaAssetRow, file: File) {
   });
 
   if (upload.error) {
-    return { ok: false, message: friendlyDatabaseError(upload.error) ?? "Le nouveau fichier n'a pas pu etre televerse." };
+    return { ok: false, message: friendlyDatabaseError(upload.error) ?? "Le nouveau fichier n'a pas pu être téléversé." };
   }
 
   const publicUrl = supabase.storage.from(mediaBucketName).getPublicUrl(filePath).data.publicUrl;
@@ -1177,7 +1204,7 @@ export async function replaceMediaAssetFile(asset: MediaAssetRow, file: File) {
 
   if (error) {
     await supabase.storage.from(mediaBucketName).remove([filePath]);
-    return { ok: false, message: friendlyDatabaseError(error) ?? "Le media n'a pas pu etre remplace." };
+    return { ok: false, message: friendlyDatabaseError(error) ?? "Le média n'a pas pu être remplacé." };
   }
 
   await supabase.storage.from(asset.bucket_name).remove([asset.file_path]);
@@ -1193,11 +1220,11 @@ export async function deleteMediaAssetPermanently(asset: MediaAssetRow) {
 
   const remove = await supabase.storage.from(asset.bucket_name).remove([asset.file_path]);
   if (remove.error) {
-    return { ok: false, message: friendlyDatabaseError(remove.error) ?? "Le fichier n'a pas pu etre supprime." };
+    return { ok: false, message: friendlyDatabaseError(remove.error) ?? "Le fichier n'a pas pu être supprimé." };
   }
 
   const { error } = await supabase.from("media_assets").delete().eq("id", asset.id);
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Media supprime definitivement." };
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Média supprimé définitivement." };
 }
 
 export async function fetchTarifs(includeInactive = false) {
@@ -1275,7 +1302,7 @@ export async function createCommandeVolants(userId: string, volant: VolantRow, q
   if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
 
   if (!userId) {
-    return { ok: false, message: "Tu dois etre connecte pour commander des volants." };
+    return { ok: false, message: "Tu dois être connecté pour commander des volants." };
   }
 
   const safeQuantity = Math.floor(quantite);
@@ -1463,6 +1490,88 @@ function normalizeInvitationRows(rows: MemberInvitationRow[]) {
     ...row,
     roles: normalizeAppRoles(row.roles ?? legacyClubRoleToAppRoles(row.role))
   }));
+}
+
+function normalizeMemberLicenceRows(rows: MemberLicenceRow[]) {
+  return rows.map((row) => ({
+    ...row,
+    roles: normalizeAppRoles(row.roles ?? legacyClubRoleToAppRoles(row.role))
+  }));
+}
+
+export async function fetchMemberLicences() {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { data: [] as MemberLicenceRow[], error: "Configuration Supabase manquante." };
+
+  const { data, error } = await supabase
+    .from("member_licences")
+    .select("id, licence_ffbad, prenom, nom, categorie, statut, role, roles, claimed_by, claimed_email, claimed_at, source, created_at, updated_at")
+    .order("nom", { ascending: true });
+
+  return { data: normalizeMemberLicenceRows((data ?? []) as MemberLicenceRow[]), error: friendlyDatabaseError(error) };
+}
+
+export async function upsertMemberLicences(rows: LicenceCsvImportRow[], createdBy?: string | null) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const payload = rows.map((row) => ({
+    licence_ffbad: row.licence_ffbad.trim(),
+    prenom: row.prenom.trim(),
+    nom: row.nom.trim(),
+    categorie: row.categorie?.trim() || null,
+    statut: row.statut,
+    role: "adherent" satisfies LegacyClubRole,
+    roles: normalizeAppRoles(["member"]),
+    source: "admin",
+    created_by: createdBy ?? null
+  }));
+
+  const { error } = await supabase.from("member_licences").upsert(payload, { onConflict: "licence_ffbad" });
+
+  return {
+    ok: !error,
+    message: friendlyDatabaseError(error) ?? `${rows.length} licence(s) autorisée(s) enregistrée(s).`
+  };
+}
+
+export async function updateMemberLicence(id: string, input: Partial<Pick<MemberLicenceRow, "prenom" | "nom" | "categorie" | "statut">>) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) return { ok: false, message: "Configuration Supabase manquante." };
+
+  const { error } = await supabase.from("member_licences").update(input).eq("id", id);
+  return { ok: !error, message: friendlyDatabaseError(error) ?? "Licence mise à jour." };
+}
+
+export async function lookupMemberLicence(licence: string) {
+  const supabase = createSupabaseBrowserClient();
+  if (!supabase) {
+    return {
+      data: null as LicenceLookupResult | null,
+      error: "Configuration Supabase manquante."
+    };
+  }
+
+  const { data, error } = await supabase.rpc("lookup_member_licence", {
+    target_licence: licence.trim()
+  });
+
+  const first = Array.isArray(data) ? data[0] : data;
+  const row = first as (LicenceLookupResult & { is_found?: boolean }) | null;
+  return {
+    data: row
+      ? {
+          found: Boolean(row.found ?? row.is_found),
+          available: Boolean(row.available),
+          licence_ffbad: row.licence_ffbad,
+          prenom: row.prenom,
+          nom: row.nom,
+          categorie: row.categorie,
+          message: row.message
+        }
+      : null,
+    error: friendlyDatabaseError(error)
+  };
 }
 
 export async function fetchMemberInvitations() {

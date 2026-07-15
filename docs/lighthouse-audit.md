@@ -57,5 +57,5 @@ npm run audit:lighthouse
 - Si `node_modules/.bin/lighthouse` existe, le script l'utilise.
 - Sinon, le script utilise `npx --yes lighthouse@12.6.1`.
 - Sous Windows avec Node 24, le script ajoute automatiquement `--use-system-ca` pour que `npx` utilise les certificats du système.
-- Si Chrome/Lighthouse laisse un dossier temporaire verrouill? sur Windows, le script conserve le rapport JSON valide et continue l'audit.
+- Si Chrome/Lighthouse laisse un dossier temporaire verrouillé sur Windows, le script conserve le rapport JSON valide et continue l'audit.
 - L'audit ne bloque pas `npm run build`, car les seuils de performance/accessibilité/SEO ne sont pas encore décidés.

@@ -51,8 +51,8 @@ export default async function ContactPage() {
                     {settings.contact.phone}
                   </Link>
                 ) : null}
-                {settings.contact.facebookUrl ? <SocialLink href={settings.contact.facebookUrl} label="Facebook du club" /> : null}
-                {settings.contact.instagramUrl ? <SocialLink href={settings.contact.instagramUrl} label="Instagram du club" /> : null}
+                {settings.contact.facebookUrl ? <SocialLink href={settings.contact.facebookUrl} label="Facebook du club" icon="facebook" /> : null}
+                {settings.contact.instagramUrl ? <SocialLink href={settings.contact.instagramUrl} label="Instagram du club" icon="external" /> : null}
               </div>
             ) : (
               <p className="mt-4 text-sm leading-6 text-ink-600">
@@ -101,11 +101,22 @@ export default async function ContactPage() {
   );
 }
 
-function SocialLink({ href, label }: { href: string; label: string }) {
+function SocialLink({ href, label, icon = "external" }: { href: string; label: string; icon?: "facebook" | "external" }) {
   return (
     <Link href={href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 hover:text-court-900">
-      <ExternalLink className="h-4 w-4" aria-hidden="true" />
+      {icon === "facebook" ? <FacebookLogo className="h-4 w-4" /> : <ExternalLink className="h-4 w-4" aria-hidden="true" />}
       {label}
     </Link>
+  );
+}
+
+function FacebookLogo({ className = "" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M13.6 21v-7.7h2.6l.4-3h-3V8.4c0-.9.3-1.5 1.6-1.5h1.6V4.2c-.8-.1-1.6-.2-2.4-.2-2.4 0-4 1.5-4 4.1v2.2H7.8v3h2.6V21h3.2Z"
+      />
+    </svg>
   );
 }

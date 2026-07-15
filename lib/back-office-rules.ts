@@ -24,6 +24,14 @@ export interface CsvImportRow {
   role: AppRole;
 }
 
+export interface LicenceCsvImportRow {
+  nom: string;
+  prenom: string;
+  licence_ffbad: string;
+  categorie?: string;
+  statut: "actif" | "inactif" | "archive";
+}
+
 export interface MemberCsvPreviewOptions {
   existingEmails?: string[];
   existingLicences?: string[];
@@ -38,6 +46,8 @@ export interface CsvImportIssue {
 
 const requiredMemberCsvColumns = ["email", "prenom", "nom"] as const;
 const optionalMemberCsvColumns = ["licence_ffbad", "role"] as const;
+const requiredLicenceCsvColumns = ["nom", "prenom", "licence"] as const;
+const optionalLicenceCsvColumns = ["categorie", "statut"] as const;
 
 export function canPerformBackOfficeAction(roles: AppRole[], action: BackOfficeAction) {
   const normalized = normalizeAppRoles(roles);
@@ -71,7 +81,17 @@ function normalizeEmail(value: string | null | undefined) {
 }
 
 function normalizeLicence(value: string | null | undefined) {
-  return String(value ?? "").trim().toLowerCase();
+  return String(value ?? "").trim().replace(/\s+/g, "");
+}
+
+function normalizeHeader(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9_]+/g, "_")
+    .replace(/^_+|_+$/g, "");
 }
 
 function splitCsvLine(line: string, separator: string) {
@@ -162,11 +182,11 @@ export function parseMemberCsvPreview(csv: string, options: MemberCsvPreviewOpti
     emails.add(email);
 
     if (existingEmails.has(email)) {
-      issues.push({ row: rowNumber, field: "email", message: "Email deja present dans les adherents." });
+      issues.push({ row: rowNumber, field: "email", message: "Email déjà présent dans les adhérents." });
     }
 
     if (pendingInvitationEmails.has(email)) {
-      issues.push({ row: rowNumber, field: "email", message: "Invitation deja en attente pour cet email." });
+      issues.push({ row: rowNumber, field: "email", message: "Invitation déjà en attente pour cet email." });
     }
 
     if (licence) {
@@ -174,7 +194,7 @@ export function parseMemberCsvPreview(csv: string, options: MemberCsvPreviewOpti
         issues.push({ row: rowNumber, field: "licence_ffbad", message: "Doublon de licence dans le fichier CSV." });
       }
       if (existingLicences.has(licence)) {
-        issues.push({ row: rowNumber, field: "licence_ffbad", message: "Licence deja presente dans les adherents." });
+        issues.push({ row: rowNumber, field: "licence_ffbad", message: "Licence déjà présente dans les adhérents." });
       }
       licences.add(licence);
     }
@@ -193,6 +213,87 @@ export function parseMemberCsvPreview(csv: string, options: MemberCsvPreviewOpti
       nom: String(record.nom ?? ""),
       licence_ffbad: licence || undefined,
       role
+    });
+  });
+
+  return { rows, issues };
+}
+
+export function parseLicenceCsvPreview(csv: string) {
+  const lines = csv
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const issues: CsvImportIssue[] = [];
+
+  if (lines.length === 0) {
+    return { rows: [] as LicenceCsvImportRow[], issues: [{ row: 0, field: "fichier", message: "Fichier CSV vide." }] };
+  }
+
+  const separator = detectCsvSeparator(lines[0]);
+  const rawHeaders = splitCsvLine(lines[0], separator);
+  const headers = rawHeaders.map((header) => {
+    const normalized = normalizeHeader(header);
+    if (normalized === "numero_licence" || normalized === "num_licence" || normalized === "n_licence") return "licence";
+    if (normalized === "licence_ffbad") return "licence";
+    if (normalized === "category") return "categorie";
+    return normalized;
+  });
+
+  requiredLicenceCsvColumns.forEach((column) => {
+    if (!headers.includes(column)) {
+      issues.push({ row: 1, field: column, message: `Colonne obligatoire manquante : ${column}.` });
+    }
+  });
+
+  const allowedColumns = new Set<string>([...requiredLicenceCsvColumns, ...optionalLicenceCsvColumns]);
+  headers.forEach((header, index) => {
+    if (!allowedColumns.has(header)) {
+      issues.push({ row: 1, field: rawHeaders[index] || header, message: `Colonne non reconnue : ${rawHeaders[index] || header}.` });
+    }
+  });
+
+  const rows: LicenceCsvImportRow[] = [];
+  const licences = new Set<string>();
+
+  lines.slice(1).forEach((line, index) => {
+    const rowNumber = index + 2;
+    const values = splitCsvLine(line, separator);
+    const record = Object.fromEntries(headers.map((header, valueIndex) => [header, values[valueIndex] ?? ""]));
+    const licence = normalizeLicence(String(record.licence ?? ""));
+    const statut = String(record.statut ?? "actif").trim().toLowerCase();
+
+    if (!licence) {
+      issues.push({ row: rowNumber, field: "licence", message: "Numéro de licence manquant." });
+    }
+
+    if (licence && !/^[0-9A-Za-z-]+$/.test(licence)) {
+      issues.push({ row: rowNumber, field: "licence", message: "Numéro de licence invalide." });
+    }
+
+    if (licences.has(licence)) {
+      issues.push({ row: rowNumber, field: "licence", message: "Doublon de licence dans le fichier CSV." });
+    }
+    if (licence) licences.add(licence);
+
+    if (!record.prenom) {
+      issues.push({ row: rowNumber, field: "prenom", message: "Prénom manquant." });
+    }
+
+    if (!record.nom) {
+      issues.push({ row: rowNumber, field: "nom", message: "Nom manquant." });
+    }
+
+    if (statut && !["actif", "inactif", "archive"].includes(statut)) {
+      issues.push({ row: rowNumber, field: "statut", message: "Statut invalide. Utilise actif, inactif ou archive." });
+    }
+
+    rows.push({
+      nom: String(record.nom ?? "").trim(),
+      prenom: String(record.prenom ?? "").trim(),
+      licence_ffbad: licence,
+      categorie: String(record.categorie ?? "").trim() || undefined,
+      statut: statut === "inactif" || statut === "archive" ? statut : "actif"
     });
   });
 

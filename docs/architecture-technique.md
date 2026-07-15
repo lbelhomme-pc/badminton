@@ -1593,7 +1593,7 @@ Flux :
 1. L'adherent choisit un produit actif.
 2. Il choisit une quantite.
 3. La Server Action appelle une RPC ou transaction.
-4. La base verrouille les produits commandes.
+4. La base verrouille les produits commandés.
 5. La base verifie stock disponible.
 6. Elle cree `shuttlecock_orders`.
 7. Elle cree les items.
@@ -1905,4 +1905,3 @@ Parade :
 - validation stricte.
 - rapport erreurs.
 - audit log.
-
