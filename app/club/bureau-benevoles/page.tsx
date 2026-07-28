@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CalendarCheck, Handshake, Mail, Megaphone, ShieldCheck, WalletCards } from "lucide-react";
+import { CalendarCheck, Handshake, Mail, Megaphone, Phone, ShieldCheck, UserRound, WalletCards } from "lucide-react";
 import { InfoPage } from "@/components/public/info-page";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -38,16 +38,37 @@ export default async function BureauBenevolesPage() {
 
           return (
             <Card key={member.key} className="p-5">
-              <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-court-100 text-court-600">
-                <Icon className="h-5 w-5" aria-hidden="true" />
+              <div className="flex items-start gap-4">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full border border-court-200 bg-court-50 text-court-600">
+                  {member.photoUrl ? (
+                    <img src={member.photoUrl} alt={member.photoAlt || `Portrait de ${member.name}`} className="h-full w-full object-cover" />
+                  ) : (
+                    <UserRound className="h-11 w-11" aria-hidden="true" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-court-100 text-court-600">
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <p className="mt-4 font-display text-sm font-bold uppercase text-court-600">{member.role}</p>
+                  <h2 className="mt-2 text-2xl font-black text-court-900">{member.name}</h2>
+                </div>
               </div>
-              <p className="mt-5 font-display text-sm font-bold uppercase text-court-600">{member.role}</p>
-              <h2 className="mt-2 text-2xl font-black text-court-900">{member.name}</h2>
               <p className="mt-3 text-sm leading-6 text-ink-600">{member.mission}</p>
               {member.email || member.phone ? (
                 <div className="mt-4 grid gap-1 text-sm font-bold text-court-800">
-                  {member.email ? <a href={`mailto:${member.email}`}>{member.email}</a> : null}
-                  {member.phone ? <a href={`tel:${member.phone.replace(/\s/g, "")}`}>{member.phone}</a> : null}
+                  {member.email ? (
+                    <a href={`mailto:${member.email}`} className="inline-flex items-center gap-2 hover:text-court-900">
+                      <Mail className="h-4 w-4" aria-hidden="true" />
+                      {member.email}
+                    </a>
+                  ) : null}
+                  {member.phone ? (
+                    <a href={`tel:${member.phone.replace(/\s/g, "")}`} className="inline-flex items-center gap-2 hover:text-court-900">
+                      <Phone className="h-4 w-4" aria-hidden="true" />
+                      {member.phone}
+                    </a>
+                  ) : null}
                 </div>
               ) : (
                 <p className="mt-4 rounded-lg bg-court-50 px-3 py-2 text-sm font-semibold text-ink-600">

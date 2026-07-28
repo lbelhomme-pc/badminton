@@ -9,6 +9,7 @@ interface RegistrationCtaProps {
   title?: string;
   intro?: string;
   showOfficialLink?: boolean;
+  showQuestionLink?: boolean;
 }
 
 export async function RegistrationCta({
@@ -16,7 +17,8 @@ export async function RegistrationCta({
   compact = false,
   title = "Prêt à rejoindre le CFVV ?",
   intro = "Choisis d'abord le créneau adapté ou demande une séance d'essai. Le club confirme ensuite les documents et la licence à finaliser.",
-  showOfficialLink = true
+  showOfficialLink = true,
+  showQuestionLink = true
 }: RegistrationCtaProps) {
   const settings = await getPublicClubSettings();
   const registration = getRegistrationLinkStatus(settings);
@@ -60,7 +62,7 @@ export async function RegistrationCta({
               {registration.isFallback ? "Lien inscription à confirmer" : "Ouvrir l'inscription officielle"}
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
             </Link>
-          ) : (
+          ) : showQuestionLink ? (
             <Link
               href="/contact"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-50"
@@ -68,7 +70,7 @@ export async function RegistrationCta({
               <HelpCircle className="h-4 w-4" aria-hidden="true" />
               Poser une question
             </Link>
-          )}
+          ) : null}
           {!compact && showOfficialLink ? (
             <Link
               href="/contact"

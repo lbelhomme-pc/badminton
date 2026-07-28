@@ -29,6 +29,8 @@ export interface PublicBureauMember {
   mission: string;
   email: string;
   phone: string;
+  photoUrl: string;
+  photoAlt: string;
 }
 
 export interface PublicPartner {
@@ -73,7 +75,9 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       name: "Didier Remule",
       mission: "Coordination générale du club, relations avec les partenaires, la mairie et les instances sportives.",
       email: "",
-      phone: ""
+      phone: "06 60 93 51 85",
+      photoUrl: "",
+      photoAlt: "Portrait de Didier Remule"
     },
     {
       key: "vice-presidence",
@@ -81,7 +85,9 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       name: "Clovis Bellan",
       mission: "Appui à la présidence, relais du bureau et coordination des actions du club.",
       email: "",
-      phone: ""
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Portrait de Clovis Bellan"
     },
     {
       key: "tresorerie",
@@ -89,7 +95,9 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       name: "Yeliz Ozogul",
       mission: "Suivi du budget, cotisations, commandes et dépenses liées au fonctionnement du club.",
       email: "",
-      phone: ""
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Portrait de Yeliz Ozogul"
     },
     {
       key: "secretariat",
@@ -97,7 +105,9 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       name: "Ludovic Belhomme",
       mission: "Inscriptions, licences, documents administratifs et communication avec les adhérents.",
       email: "",
-      phone: ""
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Portrait de Ludovic Belhomme"
     },
     {
       key: "creneaux",
@@ -105,7 +115,9 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       name: "Julie Remule / Didier Remule",
       mission: "Accueil des joueurs, suivi des présences, annulations exceptionnelles et organisation des terrains.",
       email: "",
-      phone: ""
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Portrait des responsables créneaux"
     },
     {
       key: "communication",
@@ -113,7 +125,9 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       name: "Julie Remule",
       mission: "Actualités, événements, informations de dernière minute et mise à jour du site.",
       email: "",
-      phone: ""
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Portrait de Julie Remule"
     },
     {
       key: "contact",
@@ -121,7 +135,9 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       name: "Clovis Bellan / Didier Remule / Julie Remule",
       mission: "Référents publics pour orienter les demandes d'essai, d'inscription, de créneaux, de volants et de partenariat.",
       email: "cfvv41@gmail.com",
-      phone: "06 60 93 51 85"
+      phone: "06 60 93 51 85",
+      photoUrl: "",
+      photoAlt: "Référents contact du CFVV"
     },
     {
       key: "benevoles",
@@ -129,7 +145,9 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       name: "Tous les coups de main comptent",
       mission: "Tournois, stages, buvette, installation, rangement et accueil des nouveaux joueurs.",
       email: "",
-      phone: ""
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Bénévoles du CFVV"
     }
   ]
 };
@@ -180,7 +198,9 @@ function cleanBureau(value: unknown) {
       name: cleanText(record.name, fallback.name),
       mission: cleanText(record.mission, fallback.mission),
       email: cleanText(record.email, fallback.email),
-      phone: cleanText(record.phone, fallback.phone)
+      phone: cleanText(record.phone, fallback.phone),
+      photoUrl: cleanText(record.photo_url ?? record.photoUrl, fallback.photoUrl),
+      photoAlt: cleanText(record.photo_alt ?? record.photoAlt, fallback.photoAlt || `Portrait de ${cleanText(record.name, fallback.name)}`)
     };
   });
 }

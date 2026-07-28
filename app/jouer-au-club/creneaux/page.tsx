@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarCheck, Info, MapPin } from "lucide-react";
 import { PublicCreneauxPlanning } from "@/components/planning/public-creneaux-planning";
-import { RegistrationCta } from "@/components/public/registration-cta";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -27,8 +26,7 @@ export default function CreneauxPage() {
           Créneaux badminton du CFVV à Vendôme
         </h1>
         <p className="mt-4 max-w-3xl text-lg leading-8 text-ink-600">
-          Retrouve les horaires, publics, niveaux, lieux et informations pratiques avant de venir jouer. Les créneaux peuvent être filtrés par public,
-          jour, niveau, type de pratique et lieu.
+          Retrouve la semaine type du club, les horaires principaux, les lieux et les modalités à connaître avant de venir jouer.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
           <Badge variant="success" icon={<CalendarCheck className="h-3.5 w-3.5" />}>
@@ -49,23 +47,18 @@ export default function CreneauxPage() {
           </Link>
           <Link href="/inscription">
             <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              S'inscrire
+              Voir le parcours d'inscription
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Button>
           </Link>
         </div>
       </section>
 
-      <RegistrationCta
-        className="my-8"
-        compact
-        showOfficialLink={false}
-        title="Tu as trouvé un créneau qui te convient ?"
-        intro="Demande une séance d'essai ou ouvre le parcours d'inscription avant de venir pour la première fois."
-      />
-
-      <Card className="mb-8 p-5">
+      <Card className="my-8 p-5">
         <h2 className="text-2xl font-black text-court-900">À savoir avant de venir</h2>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-ink-600">
+          Avant de venir, vérifie les horaires, le lieu du créneau et les éventuelles modalités de réservation.
+        </p>
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[
             {
@@ -73,16 +66,12 @@ export default function CreneauxPage() {
               text: "Les créneaux d'été sont ouverts jusqu'au 17 juillet 2026. Reprise prévue le 17 août 2026, sous réserve de confirmation du gymnase."
             },
             {
-              title: "Statuts lisibles",
+              title: "Changements ponctuels",
               text: "Un créneau peut être habituel, modifié, fermé exceptionnellement ou en vacances scolaires."
             },
             {
-              title: "Mobile d'abord",
-              text: "L'affichage utilise des cartes empilées pour éviter les tableaux illisibles sur téléphone."
-            },
-            {
-              title: "Réservation",
-              text: "Le bouton Réserver apparaît uniquement sur les créneaux du mercredi et du vendredi, puis dirige vers la connexion."
+              title: "Jeunes et adultes",
+              text: "La semaine type distingue les entraînements jeunes et les créneaux adultes pour aller vite."
             }
           ].map((item) => (
             <div key={item.title} className="rounded-lg bg-court-50 p-4">
@@ -93,7 +82,7 @@ export default function CreneauxPage() {
         </div>
       </Card>
 
-      <PublicCreneauxPlanning fallbackSlots={weeklySlots} showWeeklySummary />
+      <PublicCreneauxPlanning fallbackSlots={weeklySlots} showWeeklySummary showDetailedBoard={false} />
     </div>
   );
 }

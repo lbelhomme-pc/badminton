@@ -15,28 +15,28 @@ export interface ConfiguredClubPhotoSlot extends ClubPhoto {
 export const clubPhotoSlots: Record<ClubPhotoKey, ConfiguredClubPhotoSlot> = {
   homeHero: {
     id: "homeHero",
-    src: "/images/cfvv-hero-badminton.png",
+    src: "",
     alt: "Joueurs adultes du CFVV en échange de badminton au Gymnase des Aigremonts",
     width: 1400,
     height: 900
   },
   clubLife: {
     id: "clubLife",
-    src: "/images/cfvv-vie-club.png",
+    src: "",
     alt: "Bénévoles et adhérents adultes du CFVV pendant un moment convivial du club",
     width: 1200,
     height: 900
   },
   gymnaseAigremonts: {
     id: "gymnaseAigremonts",
-    src: "/images/cfvv-gymnase-aigremonts.png",
+    src: "",
     alt: "Terrains du Gymnase des Aigremonts préparés pour un créneau du CFVV",
     width: 1200,
     height: 900
   },
   trialSession: {
     id: "trialSession",
-    src: "/images/cfvv-seance-essai.png",
+    src: "",
     alt: "Accueil d'un joueur débutant lors d'une séance d'essai badminton du CFVV",
     width: 1200,
     height: 900

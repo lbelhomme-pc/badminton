@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Building2, ExternalLink, Handshake, Megaphone, ShieldCheck } from "lucide-react";
+import { Building2, ExternalLink, Handshake, Megaphone } from "lucide-react";
 import { InfoPage } from "@/components/public/info-page";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -24,11 +24,6 @@ const partnershipBenefits = [
     icon: Building2,
     title: "Ancrage vendômois",
     text: "Soutien à une association sportive locale ouverte aux jeunes, adultes, loisirs et compétiteurs."
-  },
-  {
-    icon: ShieldCheck,
-    title: "Cadre clair",
-    text: "Publication après validation du bureau, consentement RGPD et période de visibilité définie si nécessaire."
   }
 ];
 

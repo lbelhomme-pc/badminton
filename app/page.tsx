@@ -12,7 +12,6 @@ import {
   Mail,
   MapPin,
   ShoppingBag,
-  Trophy,
   UserRound,
   UsersRound
 } from "lucide-react";
@@ -20,7 +19,7 @@ import { canonical } from "@/lib/seo";
 import { getLocalStructuredData, serializeStructuredData } from "@/lib/structured-data";
 import { creneauxToSlotOccurrences } from "@/lib/creneau-slots";
 import { eventCategoryLabel, getNextPublicEvents } from "@/lib/public-planning";
-import { formatDate, formatTime, slotTypeLabel } from "@/lib/utils";
+import { formatDate, formatTime } from "@/lib/utils";
 import { fetchActualites, fetchPublicCreneaux, type ActualiteRow } from "@/services/supabase-data.service";
 import { getOpenSlots, getPublicClubSettings, getPublicEvents, type PublicBureauMember, type PublicPartner } from "@/services/club.service";
 import type { ClubEvent, SlotOccurrence } from "@/types/domain";
@@ -94,7 +93,7 @@ const getCachedHomeData = unstable_cache(async function getHomeData() {
 
   return {
     settings,
-    slots: slots.slice(0, 4),
+    slots,
     newsItems: newsItems.slice(0, 3),
     events
   };
@@ -160,7 +159,7 @@ export default async function HomePage() {
             { icon: UsersRound, title: "Adultes & jeunes", text: "Créneaux publiés par le club" },
             { icon: ChartColumnIncreasing, title: "Loisir & progression", text: "Chacun à son rythme" },
             { icon: MapPin, title: settings.club.city, text: "Complexes sportifs" },
-            { icon: CalendarCheck, title: "Inscriptions", text: "Procédure à jour dans l'onglet dédié" }
+            { icon: CalendarCheck, title: "Inscriptions", text: "Découvrez les étapes pour rejoindre le club" }
           ].map((item) => {
             const Icon = item.icon;
             return (
@@ -226,14 +225,20 @@ export default async function HomePage() {
         <div>
           <SectionHeader title="Nos créneaux" href="/creneaux" label="Voir tous les créneaux" />
           {slots.length > 0 ? (
-            <>
-              <div className="mt-9 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                {slots.map((slot) => (
-                  <SlotPreviewCard key={slot.id} slot={slot} />
-                ))}
-              </div>
-              <p className="mt-4 text-center text-sm text-slate-500">Ces créneaux utilisent la même source que la page Créneaux.</p>
-            </>
+            <div className="mt-9 grid gap-4 sm:grid-cols-2">
+              <HomeSlotOverviewCard
+                title="Entraînements jeunes"
+                audience="Jeunes"
+                slots={slots.filter(isYouthSlot)}
+                emptyText="Les horaires jeunes seront confirmés par le club."
+              />
+              <HomeSlotOverviewCard
+                title="Entraînements adultes"
+                audience="Adultes"
+                slots={slots.filter((slot) => !isYouthSlot(slot))}
+                emptyText="Les horaires adultes seront confirmés par le club."
+              />
+            </div>
           ) : (
             <EmptyHomeBlock title="Créneaux à publier" text="Les créneaux apparaîtront ici dès qu'ils seront ajoutés dans l'administration." href="/creneaux" label="Voir la page créneaux" />
           )}
@@ -364,17 +369,71 @@ function PartnerPreview({ partner }: { partner: PublicPartner }) {
   return content;
 }
 
-function SlotPreviewCard({ slot }: { slot: SlotOccurrence }) {
-  const day = new Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(new Date(slot.startsAt));
+function normalizeHomeText(value: string | null | undefined) {
+  return (value ?? "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function isYouthSlot(slot: SlotOccurrence) {
+  const text = normalizeHomeText(`${slot.title} ${slot.audience} ${slot.type}`);
+  return text.includes("jeune") || text.includes("youth");
+}
+
+function uniqueHomeLabels(values: string[]) {
+  return Array.from(new Set(values.filter(Boolean)));
+}
+
+function summarizeHomeSlots(slots: SlotOccurrence[]) {
+  const sorted = [...slots].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
+  const days = uniqueHomeLabels(
+    sorted.map((slot) => new Intl.DateTimeFormat("fr-FR", { weekday: "long" }).format(new Date(slot.startsAt)))
+  );
+  const ranges = uniqueHomeLabels(sorted.map((slot) => `${formatTime(slot.startsAt)} - ${formatTime(slot.endsAt)}`));
+
+  return {
+    days: days.length > 0 ? days.map((day) => day.charAt(0).toUpperCase() + day.slice(1)).join(", ") : "Jours à confirmer",
+    ranges: ranges.length > 0 ? ranges.slice(0, 2).join(" / ") : "Horaires à confirmer",
+    extraRanges: ranges.length > 2 ? `+ ${ranges.length - 2} autre${ranges.length - 2 > 1 ? "s" : ""} horaire${ranges.length - 2 > 1 ? "s" : ""}` : null
+  };
+}
+
+function HomeSlotOverviewCard({
+  title,
+  audience,
+  slots,
+  emptyText
+}: {
+  title: string;
+  audience: string;
+  slots: SlotOccurrence[];
+  emptyText: string;
+}) {
+  const summary = summarizeHomeSlots(slots);
 
   return (
-    <article className="rounded border border-slate-200 bg-white p-5 text-center shadow-[0_6px_16px_rgba(6,27,42,0.04)]">
-      <Trophy className="mx-auto h-10 w-10 text-[#0097a9]" aria-hidden="true" />
-      <h3 className="mt-4 font-display text-xl font-black uppercase text-[#061b2a]">{slot.title}</h3>
-      <p className="text-sm text-slate-600">{slotTypeLabel(slot.type)} · {slot.audience}</p>
-      <p className="mt-5 text-sm font-semibold capitalize text-slate-600">{day}</p>
-      <p className="font-display text-lg font-black text-[#061b2a]">{formatTime(slot.startsAt)} - {formatTime(slot.endsAt)}</p>
-      <p className="mt-2 text-xs text-slate-500">{slot.venueName}</p>
+    <article className="flex h-full flex-col rounded border border-slate-200 bg-white p-5 shadow-[0_6px_16px_rgba(6,27,42,0.04)]">
+      <UsersRound className="h-10 w-10 text-[#0097a9]" aria-hidden="true" />
+      <p className="mt-4 font-display text-sm font-black uppercase text-[#0097a9]">{audience}</p>
+      <h3 className="mt-1 font-display text-2xl font-black text-[#061b2a]">{title}</h3>
+      {slots.length > 0 ? (
+        <div className="mt-4 grid gap-3 text-sm leading-6 text-slate-600">
+          <p>
+            <span className="font-bold text-[#061b2a]">Jours principaux :</span> {summary.days}
+          </p>
+          <p>
+            <span className="font-bold text-[#061b2a]">Horaires :</span> {summary.ranges}
+          </p>
+          {summary.extraRanges ? <p className="text-xs font-semibold text-slate-500">{summary.extraRanges} sur la page complète.</p> : null}
+        </div>
+      ) : (
+        <p className="mt-4 text-sm leading-6 text-slate-600">{emptyText}</p>
+      )}
+      <Link href="/creneaux" prefetch={false} className="mt-auto inline-flex pt-5 font-display text-sm font-black uppercase text-[#0097a9] hover:underline">
+        Voir la page complète des créneaux
+        <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
+      </Link>
     </article>
   );
 }
@@ -402,8 +461,12 @@ function EventPreviewCard({ event }: { event: ClubEvent }) {
 function BureauPreviewCard({ person }: { person: PublicBureauMember }) {
   return (
     <article className="flex items-center gap-5 rounded border border-slate-200 bg-white p-5 shadow-[0_6px_16px_rgba(6,27,42,0.04)]">
-      <span className="inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-        <UserRound className="h-11 w-11" aria-hidden="true" />
+      <span className="inline-flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-100 text-slate-400">
+        {person.photoUrl ? (
+          <img src={person.photoUrl} alt={person.photoAlt || `Portrait de ${person.name}`} className="h-full w-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          <UserRound className="h-11 w-11" aria-hidden="true" />
+        )}
       </span>
       <div className="min-w-0">
         <h3 className="font-display text-2xl font-black text-[#061b2a]">{person.name}</h3>

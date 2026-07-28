@@ -119,7 +119,7 @@ export interface Ranking {
   visibility: RankingVisibility;
 }
 
-export type ClubEventCategory = "competition" | "club_event" | "meeting" | "camp" | "closure";
+export type ClubEventCategory = "competition" | "club_event" | "meeting" | "camp" | "closure" | "birthday";
 
 export type ClubEventStatus = "draft" | "published" | "scheduled" | "cancelled";
 

@@ -24,7 +24,8 @@ const categoryOptions = [
   { value: "competition", label: "Compétition" },
   { value: "meeting", label: "Réunion" },
   { value: "camp", label: "Stage" },
-  { value: "closure", label: "Fermeture" }
+  { value: "closure", label: "Fermeture" },
+  { value: "birthday", label: "Anniversaire autorisé" }
 ];
 
 const statusOptions = [

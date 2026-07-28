@@ -80,7 +80,8 @@ export function eventCategoryLabel(category: ClubEventCategory) {
     club_event: "Événement club",
     meeting: "Réunion",
     camp: "Stage",
-    closure: "Fermeture"
+    closure: "Fermeture",
+    birthday: "Anniversaire"
   };
 
   return labels[category];

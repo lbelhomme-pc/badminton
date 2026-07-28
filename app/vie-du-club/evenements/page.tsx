@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { CalendarDays, Clock, Info } from "lucide-react";
 import { PublicAgenda } from "@/components/agenda/public-agenda";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { canonical, getSiteUrl } from "@/lib/seo";
 import { getEventStructuredData, serializeStructuredData } from "@/lib/structured-data";
 import { getPublicEvents } from "@/services/club.service";
@@ -32,7 +29,7 @@ export default async function EvenementsPage() {
           Agenda du CFVV
         </h1>
         <p className="mt-4 max-w-3xl text-lg leading-8 text-ink-600">
-          Retrouve les compétitions, événements associatifs, réunions, stages et fermetures exceptionnelles publiés par le club.
+          Retrouve les compétitions, événements associatifs, réunions, stages, fermetures exceptionnelles et anniversaires publiés avec autorisation.
         </p>
         <div className="mt-6 flex flex-wrap gap-2">
           <Badge variant="info" icon={<CalendarDays className="h-3.5 w-3.5" />}>
@@ -47,37 +44,9 @@ export default async function EvenementsPage() {
         </div>
       </section>
 
-      <Card className="my-8 p-5">
-        <h2 className="text-2xl font-black text-court-900">Ce que l'agenda centralise</h2>
-        <div className="mt-4 grid gap-4 md:grid-cols-3">
-          {[
-            {
-              title: "Événements publiés",
-              text: "Seuls les événements publiés, programmés arrivés à date ou annulés restent visibles aux visiteurs."
-            },
-            {
-              title: "Fermetures et changements",
-              text: "Les fermetures exceptionnelles doivent être ajoutées ici pour éviter les informations dispersées."
-            },
-            {
-              title: "Actions pratiques",
-              text: "Chaque fiche peut proposer l'ajout au calendrier, un lien de partage, une inscription et une pièce jointe."
-            }
-          ].map((item) => (
-            <div key={item.title} className="rounded-lg bg-court-50 p-4">
-              <h3 className="font-display text-lg font-black text-court-900">{item.title}</h3>
-              <p className="mt-2 text-sm leading-6 text-ink-600">{item.text}</p>
-            </div>
-          ))}
-        </div>
-        <div className="mt-5">
-          <Link href="/contact">
-            <Button variant="outline">Signaler une information à ajouter</Button>
-          </Link>
-        </div>
-      </Card>
-
-      <PublicAgenda events={events} siteUrl={getSiteUrl()} />
+      <div className="mt-8">
+        <PublicAgenda events={events} siteUrl={getSiteUrl()} />
+      </div>
     </div>
   );
 }

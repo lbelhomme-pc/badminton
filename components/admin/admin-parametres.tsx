@@ -54,7 +54,9 @@ function cleanMember(item: unknown, fallback: PublicBureauMember): PublicBureauM
     name: typeof record.name === "string" ? record.name : fallback.name,
     mission: typeof record.mission === "string" ? record.mission : fallback.mission,
     email: typeof record.email === "string" ? record.email : fallback.email,
-    phone: typeof record.phone === "string" ? record.phone : fallback.phone
+    phone: typeof record.phone === "string" ? record.phone : fallback.phone,
+    photoUrl: typeof record.photoUrl === "string" ? record.photoUrl : typeof record.photo_url === "string" ? record.photo_url : fallback.photoUrl,
+    photoAlt: typeof record.photoAlt === "string" ? record.photoAlt : typeof record.photo_alt === "string" ? record.photo_alt : fallback.photoAlt
   };
 }
 
@@ -271,6 +273,8 @@ function AdminParametresContent() {
                   <SettingsInput label="Nom affiché" value={member.name} onChange={(value) => updateBureau(index, "name", value)} />
                   <SettingsInput label="Email" type="email" required={false} value={member.email} onChange={(value) => updateBureau(index, "email", value)} />
                   <SettingsInput label="Téléphone" required={false} value={member.phone} onChange={(value) => updateBureau(index, "phone", value)} />
+                  <SettingsInput label="Photo URL" required={false} value={member.photoUrl} onChange={(value) => updateBureau(index, "photoUrl", value)} />
+                  <SettingsInput label="Texte alternatif de la photo" required={false} value={member.photoAlt} onChange={(value) => updateBureau(index, "photoAlt", value)} />
                   <SettingsTextarea
                     label="Mission"
                     value={member.mission}

@@ -94,6 +94,7 @@ export default async function ContactPage() {
         className="mt-8"
         compact
         showOfficialLink={false}
+        showQuestionLink={false}
         title="Vous venez pour une inscription ou un essai ?"
         intro="Le plus simple est de consulter les créneaux et le parcours d'inscription avant d'envoyer votre demande."
       />

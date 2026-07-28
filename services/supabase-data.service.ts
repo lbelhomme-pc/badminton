@@ -727,7 +727,14 @@ export async function fetchActualites(includeInternal = false) {
 function normalizeEventCategory(value: string | null | undefined): ClubEventCategory {
   const normalized = (value ?? "").toLowerCase();
 
-  if (normalized === "competition" || normalized === "club_event" || normalized === "meeting" || normalized === "camp" || normalized === "closure") {
+  if (
+    normalized === "competition" ||
+    normalized === "club_event" ||
+    normalized === "meeting" ||
+    normalized === "camp" ||
+    normalized === "closure" ||
+    normalized === "birthday"
+  ) {
     return normalized;
   }
 
@@ -735,6 +742,7 @@ function normalizeEventCategory(value: string | null | undefined): ClubEventCate
   if (normalized.includes("reunion") || normalized.includes("réunion")) return "meeting";
   if (normalized.includes("stage")) return "camp";
   if (normalized.includes("fermeture")) return "closure";
+  if (normalized.includes("anniversaire") || normalized.includes("birthday")) return "birthday";
 
   return "club_event";
 }

@@ -22,7 +22,8 @@ const categoryOptions: Array<{ value: ClubEventCategory | "all"; label: string }
   { value: "club_event", label: "Événements du club" },
   { value: "meeting", label: "Réunions" },
   { value: "camp", label: "Stages" },
-  { value: "closure", label: "Fermetures" }
+  { value: "closure", label: "Fermetures" },
+  { value: "birthday", label: "Anniversaires" }
 ];
 
 const statusLabels: Record<ClubEventStatus, string> = {
