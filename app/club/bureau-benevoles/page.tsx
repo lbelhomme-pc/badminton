@@ -4,6 +4,7 @@ import { CalendarCheck, Handshake, Mail, Megaphone, Phone, ShieldCheck, UserRoun
 import { InfoPage } from "@/components/public/info-page";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { clubPhotoSlots } from "@/lib/club-photos";
 import { getPublicClubSettings } from "@/services/club.service";
 
 export const metadata: Metadata = {
@@ -31,6 +32,20 @@ export default async function BureauBenevolesPage() {
       title="Les bénévoles qui font vivre le club"
       intro="Le bureau organise les créneaux, les inscriptions, les événements et la communication. Les contacts personnels ne sont affichés que s'ils sont validés par le club."
       cards={[]}
+      hero={{
+        tone: "bureau",
+        photo: clubPhotoSlots.clubLife,
+        visualLabel: "Bureau et bénévoles",
+        badges: [
+          { label: "Rôles identifiés", icon: <ShieldCheck className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Contacts génériques", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Vie associative", icon: <Handshake className="h-4 w-4" aria-hidden="true" /> }
+        ],
+        actions: [
+          { href: "/contact", label: "Contacter le bureau", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
+          { href: "/contact", label: "Proposer mon aide", variant: "secondary", icon: <Handshake className="h-4 w-4" aria-hidden="true" /> }
+        ]
+      }}
     >
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {settings.bureau.map((member) => {

@@ -36,7 +36,15 @@ export function SiteHeader() {
 
   function isActive(href: string) {
     if (href === "/") return pathname === "/";
-    return pathname === href || pathname.startsWith(`${href}/`);
+
+    const matches = pathname === href || pathname.startsWith(`${href}/`);
+    if (!matches) return false;
+
+    return !primaryLinks.some((item) => {
+      if (item.href === href || item.href === "/") return false;
+      if (!item.href.startsWith(`${href}/`)) return false;
+      return pathname === item.href || pathname.startsWith(`${item.href}/`);
+    });
   }
 
   useEffect(() => {

@@ -52,6 +52,39 @@ export interface RegistrationLinkStatus {
   confirmationMessage: string;
 }
 
+const defaultPublicPartners: PublicPartner[] = [
+  {
+    id: "sporteam",
+    name: "SPORTEAM",
+    description: "Tous les adhérents du CFVV bénéficieront de prix attractifs sur l'ensemble de la gamme badminton.",
+    level: "Partenaire équipement",
+    logoUrl: "/partners/sporteam.png",
+    websiteUrl: "",
+    altText: "Logo SPORTEAM",
+    active: true
+  },
+  {
+    id: "mairie-vendome",
+    name: "Mairie de Vendôme",
+    description: "Le CFVV remercie le service des sports de la ville de Vendôme.",
+    level: "Collectivité",
+    logoUrl: "/partners/mairie-vendome.png",
+    websiteUrl: "",
+    altText: "Logo de la ville de Vendôme",
+    active: true
+  },
+  {
+    id: "codep41",
+    name: "CODEP41",
+    description: "Le CFVV remercie le Comité départemental de Badminton du Loir-et-Cher pour son accompagnement du badminton dans le département.",
+    level: "Comité départemental",
+    logoUrl: "/partners/codep41.png",
+    websiteUrl: "https://www.badminton41.org/",
+    altText: "Logo du CODEP41, Comité départemental de Badminton du Loir-et-Cher",
+    active: true
+  }
+];
+
 export const defaultPublicClubSettings: PublicClubSettings = {
   club: {
     name: "CFVV",
@@ -67,7 +100,7 @@ export const defaultPublicClubSettings: PublicClubSettings = {
     facebookUrl: "https://www.facebook.com/CFVVBadminton/",
     instagramUrl: ""
   },
-  partners: [],
+  partners: defaultPublicPartners,
   bureau: [
     {
       key: "presidence",
@@ -206,9 +239,9 @@ function cleanBureau(value: unknown) {
 }
 
 function cleanPartners(value: unknown): PublicPartner[] {
-  const source = Array.isArray(value) ? value : [];
+  const source = Array.isArray(value) ? value : defaultPublicPartners;
 
-  return source
+  const partners = source
     .map((item, index) => {
       const record = typeof item === "object" && item !== null ? (item as Record<string, unknown>) : {};
       const name = cleanText(record.name);
@@ -228,6 +261,8 @@ function cleanPartners(value: unknown): PublicPartner[] {
     })
     .filter((partner): partner is PublicPartner => Boolean(partner))
     .filter((partner) => partner.active);
+
+  return partners.length > 0 ? partners : defaultPublicPartners;
 }
 
 export async function getPublicClubSettings(): Promise<PublicClubSettings> {

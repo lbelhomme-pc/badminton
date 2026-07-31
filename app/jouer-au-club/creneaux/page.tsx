@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { ArrowRight, CalendarCheck, Info, MapPin } from "lucide-react";
 import { PublicCreneauxPlanning } from "@/components/planning/public-creneaux-planning";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { InteriorHero } from "@/components/public/interior-hero";
 import { Card } from "@/components/ui/card";
+import { clubPhotoSlots } from "@/lib/club-photos";
 import { canonical } from "@/lib/seo";
 import { getUpcomingSlots } from "@/services/club.service";
 
@@ -20,39 +19,23 @@ export default function CreneauxPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="rounded-lg border border-court-200 bg-white p-6 shadow-soft">
-        <p className="font-display text-sm font-bold uppercase text-court-600">Jouer au club</p>
-        <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-court-900 sm:text-5xl">
-          Créneaux badminton du CFVV à Vendôme
-        </h1>
-        <p className="mt-4 max-w-3xl text-lg leading-8 text-ink-600">
-          Retrouve la semaine type du club, les horaires principaux, les lieux et les modalités à connaître avant de venir jouer.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-2">
-          <Badge variant="success" icon={<CalendarCheck className="h-3.5 w-3.5" />}>
-            Horaires centralisés
-          </Badge>
-          <Badge variant="info" icon={<MapPin className="h-3.5 w-3.5" />}>
-            Lieu et accès
-          </Badge>
-          <Badge variant="warning" icon={<Info className="h-3.5 w-3.5" />}>
-            Changements exceptionnels prévus
-          </Badge>
-        </div>
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-          <Link href="/inscriptions/seance-essai">
-            <Button size="lg" className="w-full sm:w-auto">
-              Demander un essai
-            </Button>
-          </Link>
-          <Link href="/inscription">
-            <Button size="lg" variant="outline" className="w-full sm:w-auto">
-              Voir le parcours d'inscription
-              <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Button>
-          </Link>
-        </div>
-      </section>
+      <InteriorHero
+        eyebrow="Jouer au club"
+        title="Créneaux badminton du CFVV à Vendôme"
+        intro="Retrouve la semaine type du club, les horaires principaux, les lieux et les modalités à connaître avant de venir jouer."
+        tone="creneaux"
+        photo={clubPhotoSlots.trialSession}
+        visualLabel="Créneaux au Gymnase des Aigremonts"
+        badges={[
+          { label: "Horaires centralisés", icon: <CalendarCheck className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Lieu et accès", icon: <MapPin className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Changements visibles", icon: <Info className="h-4 w-4" aria-hidden="true" /> }
+        ]}
+        actions={[
+          { href: "/inscriptions/seance-essai", label: "Demander un essai", icon: <CalendarCheck className="h-4 w-4" aria-hidden="true" /> },
+          { href: "/inscription", label: "S'inscrire", variant: "secondary", icon: <ArrowRight className="h-4 w-4" aria-hidden="true" /> }
+        ]}
+      />
 
       <Card className="my-8 p-5">
         <h2 className="text-2xl font-black text-court-900">À savoir avant de venir</h2>

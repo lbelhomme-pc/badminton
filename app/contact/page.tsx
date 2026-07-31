@@ -5,6 +5,7 @@ import { InfoPage } from "@/components/public/info-page";
 import { RegistrationCta } from "@/components/public/registration-cta";
 import { RequestForm } from "@/components/public/request-form";
 import { Card } from "@/components/ui/card";
+import { clubPhotoSlots } from "@/lib/club-photos";
 import { canonical } from "@/lib/seo";
 import { getPublicClubSettings, getVenues } from "@/services/club.service";
 
@@ -26,9 +27,25 @@ export default async function ContactPage() {
       title="Contacter le club"
       intro="Une question sur une inscription, une séance d'essai, un créneau, les volants, la compétition ou un partenariat ? Envoyez une demande au CFVV."
       cards={[]}
+      hero={{
+        tone: "contact",
+        photo: clubPhotoSlots.gymnaseAigremonts,
+        visualLabel: "Accueil au club",
+        badges: [
+          { label: "Formulaire direct", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Gymnase des Aigremonts", icon: <MapPin className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Réponse bénévole", icon: <Clock className="h-4 w-4" aria-hidden="true" /> }
+        ],
+        actions: [
+          { href: "#formulaire-contact", label: "Écrire au club", icon: <Mail className="h-4 w-4" aria-hidden="true" /> },
+          { href: "/club/gymnases-acces", label: "Voir l'accès", variant: "secondary", icon: <MapPin className="h-4 w-4" aria-hidden="true" /> }
+        ]
+      }}
     >
       <div className="grid gap-6 lg:grid-cols-[1fr_0.8fr]">
-        <RequestForm title="Envoyer un message" defaultType="Inscription" messagePlaceholder="Décrivez votre demande en quelques lignes." />
+        <div id="formulaire-contact" className="scroll-mt-28">
+          <RequestForm title="Envoyer un message" defaultType="Inscription" messagePlaceholder="Décrivez votre demande en quelques lignes." />
+        </div>
 
         <div className="grid gap-4">
           <Card className="p-5">

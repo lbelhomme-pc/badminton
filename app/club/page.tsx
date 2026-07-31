@@ -54,6 +54,20 @@ export default function ClubPage() {
       title="Un club de badminton associatif à Vendôme"
       intro="Le CFVV accueille les joueurs qui veulent découvrir, jouer régulièrement, progresser ou représenter le club en compétition."
       cards={[]}
+      hero={{
+        tone: "club",
+        photo: clubPhotoSlots.clubLife,
+        visualLabel: "Ambiance CFVV",
+        badges: [
+          { label: "Jeunes et adultes", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Loisir et compétition", icon: <BadgeCheck className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Séance d'essai", icon: <Sparkles className="h-4 w-4" aria-hidden="true" /> }
+        ],
+        actions: [
+          { href: "/creneaux", label: "Voir les créneaux", icon: <UsersRound className="h-4 w-4" aria-hidden="true" /> },
+          { href: "/inscriptions/seance-essai", label: "Demander un essai", variant: "secondary", icon: <Sparkles className="h-4 w-4" aria-hidden="true" /> }
+        ]
+      }}
     >
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div>

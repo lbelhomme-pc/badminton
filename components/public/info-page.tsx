@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
+import { InteriorHero, type InteriorHeroProps } from "@/components/public/interior-hero";
 import { Card } from "@/components/ui/card";
 
 interface InfoCard {
@@ -14,17 +15,22 @@ interface InfoPageProps {
   title: string;
   intro: string;
   cards: InfoCard[];
+  hero?: Omit<InteriorHeroProps, "eyebrow" | "title" | "intro">;
   children?: ReactNode;
 }
 
-export function InfoPage({ eyebrow, title, intro, cards, children }: InfoPageProps) {
+export function InfoPage({ eyebrow, title, intro, cards, hero, children }: InfoPageProps) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-      <section className="rounded-lg border border-court-200 bg-white p-6 shadow-soft">
-        <p className="text-sm font-semibold uppercase tracking-wide text-court-600">{eyebrow}</p>
-        <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-court-900">{title}</h1>
-        <p className="mt-4 max-w-3xl text-lg leading-8 text-ink-500">{intro}</p>
-      </section>
+      {hero ? (
+        <InteriorHero eyebrow={eyebrow} title={title} intro={intro} {...hero} />
+      ) : (
+        <section className="rounded-lg border border-court-200 bg-white p-6 shadow-soft">
+          <p className="text-sm font-semibold uppercase tracking-wide text-court-600">{eyebrow}</p>
+          <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-court-900">{title}</h1>
+          <p className="mt-4 max-w-3xl text-lg leading-8 text-ink-500">{intro}</p>
+        </section>
+      )}
 
       {cards.length > 0 ? (
         <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">

@@ -5,6 +5,7 @@ import { InfoPage } from "@/components/public/info-page";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { clubPhotoSlots } from "@/lib/club-photos";
 import { canonical } from "@/lib/seo";
 import { getPublicClubSettings, type PublicPartner } from "@/services/club.service";
 
@@ -48,6 +49,19 @@ export default async function PartenairesPage() {
       title="Soutenir le badminton local"
       intro="Les partenaires affichés ici proviennent des paramètres publics du site. Le bureau peut les publier, modifier ou retirer sans changer le code."
       cards={[]}
+      hero={{
+        tone: "partenaires",
+        photo: clubPhotoSlots.clubLife,
+        visualLabel: "Partenaires du Vendômois",
+        badges: [
+          { label: "Visibilité locale", icon: <Megaphone className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Association sportive", icon: <Building2 className="h-4 w-4" aria-hidden="true" /> },
+          { label: "Soutien au club", icon: <Handshake className="h-4 w-4" aria-hidden="true" /> }
+        ],
+        actions: [
+          { href: "/devenir-partenaire", label: "Devenir partenaire", icon: <Handshake className="h-4 w-4" aria-hidden="true" /> }
+        ]
+      }}
     >
       {settings.partners.length > 0 ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
