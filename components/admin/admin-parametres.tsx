@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { AdminFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
@@ -8,6 +9,7 @@ import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { editablePublicPages, pageEditorId, type PageContentOverride } from "@/lib/site-content";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { defaultPublicClubSettings, type PublicBureauMember, type PublicPartner } from "@/services/club.service";
 import { fetchSiteSettings, uploadMediaAsset, upsertSiteSetting, type SiteSettingRow } from "@/services/supabase-data.service";
 
@@ -152,6 +154,7 @@ export function AdminParametres() {
 
 function AdminParametresContent() {
   const { user } = useAuth();
+  const router = useRouter();
   const [club, setClub] = useState<ClubForm>(defaultClub);
   const [contact, setContact] = useState<ContactForm>(defaultContact);
   const [bureau, setBureau] = useState<BureauForm>(defaultBureau);
@@ -269,28 +272,54 @@ function AdminParametresContent() {
       upsertSiteSetting({ key: "content", value: { ...content }, visibility: "public" })
     ]);
 
+    const allSaved = clubResult.ok && contactResult.ok && bureauResult.ok && partnersResult.ok && appearanceResult.ok && contentResult.ok;
+
+    if (!allSaved) {
+      setPending(false);
+      setFeedback(
+        errorFeedback(
+          !clubResult.ok
+            ? clubResult.message
+            : !contactResult.ok
+              ? contactResult.message
+              : !bureauResult.ok
+                ? bureauResult.message
+              : !partnersResult.ok
+                ? partnersResult.message
+                : !appearanceResult.ok
+                  ? appearanceResult.message
+                  : contentResult.message
+        )
+      );
+      return;
+    }
+
+    setFeedback(loadingFeedback("Paramètres enregistrés. Actualisation du site public..."));
+    let publicSiteRefreshed = false;
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const session = supabase ? (await supabase.auth.getSession()).data.session : null;
+
+      if (session?.access_token) {
+        const response = await fetch("/api/revalidate-site", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${session.access_token}` }
+        });
+        publicSiteRefreshed = response.ok;
+      }
+    } catch {
+      // Les données sont déjà enregistrées dans Supabase. Seule l'actualisation
+      // immédiate du cache public devra être retentée par un rechargement.
+    }
+
+    await load();
+    router.refresh();
     setPending(false);
     setFeedback(
-      clubResult.ok && contactResult.ok && bureauResult.ok && partnersResult.ok && appearanceResult.ok && contentResult.ok
-        ? successFeedback("Paramètres du site mis à jour.")
-        : errorFeedback(
-            !clubResult.ok
-              ? clubResult.message
-              : !contactResult.ok
-                ? contactResult.message
-                : !bureauResult.ok
-                  ? bureauResult.message
-                : !partnersResult.ok
-                  ? partnersResult.message
-                  : !appearanceResult.ok
-                    ? appearanceResult.message
-                    : contentResult.message
-          )
+      publicSiteRefreshed
+        ? successFeedback("Modifications publiées. Elles sont maintenant visibles sur le site.")
+        : successFeedback("Modifications enregistrées. Recharge le site public pour les afficher.")
     );
-
-    if (clubResult.ok && contactResult.ok && bureauResult.ok && partnersResult.ok && appearanceResult.ok && contentResult.ok) {
-      await load();
-    }
   }
 
   return (
