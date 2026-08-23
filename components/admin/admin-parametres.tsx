@@ -26,7 +26,7 @@ const defaultContact = {
   phone: "06 60 93 51 85",
   generic_contacts: "Clovis Bellan / Didier Remule / Julie Remule",
   facebook_url: "https://www.facebook.com/CFVVBadminton/",
-  instagram_url: ""
+  instagram_url: "https://www.instagram.com/cfvv.41/"
 };
 
 type ClubForm = typeof defaultClub;

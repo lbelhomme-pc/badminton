@@ -120,7 +120,7 @@ export const defaultPublicClubSettings: PublicClubSettings = {
     phone: "06 60 93 51 85",
     genericContacts: ["Clovis Bellan", "Didier Remule", "Julie Remule"],
     facebookUrl: "https://www.facebook.com/CFVVBadminton/",
-    instagramUrl: ""
+    instagramUrl: "https://www.instagram.com/cfvv.41/"
   },
   appearance: {
     headerLogoUrl: "/logos/cfvv-horizontal.png",
