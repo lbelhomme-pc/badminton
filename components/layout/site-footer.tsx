@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ExternalLink, Mail, MapPin, Phone, UserRound } from "lucide-react";
 import type { PublicClubSettings } from "@/services/club.service";
-import { AdminEditLink } from "@/components/admin/admin-edit-link";
+import { InlineLayoutEditor } from "@/components/admin/inline-layout-editor";
 
 const footerSections = [
   {
@@ -61,7 +61,7 @@ export function SiteFooter({ settings }: { settings: PublicClubSettings }) {
 
   return (
     <footer data-admin-editable className="relative bg-[#031d2b] pb-24 text-white md:pb-0">
-      <AdminEditLink href="/admin/parametres#header-footer" label="le footer" />
+      <InlineLayoutEditor section="footer" settings={settings} />
       <div className="mx-auto grid max-w-[1180px] gap-10 px-5 py-12 sm:px-6 lg:grid-cols-[1.15fr_2fr] lg:px-8">
         <div>
           {settings.appearance.footerImageUrl ? (
@@ -80,7 +80,7 @@ export function SiteFooter({ settings }: { settings: PublicClubSettings }) {
           <div className="mt-5 grid gap-3 text-sm leading-6 text-slate-200">
             <p className="flex gap-2">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#00a8bc]" aria-hidden="true" />
-              <span>Gymnase des Aigremonts, 554 Rue de la Chappe, 41100 Vendôme</span>
+              <span>{settings.content.footerAddress}</span>
             </p>
             {settings.contact.email ? (
               <Link href={`mailto:${settings.contact.email}`} className="flex gap-2 hover:text-white hover:underline">

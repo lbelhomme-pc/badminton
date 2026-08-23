@@ -137,6 +137,7 @@ function getContentSetting(rows: SiteSettingRow[]): ContentForm {
     headerRegistrationLabel: typeof value.headerRegistrationLabel === "string" ? value.headerRegistrationLabel : defaultContent.headerRegistrationLabel,
     footerHeading: typeof value.footerHeading === "string" ? value.footerHeading : defaultContent.footerHeading,
     footerDescription: typeof value.footerDescription === "string" ? value.footerDescription : defaultContent.footerDescription,
+    footerAddress: typeof value.footerAddress === "string" ? value.footerAddress : typeof value.footer_address === "string" ? value.footer_address : defaultContent.footerAddress,
     homeTitle: typeof value.homeTitle === "string" ? value.homeTitle : defaultContent.homeTitle,
     homeHighlight: typeof value.homeHighlight === "string" ? value.homeHighlight : defaultContent.homeHighlight,
     homeIntro: typeof value.homeIntro === "string" ? value.homeIntro : defaultContent.homeIntro,
@@ -439,6 +440,7 @@ function AdminParametresContent() {
             <SettingsInput label="Lien d'inscription du menu" value={content.headerRegistrationLabel} onChange={(value) => updateContent("headerRegistrationLabel", value)} />
             <SettingsInput label="Titre du footer" value={content.footerHeading} onChange={(value) => updateContent("footerHeading", value)} />
             <SettingsTextarea label="Description du footer" value={content.footerDescription} onChange={(value) => updateContent("footerDescription", value)} />
+            <SettingsInput label="Adresse du footer" value={content.footerAddress} onChange={(value) => updateContent("footerAddress", value)} />
             <SettingsInput label="Titre principal de l'accueil" value={content.homeTitle} onChange={(value) => updateContent("homeTitle", value)} />
             <SettingsInput label="Titre coloré de l'accueil" value={content.homeHighlight} onChange={(value) => updateContent("homeHighlight", value)} />
             <SettingsTextarea label="Introduction de l'accueil" value={content.homeIntro} onChange={(value) => updateContent("homeIntro", value)} />

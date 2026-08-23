@@ -37,6 +37,7 @@ export interface PublicContentSettings {
   headerRegistrationLabel: string;
   footerHeading: string;
   footerDescription: string;
+  footerAddress: string;
   homeTitle: string;
   homeHighlight: string;
   homeIntro: string;
@@ -132,6 +133,7 @@ export const defaultPublicClubSettings: PublicClubSettings = {
     headerRegistrationLabel: "Inscriptions 2026-2027",
     footerHeading: "Club des fous du Volants Vendômois",
     footerDescription: "Badminton à Vendôme : pratique loisir, progression, compétition et vie associative.",
+    footerAddress: "Gymnase des Aigremonts, 554 Rue de la Chappe, 41100 Vendôme",
     homeTitle: "Le badminton à Vendôme,",
     homeHighlight: "dans une ambiance conviviale et dynamique",
     homeIntro: "Le Club des fous du Volants Vendômois accueille les débutants comme les joueurs confirmés, pour partager le plaisir du jeu dans la bonne humeur.",
@@ -385,6 +387,7 @@ export async function getPublicClubSettings(): Promise<PublicClubSettings> {
         headerRegistrationLabel: cleanText(content.header_registration_label ?? content.headerRegistrationLabel, defaultPublicClubSettings.content.headerRegistrationLabel),
         footerHeading: cleanText(content.footer_heading ?? content.footerHeading, defaultPublicClubSettings.content.footerHeading),
         footerDescription: cleanText(content.footer_description ?? content.footerDescription, defaultPublicClubSettings.content.footerDescription),
+        footerAddress: cleanText(content.footer_address ?? content.footerAddress, defaultPublicClubSettings.content.footerAddress),
         homeTitle: cleanText(content.home_title ?? content.homeTitle, defaultPublicClubSettings.content.homeTitle),
         homeHighlight: cleanText(content.home_highlight ?? content.homeHighlight, defaultPublicClubSettings.content.homeHighlight),
         homeIntro: cleanText(content.home_intro ?? content.homeIntro, defaultPublicClubSettings.content.homeIntro),
