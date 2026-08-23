@@ -446,9 +446,9 @@ export function getRegistrationLinkStatus(settings: PublicClubSettings): Registr
     url,
     fallbackUrl: ffbadRegistrationUrl,
     isFallback,
-    sourceLabel: isFallback ? "Lien FFBaD à confirmer" : "Lien FFBaD configuré par le club",
+    sourceLabel: isFallback ? "Ancienne page d'inscription du club" : "Lien FFBaD configuré par le club",
     confirmationMessage: isFallback
-      ? "Le lien d'inscription affiché est le lien de secours du site. Le bureau peut le confirmer ou le remplacer dans l'administration."
+      ? "Cette page reste accessible, mais ses informations peuvent être anciennes. Le bureau doit la remplacer dans l'administration dès que le lien Poona 2026/2027 est disponible."
       : "Ce lien provient des paramètres publics du site et peut être mis à jour par le club."
   };
 }

@@ -35,7 +35,7 @@ export default async function LicenceFfbadPage() {
             rel="noreferrer"
             className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-court-500 px-5 font-semibold text-white shadow-soft transition hover:bg-court-600"
           >
-            {registration.isFallback ? "Lien FFBaD à confirmer" : `S'inscrire via FFBaD / Poona`}
+            {registration.isFallback ? "Consulter l'ancienne page" : `S'inscrire via FFBaD / Poona`}
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
           </Link>
           <Link

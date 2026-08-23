@@ -59,7 +59,7 @@ export async function RegistrationCta({
               rel="noreferrer"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-50 sm:col-span-2"
             >
-              {registration.isFallback ? "Lien inscription à confirmer" : "Ouvrir l'inscription officielle"}
+              {registration.isFallback ? "Consulter l'ancienne page" : "Ouvrir l'inscription officielle"}
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
             </Link>
           ) : showQuestionLink ? (

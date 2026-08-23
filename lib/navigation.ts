@@ -23,7 +23,7 @@ export const siteNavigation = [
   },
   {
     label: "Inscriptions",
-    href: "/inscriptions",
+    href: "/inscription",
     items: [
       { label: "Tarifs", href: "/tarifs" },
       { label: "Séance d'essai", href: "/inscriptions/seance-essai" },

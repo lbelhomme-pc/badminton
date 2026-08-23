@@ -10,6 +10,7 @@
     "test": "node scripts/run-public-planning-tests.mjs",
     "test:e2e": "node scripts/run-e2e-tests.mjs",
     "test:e2e:ci": "npm run build && node scripts/run-e2e-tests.mjs",
+    "audit:links": "node scripts/audit-site-links.mjs",
     "audit:lighthouse": "node scripts/lighthouse-audit.mjs"
   },
   "dependencies": {

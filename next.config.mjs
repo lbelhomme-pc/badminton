@@ -106,6 +106,11 @@ const nextConfig = {
   async redirects() {
     return [
       {
+        source: "/inscriptions",
+        destination: "/inscription",
+        permanent: true
+      },
+      {
         source: "/compte",
         destination: "/espace-adherent",
         permanent: true

@@ -56,7 +56,7 @@ export default async function InscriptionPage() {
               rel="noreferrer"
               className="inline-flex h-12 items-center justify-center rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-50"
             >
-              {registration.isFallback ? "Lien FFBaD à confirmer" : "S'inscrire via FFBaD / Poona"}
+              {registration.isFallback ? "Consulter l'ancienne page" : "S'inscrire via FFBaD / Poona"}
               <ExternalLink className="ml-2 h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
