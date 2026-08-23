@@ -1,17 +1,17 @@
 ﻿<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="CFVV">
-  <rect width="512" height="512" rx="112" fill="#10201B"/>
+  <rect width="512" height="512" rx="112" fill="#031D2B"/>
   <g transform="scale(8)">
     <g transform="rotate(-28 34 33)">
       <ellipse cx="39" cy="23" rx="11" ry="15" fill="none" stroke="#FFFFFF" stroke-width="4"/>
-      <path d="M30 22h18M32 15c4 3 9 3 14 0M32 30c4-3 9-3 14 0M39 9v28" stroke="#B8F7D4" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M30 22h18M32 15c4 3 9 3 14 0M32 30c4-3 9-3 14 0M39 9v28" stroke="#00A8BC" stroke-width="1.8" stroke-linecap="round"/>
       <path d="M31 36L18 53" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round"/>
-      <path d="M31 36L18 53" stroke="#12B76A" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M31 36L18 53" stroke="#00A8BC" stroke-width="2.2" stroke-linecap="round"/>
     </g>
     <g transform="rotate(14 24 25)">
       <path d="M12 11h26l-8 25H20L12 11Z" fill="#F8FAFC"/>
-      <path d="M13 12l8 23M21 12l3 23M29 12l-3 23M37 12l-8 23" stroke="#10201B" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M19 35h12l3 8-6 5H22l-6-5 3-8Z" fill="#FACC15"/>
-      <path d="M19 35h12" stroke="#10201B" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M13 12l8 23M21 12l3 23M29 12l-3 23M37 12l-8 23" stroke="#031D2B" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M19 35h12l3 8-6 5H22l-6-5 3-8Z" fill="#00A8BC"/>
+      <path d="M19 35h12" stroke="#031D2B" stroke-width="1.8" stroke-linecap="round"/>
     </g>
   </g>
 </svg>

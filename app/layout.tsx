@@ -24,10 +24,10 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
-      { url: "/icons/favicon-32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/pwa-icon-192.png", sizes: "192x192", type: "image/png" }
+      { url: "/icons/favicon-32-v2.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/pwa-icon-192-v2.png", sizes: "192x192", type: "image/png" }
     ],
-    apple: "/icons/apple-touch-icon.png"
+    apple: "/icons/apple-touch-icon-v2.png"
   },
   appleWebApp: {
     capable: true,

@@ -8,24 +8,24 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    background_color: "#A5D7DE",
-    theme_color: "#0C8A9C",
+    background_color: "#031D2B",
+    theme_color: "#031D2B",
     orientation: "portrait",
     icons: [
       {
-        src: "/icons/pwa-icon-192.png",
+        src: "/icons/pwa-icon-192-v2.png",
         sizes: "192x192",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "/icons/pwa-icon-512.png",
+        src: "/icons/pwa-icon-512-v2.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "any"
       },
       {
-        src: "/icons/pwa-icon-512.png",
+        src: "/icons/pwa-icon-512-v2.png",
         sizes: "512x512",
         type: "image/png",
         purpose: "maskable"
