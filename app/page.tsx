@@ -193,8 +193,8 @@ export default async function HomePage() {
         {newsItems.length > 0 ? (
           <div className="mt-9 grid gap-7 lg:grid-cols-3">
             {newsItems.map((item) => (
-              <article key={item.id} className="overflow-hidden rounded border border-slate-200 bg-white shadow-[0_8px_20px_rgba(6,27,42,0.06)]">
-                <div className="relative h-32 bg-gradient-to-br from-cyan-950/85 to-cyan-500/35">
+              <article key={item.id} className="grid aspect-square grid-rows-[44%_56%] overflow-hidden rounded border border-slate-200 bg-white shadow-[0_8px_20px_rgba(6,27,42,0.06)]">
+                <div className="relative min-h-0 bg-gradient-to-br from-cyan-950/85 to-cyan-500/35">
                   {isSafeDisplayUrl(item.imageUrl) ? (
                     <img
                       src={item.imageUrl ?? ""}
@@ -220,9 +220,9 @@ export default async function HomePage() {
                   )}
                   <span className="absolute bottom-0 left-4 bg-[#0097a9] px-3 py-1 font-display text-[11px] font-black uppercase text-white">{item.label}</span>
                 </div>
-                <div className="p-5">
+                <div className="flex min-h-0 flex-col overflow-hidden p-5">
                   <p className="font-display text-xs font-black uppercase text-slate-500">{item.date}</p>
-                  <h3 className="mt-3 font-display text-2xl font-black text-[#061b2a]">{item.title}</h3>
+                  <h3 className="mt-2 line-clamp-2 font-display text-2xl font-black text-[#061b2a]">{item.title}</h3>
                   <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{item.text}</p>
                   <HomeNewsLink href={item.linkUrl} label={item.linkLabel || "Lire la suite"} />
                 </div>

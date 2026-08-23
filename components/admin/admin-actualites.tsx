@@ -265,13 +265,14 @@ function AdminActualitesContent() {
           </label>
           <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-semibold text-court-900">
-              URL de la photo
+              Photo carrée (format Instagram)
               <input
                 value={form.image_url}
                 placeholder="https://..."
                 onChange={(event) => setForm((current) => ({ ...current, image_url: event.target.value }))}
                 className="h-11 rounded-lg border border-court-200 bg-court-50 px-3"
               />
+              <span className="text-xs font-normal text-ink-500">Format conseillé : 1080 × 1080 px.</span>
             </label>
             <label className="grid gap-2 text-sm font-semibold text-court-900">
               Lien associe
@@ -380,13 +381,14 @@ function ActualiteEditor({
         </label>
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm font-semibold text-court-900">
-            URL de la photo
+            Photo carrée (format Instagram)
             <input
               value={value.image_url}
               placeholder="https://..."
               onChange={(event) => onChange(actualite.id, "image_url", event.target.value)}
               className="h-11 rounded-lg border border-court-200 bg-court-50 px-3"
             />
+            <span className="text-xs font-normal text-ink-500">Format conseillé : 1080 × 1080 px.</span>
           </label>
           <label className="grid gap-2 text-sm font-semibold text-court-900">
             Lien associe
@@ -473,27 +475,27 @@ function ActualitePreview({ value, title }: { value: ActualiteForm; title: strin
   return (
     <div className="mt-5 rounded-lg border border-court-100 bg-court-50 p-4">
       <p className="text-sm font-black uppercase text-court-700">{title}</p>
-      <article className="mt-3 overflow-hidden rounded-lg border border-court-200 bg-white">
+      <article className="mx-auto mt-3 grid aspect-square w-full max-w-md grid-rows-[44%_56%] overflow-hidden rounded-lg border border-court-200 bg-white">
         {safeImageUrl ? (
           <img
             src={safeImageUrl}
             alt={`Illustration : ${visibleTitle}`}
             loading="lazy"
             decoding="async"
-            className="h-40 w-full object-cover"
+            className="h-full w-full object-cover"
           />
         ) : (
-          <div className="flex h-20 items-center gap-2 bg-court-50 px-4 text-sm font-semibold text-ink-500">
+          <div className="flex min-h-0 items-center justify-center gap-2 bg-court-50 px-4 text-sm font-semibold text-ink-500">
             <ImageIcon className="h-4 w-4" aria-hidden="true" />
             Aucune photo ajoutée
           </div>
         )}
-        <div className="p-4">
+        <div className="min-h-0 overflow-hidden p-4">
           <span className="rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-700">
             {value.visible_public ? "Public" : "Interne adhérents"}
           </span>
-          <h3 className="mt-3 text-xl font-black text-court-900">{visibleTitle}</h3>
-          <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink-500">{visibleContent}</p>
+          <h3 className="mt-3 line-clamp-2 text-xl font-black text-court-900">{visibleTitle}</h3>
+          <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm leading-6 text-ink-500">{visibleContent}</p>
           {safeLinkUrl ? (
             <a
               href={safeLinkUrl}

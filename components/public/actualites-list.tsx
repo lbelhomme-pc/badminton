@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MapPin } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { fetchActualites, type ActualiteRow } from "@/services/supabase-data.service";
@@ -77,7 +77,7 @@ export function ActualitesList({ limit }: ActualitesListProps) {
       ) : null}
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {visibleItems.map((post) => (
-          <Card key={post.id} className="overflow-hidden p-0">
+          <Card key={post.id} className="grid aspect-square grid-rows-[44%_56%] overflow-hidden p-0">
             {isSafeDisplayUrl(post.imageUrl) ? (
               <img
                 src={post.imageUrl ?? ""}
@@ -85,15 +85,21 @@ export function ActualitesList({ limit }: ActualitesListProps) {
                 loading="lazy"
                 decoding="async"
                 sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                className="h-44 w-full object-cover"
+                className="h-full w-full object-cover"
               />
-            ) : null}
-            <div className="flex items-start gap-3">
-              <MapPin className="ml-5 mt-6 h-5 w-5 text-warning" aria-hidden="true" />
-              <div className="px-5 py-5 pl-0">
+            ) : (
+              <div className="flex min-h-0 items-center justify-center bg-gradient-to-br from-court-900 to-court-500 text-white">
+                <div className="text-center">
+                  <ImageIcon className="mx-auto h-9 w-9 opacity-70" aria-hidden="true" />
+                  <p className="mt-2 font-display text-sm font-black uppercase">Actualité CFVV</p>
+                </div>
+              </div>
+            )}
+            <div className="flex min-h-0 overflow-hidden">
+              <div className="flex min-h-0 w-full flex-col overflow-hidden px-5 py-4">
                 <p className="text-xs font-bold uppercase text-warning">{post.category}</p>
-                <h2 className="mt-1 text-xl font-black text-court-900">{post.title}</h2>
-                <p className="mt-2 whitespace-pre-line text-sm leading-6 text-ink-500">{post.excerpt}</p>
+                <h2 className="mt-1 line-clamp-2 text-xl font-black text-court-900">{post.title}</h2>
+                <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm leading-5 text-ink-500">{post.excerpt}</p>
                 {isSafeDisplayUrl(post.linkUrl) ? <ActualiteLink href={post.linkUrl ?? ""} label={post.linkLabel || "Voir le lien"} /> : null}
               </div>
             </div>
