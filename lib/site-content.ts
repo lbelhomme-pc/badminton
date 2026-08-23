@@ -1,3 +1,28 @@
+export const heroBadgeIconOptions = [
+  { value: "calendar", label: "Calendrier" },
+  { value: "map-pin", label: "Lieu" },
+  { value: "info", label: "Information" },
+  { value: "clock", label: "Horloge" },
+  { value: "users", label: "Personnes" },
+  { value: "check", label: "Validation" },
+  { value: "star", label: "Étoile" },
+  { value: "none", label: "Sans icône" }
+] as const;
+
+export type HeroBadgeIcon = (typeof heroBadgeIconOptions)[number]["value"];
+
+export interface PageHeroBadge {
+  id: string;
+  label: string;
+  icon: HeroBadgeIcon;
+}
+
+export const defaultCreneauxHeroBadges: PageHeroBadge[] = [
+  { id: "horaires", label: "Horaires centralisés", icon: "calendar" },
+  { id: "lieu", label: "Lieu et accès", icon: "map-pin" },
+  { id: "changements", label: "Changements visibles", icon: "info" }
+];
+
 export interface PageContentOverride {
   eyebrow?: string;
   title?: string;
@@ -5,6 +30,7 @@ export interface PageContentOverride {
   body?: string;
   imageUrl?: string;
   imageAlt?: string;
+  badges?: PageHeroBadge[];
 }
 
 export const editablePublicPages = [
@@ -23,7 +49,7 @@ export const editablePublicPages = [
   { key: "/jouer-au-club", label: "Jouer au club" },
   { key: "/jouer-au-club/adultes-debutants", label: "Adultes débutants" },
   { key: "/jouer-au-club/competition", label: "Compétition" },
-  { key: "/jouer-au-club/creneaux", label: "Créneaux du club", bodyEditable: false },
+  { key: "/jouer-au-club/creneaux", label: "Créneaux du club", bodyEditable: false, badgesEditable: true },
   { key: "/jouer-au-club/jeunes", label: "Jeunes" },
   { key: "/jouer-au-club/loisirs", label: "Loisirs" },
   { key: "/reservations", label: "Réservations" },

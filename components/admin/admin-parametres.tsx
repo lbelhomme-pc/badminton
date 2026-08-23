@@ -8,7 +8,15 @@ import { AdminRoute } from "@/components/auth/admin-route";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { editablePublicPages, pageEditorId, type PageContentOverride } from "@/lib/site-content";
+import {
+  defaultCreneauxHeroBadges,
+  editablePublicPages,
+  heroBadgeIconOptions,
+  pageEditorId,
+  type HeroBadgeIcon,
+  type PageContentOverride,
+  type PageHeroBadge
+} from "@/lib/site-content";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { defaultPublicClubSettings, type PublicBureauMember, type PublicPartner } from "@/services/club.service";
 import { fetchSiteSettings, uploadMediaAsset, upsertSiteSetting, type SiteSettingRow } from "@/services/supabase-data.service";
@@ -239,6 +247,48 @@ function AdminParametresContent() {
         [pageKey]: { ...(current.pages[pageKey] ?? {}), [field]: value }
       }
     }));
+  }
+
+  function getEditableBadges(pageKey: string) {
+    return content.pages[pageKey]?.badges ?? (pageKey === "/jouer-au-club/creneaux" ? defaultCreneauxHeroBadges : []);
+  }
+
+  function updatePageBadges(pageKey: string, badges: PageHeroBadge[]) {
+    setContent((current) => ({
+      ...current,
+      pages: {
+        ...current.pages,
+        [pageKey]: { ...(current.pages[pageKey] ?? {}), badges }
+      }
+    }));
+  }
+
+  function updatePageBadge(pageKey: string, index: number, field: "label" | "icon", value: string) {
+    updatePageBadges(
+      pageKey,
+      getEditableBadges(pageKey).map((badge, badgeIndex) =>
+        badgeIndex === index ? { ...badge, [field]: value } as PageHeroBadge : badge
+      )
+    );
+  }
+
+  function addPageBadge(pageKey: string) {
+    updatePageBadges(pageKey, [
+      ...getEditableBadges(pageKey),
+      { id: `badge-${Date.now()}`, label: "Nouvelle information", icon: "info" }
+    ]);
+  }
+
+  function removePageBadge(pageKey: string, index: number) {
+    updatePageBadges(pageKey, getEditableBadges(pageKey).filter((_, badgeIndex) => badgeIndex !== index));
+  }
+
+  function movePageBadge(pageKey: string, index: number, direction: -1 | 1) {
+    const badges = [...getEditableBadges(pageKey)];
+    const targetIndex = index + direction;
+    if (targetIndex < 0 || targetIndex >= badges.length) return;
+    [badges[index], badges[targetIndex]] = [badges[targetIndex], badges[index]];
+    updatePageBadges(pageKey, badges);
   }
 
   function addPartner() {
@@ -477,6 +527,59 @@ function AdminParametresContent() {
                         compact
                       />
                     </div>
+                    {"badgesEditable" in page && page.badgesEditable ? (
+                      <div className="md:col-span-2 rounded-lg border border-court-200 bg-white p-4">
+                        <div className="flex flex-wrap items-start justify-between gap-3">
+                          <div>
+                            <h3 className="font-display text-base font-black text-court-900">Petites cases du bandeau</h3>
+                            <p className="mt-1 text-xs leading-5 text-ink-500">
+                              Modifie le texte et l'icône, change l'ordre ou retire une case. Si tu les supprimes toutes, aucune case ne sera affichée.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => addPageBadge(page.key)}
+                            className="rounded-lg bg-[#0097a9] px-4 py-2 font-display text-sm font-black text-white hover:bg-[#007f8f]"
+                          >
+                            + Ajouter une case
+                          </button>
+                        </div>
+
+                        <div className="mt-4 grid gap-3">
+                          {getEditableBadges(page.key).map((badge, index, badges) => (
+                            <div key={badge.id} className="grid gap-3 rounded-lg border border-court-100 bg-court-50 p-3 md:grid-cols-[minmax(0,1fr)_180px_auto] md:items-end">
+                              <SettingsInput
+                                label={`Texte de la case ${index + 1}`}
+                                value={badge.label}
+                                onChange={(value) => updatePageBadge(page.key, index, "label", value)}
+                              />
+                              <label className="grid gap-2 text-sm font-semibold text-court-900">
+                                Icône
+                                <select
+                                  value={badge.icon}
+                                  onChange={(event) => updatePageBadge(page.key, index, "icon", event.target.value as HeroBadgeIcon)}
+                                  className="h-11 rounded-lg border border-court-200 bg-white px-3 text-sm text-court-900"
+                                >
+                                  {heroBadgeIconOptions.map((option) => (
+                                    <option key={option.value} value={option.value}>{option.label}</option>
+                                  ))}
+                                </select>
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                <button type="button" disabled={index === 0} onClick={() => movePageBadge(page.key, index, -1)} className="rounded border border-court-200 bg-white px-3 py-2 text-sm font-bold text-court-900 disabled:cursor-not-allowed disabled:opacity-35" aria-label={`Monter la case ${index + 1}`}>↑</button>
+                                <button type="button" disabled={index === badges.length - 1} onClick={() => movePageBadge(page.key, index, 1)} className="rounded border border-court-200 bg-white px-3 py-2 text-sm font-bold text-court-900 disabled:cursor-not-allowed disabled:opacity-35" aria-label={`Descendre la case ${index + 1}`}>↓</button>
+                                <button type="button" onClick={() => removePageBadge(page.key, index)} className="rounded border border-red-200 bg-white px-3 py-2 text-sm font-bold text-red-700 hover:bg-red-50">Supprimer</button>
+                              </div>
+                            </div>
+                          ))}
+                          {getEditableBadges(page.key).length === 0 ? (
+                            <p className="rounded-lg border border-dashed border-court-200 bg-court-50 p-4 text-sm text-ink-500">
+                              Aucune petite case ne sera affichée dans ce bandeau.
+                            </p>
+                          ) : null}
+                        </div>
+                      </div>
+                    ) : null}
                     {(!("bodyEditable" in page) || page.bodyEditable) ? (
                       <div className="md:col-span-2">
                         <SettingsTextarea

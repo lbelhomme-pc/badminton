@@ -1,7 +1,7 @@
 import { events, ffbadRegistrationUrl, rankings, shuttleProducts, slots, venues } from "@/lib/mock-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { fetchPublicEvents } from "@/services/supabase-data.service";
-import type { PageContentOverride } from "@/lib/site-content";
+import { heroBadgeIconOptions, type HeroBadgeIcon, type PageContentOverride, type PageHeroBadge } from "@/lib/site-content";
 import type { ClubEvent } from "@/types/domain";
 
 export interface PublicClubSettings {
@@ -253,13 +253,32 @@ function cleanPageOverrides(value: unknown): Record<string, PageContentOverride>
     Object.entries(value as Record<string, unknown>).flatMap(([key, raw]) => {
       if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return [];
       const record = raw as Record<string, unknown>;
+      const badges = Array.isArray(record.badges)
+        ? record.badges
+            .map((badge, index): PageHeroBadge | null => {
+              if (typeof badge !== "object" || badge === null || Array.isArray(badge)) return null;
+              const badgeRecord = badge as Record<string, unknown>;
+              const label = cleanText(badgeRecord.label);
+              if (!label) return null;
+              const requestedIcon = cleanText(badgeRecord.icon, "info") as HeroBadgeIcon;
+              const icon = heroBadgeIconOptions.some((option) => option.value === requestedIcon) ? requestedIcon : "info";
+
+              return {
+                id: cleanText(badgeRecord.id, `badge-${index + 1}`),
+                label,
+                icon
+              };
+            })
+            .filter((badge): badge is PageHeroBadge => Boolean(badge))
+        : undefined;
       return [[key, {
         eyebrow: cleanText(record.eyebrow),
         title: cleanText(record.title),
         intro: cleanText(record.intro),
         body: cleanText(record.body),
         imageUrl: cleanMediaUrl(record.imageUrl ?? record.image_url),
-        imageAlt: cleanText(record.imageAlt ?? record.image_alt)
+        imageAlt: cleanText(record.imageAlt ?? record.image_alt),
+        badges
       } satisfies PageContentOverride]];
     })
   );

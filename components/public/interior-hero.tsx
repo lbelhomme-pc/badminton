@@ -1,11 +1,12 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, CalendarCheck, Check, Clock, Info, MapPin, Star, Users } from "lucide-react";
 import type { ConfiguredClubPhotoSlot } from "@/lib/club-photos";
 import { cn } from "@/lib/utils";
 import { getPublicClubSettings } from "@/services/club.service";
 import { AdminEditLink } from "@/components/admin/admin-edit-link";
 import { pageEditorId } from "@/lib/site-content";
+import type { HeroBadgeIcon } from "@/lib/site-content";
 
 type HeroTone = "creneaux" | "bureau" | "agenda" | "club" | "partenaires" | "contact";
 
@@ -69,6 +70,9 @@ export async function InteriorHero({
   const displayedEyebrow = override?.eyebrow || eyebrow;
   const displayedTitle = override?.title || title;
   const displayedIntro = override?.intro || intro;
+  const displayedBadges = override?.badges === undefined
+    ? badges
+    : override.badges.map((badge) => ({ ...badge, icon: badgeIcon(badge.icon) }));
 
   return (
     <section data-admin-editable={contentKey ? true : undefined} className="relative overflow-hidden rounded bg-[#031d2b] text-white shadow-[0_16px_35px_rgba(3,29,43,0.22)]">
@@ -122,9 +126,9 @@ export async function InteriorHero({
               </div>
             ) : null}
 
-            {badges.length > 0 ? (
+            {displayedBadges.length > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {badges.map((badge) => (
+                {displayedBadges.map((badge) => (
                   <span
                     key={badge.label}
                     className="inline-flex items-center gap-2 rounded border border-white/18 bg-white/10 px-3 py-2 font-display text-xs font-black uppercase text-white"
@@ -147,4 +151,21 @@ export async function InteriorHero({
       </div>
     </section>
   );
+}
+
+function badgeIcon(icon: HeroBadgeIcon) {
+  const className = "h-4 w-4";
+  const props = { className, "aria-hidden": true as const };
+
+  switch (icon) {
+    case "calendar": return <CalendarCheck {...props} />;
+    case "map-pin": return <MapPin {...props} />;
+    case "clock": return <Clock {...props} />;
+    case "users": return <Users {...props} />;
+    case "check": return <Check {...props} />;
+    case "star": return <Star {...props} />;
+    case "none": return null;
+    case "info":
+    default: return <Info {...props} />;
+  }
 }
