@@ -23,7 +23,6 @@ const primaryLinks = [
 const mobileLinks = [
   ...primaryLinks,
   { href: "/connexion", label: "Espace adhérent" },
-  { href: "/inscription", label: "Nous rejoindre" },
   { href: "/tarifs", label: "Tarifs" },
   { href: "/lieux-acces", label: "Lieux et accès" },
   { href: "/faq", label: "FAQ" }
