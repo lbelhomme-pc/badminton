@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ExternalLink, Mail, MapPin, Phone, UserRound } from "lucide-react";
+import { ExternalLink, Instagram, Mail, MapPin, Phone, UserRound } from "lucide-react";
 import type { PublicClubSettings } from "@/services/club.service";
 import { InlineLayoutEditor } from "@/components/admin/inline-layout-editor";
 
@@ -56,8 +56,8 @@ const organismLinks = [
 export function SiteFooter({ settings }: { settings: PublicClubSettings }) {
   const socialLinks = [
     settings.contact.facebookUrl ? { label: "Facebook", href: settings.contact.facebookUrl, icon: "facebook" } : null,
-    settings.contact.instagramUrl ? { label: "Instagram", href: settings.contact.instagramUrl, icon: "external" } : null
-  ].filter((item): item is { label: string; href: string; icon: "facebook" | "external" } => Boolean(item));
+    settings.contact.instagramUrl ? { label: "Instagram @cfvv.41", href: settings.contact.instagramUrl, icon: "instagram" } : null
+  ].filter((item): item is { label: string; href: string; icon: "facebook" | "instagram" } => Boolean(item));
 
   return (
     <footer data-admin-editable className="relative bg-[#031d2b] pb-24 text-white md:pb-0">
@@ -150,8 +150,8 @@ export function SiteFooter({ settings }: { settings: PublicClubSettings }) {
                     className="inline-flex items-center gap-2 rounded-full border border-white/20 px-3 py-1.5 font-display font-bold text-slate-200 transition hover:border-[#00a8bc] hover:bg-white/10 hover:text-white"
                   >
                     {item.icon === "facebook" ? <FacebookLogo className="h-4 w-4" /> : null}
+                    {item.icon === "instagram" ? <Instagram className="h-4 w-4" aria-hidden="true" /> : null}
                     {item.label}
-                    {item.icon !== "facebook" ? <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" /> : null}
                   </a>
                 ))
               ) : (
