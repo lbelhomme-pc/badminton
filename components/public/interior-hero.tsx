@@ -5,7 +5,8 @@ import type { ConfiguredClubPhotoSlot } from "@/lib/club-photos";
 import { cn } from "@/lib/utils";
 import { getPublicClubSettings } from "@/services/club.service";
 import { AdminEditLink } from "@/components/admin/admin-edit-link";
-import { pageEditorId } from "@/lib/site-content";
+import { InlineHeroBadgesEditor } from "@/components/admin/inline-hero-badges-editor";
+import { defaultCreneauxHeroBadges, pageEditorId } from "@/lib/site-content";
 import type { HeroBadgeIcon } from "@/lib/site-content";
 
 type HeroTone = "creneaux" | "bureau" | "agenda" | "club" | "partenaires" | "contact";
@@ -73,6 +74,9 @@ export async function InteriorHero({
   const displayedBadges = override?.badges === undefined
     ? badges
     : override.badges.map((badge) => ({ ...badge, icon: badgeIcon(badge.icon) }));
+  const directlyEditableBadges = contentKey === "/jouer-au-club/creneaux"
+    ? (override?.badges ?? defaultCreneauxHeroBadges)
+    : null;
 
   return (
     <section data-admin-editable={contentKey ? true : undefined} className="relative overflow-hidden rounded bg-[#031d2b] text-white shadow-[0_16px_35px_rgba(3,29,43,0.22)]">
@@ -126,8 +130,8 @@ export async function InteriorHero({
               </div>
             ) : null}
 
-            {displayedBadges.length > 0 ? (
-              <div className="flex flex-wrap gap-2">
+            {displayedBadges.length > 0 || directlyEditableBadges ? (
+              <div className="flex flex-wrap items-center gap-2">
                 {displayedBadges.map((badge) => (
                   <span
                     key={badge.label}
@@ -137,6 +141,13 @@ export async function InteriorHero({
                     {badge.label}
                   </span>
                 ))}
+                {directlyEditableBadges && settings && contentKey ? (
+                  <InlineHeroBadgesEditor
+                    content={settings.content}
+                    contentKey={contentKey}
+                    badges={directlyEditableBadges}
+                  />
+                ) : null}
               </div>
             ) : null}
           </div>
