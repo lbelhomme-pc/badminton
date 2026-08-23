@@ -1,7 +1,7 @@
 import { events, ffbadRegistrationUrl, rankings, shuttleProducts, slots, venues } from "@/lib/mock-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { fetchPublicEvents } from "@/services/supabase-data.service";
-import { heroBadgeIconOptions, type HeroBadgeIcon, type PageContentOverride, type PageHeroBadge } from "@/lib/site-content";
+import { heroBadgeIconOptions, type HeroBadgeIcon, type InlineTextOverrides, type PageContentOverride, type PageHeroBadge } from "@/lib/site-content";
 import type { ClubEvent } from "@/types/domain";
 
 export interface PublicClubSettings {
@@ -42,6 +42,7 @@ export interface PublicContentSettings {
   homeHighlight: string;
   homeIntro: string;
   pages: Record<string, PageContentOverride>;
+  inlineTexts: InlineTextOverrides;
 }
 
 export interface PublicBureauMember {
@@ -137,7 +138,8 @@ export const defaultPublicClubSettings: PublicClubSettings = {
     homeTitle: "Le badminton à Vendôme,",
     homeHighlight: "dans une ambiance conviviale et dynamique",
     homeIntro: "Le Club des fous du Volants Vendômois accueille les débutants comme les joueurs confirmés, pour partager le plaisir du jeu dans la bonne humeur.",
-    pages: {}
+    pages: {},
+    inlineTexts: {}
   },
   partners: defaultPublicPartners,
   bureau: [
@@ -284,6 +286,22 @@ function cleanPageOverrides(value: unknown): Record<string, PageContentOverride>
   );
 }
 
+function cleanInlineTextOverrides(value: unknown): InlineTextOverrides {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return {};
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).flatMap(([pathname, rawTexts]) => {
+      if (typeof rawTexts !== "object" || rawTexts === null || Array.isArray(rawTexts)) return [];
+      const texts = Object.fromEntries(
+        Object.entries(rawTexts as Record<string, unknown>)
+          .filter((entry): entry is [string, string] => typeof entry[1] === "string")
+          .map(([key, text]) => [key, text.slice(0, 5000)])
+      );
+      return [[pathname, texts]];
+    })
+  );
+}
+
 function cleanStringList(value: unknown, fallback: string[]) {
   if (Array.isArray(value)) {
     const cleaned = value.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((item) => item.trim());
@@ -410,7 +428,8 @@ export async function getPublicClubSettings(): Promise<PublicClubSettings> {
         homeTitle: cleanText(content.home_title ?? content.homeTitle, defaultPublicClubSettings.content.homeTitle),
         homeHighlight: cleanText(content.home_highlight ?? content.homeHighlight, defaultPublicClubSettings.content.homeHighlight),
         homeIntro: cleanText(content.home_intro ?? content.homeIntro, defaultPublicClubSettings.content.homeIntro),
-        pages: cleanPageOverrides(content.pages)
+        pages: cleanPageOverrides(content.pages),
+        inlineTexts: cleanInlineTextOverrides(content.inlineTexts ?? content.inline_texts)
       },
       bureau: cleanBureau(bureau.members),
       partners: cleanPartners(partners.items)

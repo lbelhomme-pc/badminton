@@ -60,7 +60,7 @@ export function SiteFooter({ settings }: { settings: PublicClubSettings }) {
   ].filter((item): item is { label: string; href: string; icon: "facebook" | "instagram" } => Boolean(item));
 
   return (
-    <footer data-admin-editable className="relative bg-[#031d2b] pb-24 text-white md:pb-0">
+    <footer id="site-footer" data-admin-editable className="relative bg-[#031d2b] pb-24 text-white md:pb-0">
       <InlineLayoutEditor section="footer" settings={settings} />
       <div className="mx-auto grid max-w-[1180px] gap-10 px-5 py-12 sm:px-6 lg:grid-cols-[1.15fr_2fr] lg:px-8">
         <div>

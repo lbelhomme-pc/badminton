@@ -70,7 +70,7 @@ export function AdminEditMode() {
         </span>
         <div>
           <p className="font-display text-sm font-black">Mode édition activé</p>
-          <p className="text-xs text-white/75">Clique sur un crayon pour modifier la zone.</p>
+          <p className="text-xs text-white/75">Clique directement sur un texte souligné ou sur un crayon.</p>
         </div>
       </div>
       <button

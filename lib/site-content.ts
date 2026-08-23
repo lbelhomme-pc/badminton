@@ -33,6 +33,8 @@ export interface PageContentOverride {
   badges?: PageHeroBadge[];
 }
 
+export type InlineTextOverrides = Record<string, Record<string, string>>;
+
 export const editablePublicPages = [
   { key: "/club", label: "Le club" },
   { key: "/club/presentation", label: "Présentation du club" },

@@ -64,7 +64,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="fr">
       <body>
-        <Providers>
+        <Providers content={settings.content}>
           <a href="#main-content" className="skip-link">
             Aller au contenu
           </a>

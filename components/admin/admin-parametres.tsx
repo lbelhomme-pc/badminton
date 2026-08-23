@@ -18,7 +18,7 @@ import {
   type PageHeroBadge
 } from "@/lib/site-content";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { defaultPublicClubSettings, type PublicBureauMember, type PublicPartner } from "@/services/club.service";
+import { defaultPublicClubSettings, type PublicBureauMember, type PublicContentSettings, type PublicPartner } from "@/services/club.service";
 import { fetchSiteSettings, uploadMediaAsset, upsertSiteSetting, type SiteSettingRow } from "@/services/supabase-data.service";
 
 const defaultClub = {
@@ -149,7 +149,10 @@ function getContentSetting(rows: SiteSettingRow[]): ContentForm {
     homeTitle: typeof value.homeTitle === "string" ? value.homeTitle : defaultContent.homeTitle,
     homeHighlight: typeof value.homeHighlight === "string" ? value.homeHighlight : defaultContent.homeHighlight,
     homeIntro: typeof value.homeIntro === "string" ? value.homeIntro : defaultContent.homeIntro,
-    pages
+    pages,
+    inlineTexts: typeof value.inlineTexts === "object" && value.inlineTexts !== null && !Array.isArray(value.inlineTexts)
+      ? value.inlineTexts as PublicContentSettings["inlineTexts"]
+      : defaultContent.inlineTexts
   };
 }
 
@@ -235,7 +238,7 @@ function AdminParametresContent() {
     setAppearance((current) => ({ ...current, [field]: value }));
   }
 
-  function updateContent(field: Exclude<keyof ContentForm, "pages">, value: string) {
+  function updateContent(field: Exclude<keyof ContentForm, "pages" | "inlineTexts">, value: string) {
     setContent((current) => ({ ...current, [field]: value }));
   }
 

@@ -65,7 +65,7 @@ export function SiteHeader({ appearance, content }: { appearance: PublicAppearan
   }, [mobileOpen]);
 
   return (
-    <header data-admin-editable className="relative sticky top-0 z-40 border-b border-slate-200 bg-white shadow-[0_6px_18px_rgba(2,24,35,0.08)]">
+    <header id="site-header" data-admin-editable className="relative sticky top-0 z-40 border-b border-slate-200 bg-white shadow-[0_6px_18px_rgba(2,24,35,0.08)]">
       <InlineLayoutEditor section="header" appearance={appearance} content={content} />
       <div className="mx-auto flex min-h-[104px] max-w-[1180px] items-center justify-between gap-5 px-5 lg:px-8">
         <Link href="/" prefetch={false} className="flex min-w-0 items-center gap-3" aria-label="Accueil du CFVV">
@@ -91,7 +91,7 @@ export function SiteHeader({ appearance, content }: { appearance: PublicAppearan
         </nav>
 
         <div className="flex items-center gap-2">
-          <div className="hidden sm:block">
+          <div data-inline-text-ignore className="hidden sm:block">
             <UserMenu />
           </div>
           <Button
@@ -132,7 +132,7 @@ export function SiteHeader({ appearance, content }: { appearance: PublicAppearan
                 {item.href === "/inscription" ? content.headerRegistrationLabel : item.label}
               </Link>
             ))}
-            <div className="mt-3 border-t border-court-200 pt-3 sm:hidden">
+            <div data-inline-text-ignore className="mt-3 border-t border-court-200 pt-3 sm:hidden">
               <UserMenu />
             </div>
           </div>
