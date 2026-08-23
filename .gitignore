@@ -14,6 +14,9 @@ out/
 .env.*.local
 supabase/.temp/
 
+# Local database and storage backups
+backups/
+
 # Local logs
 *.log
 dev-server.log
