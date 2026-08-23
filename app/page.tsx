@@ -193,7 +193,8 @@ export default async function HomePage() {
         {newsItems.length > 0 ? (
           <div className="mt-9 grid gap-7 lg:grid-cols-3">
             {newsItems.map((item) => (
-              <article key={item.id} className="grid aspect-square grid-rows-[44%_56%] overflow-hidden rounded border border-slate-200 bg-white shadow-[0_8px_20px_rgba(6,27,42,0.06)]">
+              <article key={item.id} className="relative grid aspect-square grid-rows-[44%_56%] overflow-hidden rounded border border-slate-200 bg-white shadow-[0_8px_20px_rgba(6,27,42,0.06)] transition hover:border-[#00a8bc] hover:shadow-[0_12px_28px_rgba(6,27,42,0.12)]">
+                <Link href={`/vie-du-club/actualites#${item.id}`} prefetch={false} className="absolute inset-0 z-10 rounded focus:outline-none focus-visible:ring-4 focus-visible:ring-[#00a8bc]/40" aria-label={`Lire toute l’actualité : ${item.title}`} />
                 <div className="relative min-h-0 bg-gradient-to-br from-cyan-950/85 to-cyan-500/35">
                   {isSafeDisplayUrl(item.imageUrl) ? (
                     <img
@@ -347,7 +348,7 @@ export default async function HomePage() {
 
 function HomeNewsLink({ href, label }: { href: string | null | undefined; label: string }) {
   const safeHref = isSafeDisplayUrl(href) ? href ?? "/vie-du-club/actualites" : "/vie-du-club/actualites";
-  const className = "mt-4 inline-flex items-center gap-2 font-display text-sm font-black text-[#0097a9] hover:underline";
+  const className = "relative z-20 mt-4 inline-flex items-center gap-2 font-display text-sm font-black text-[#0097a9] hover:underline";
 
   if (isExternalUrl(safeHref)) {
     return (
