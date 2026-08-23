@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ExternalLink, Mail, MapPin, Phone, UserRound } from "lucide-react";
-import { ClubLogo } from "@/components/brand/club-logo";
 import { getPublicClubSettings } from "@/services/club.service";
 
 const footerSections = [
@@ -11,7 +10,8 @@ const footerSections = [
       { label: "Tarifs", href: "/tarifs" },
       { label: "Lieux et accès", href: "/lieux-acces" },
       { label: "Séance d'essai", href: "/inscriptions/seance-essai" },
-      { label: "Règlement intérieur", href: "/inscriptions/documents-utiles" }
+      { label: "Inscriptions 2026-2027", href: "/inscription" },
+      { label: "Documents 2026-2027", href: "/inscriptions/documents-utiles" }
     ]
   },
   {
@@ -63,10 +63,7 @@ export async function SiteFooter() {
     <footer className="bg-[#031d2b] pb-24 text-white md:pb-0">
       <div className="mx-auto grid max-w-[1180px] gap-10 px-5 py-12 sm:px-6 lg:grid-cols-[1.15fr_2fr] lg:px-8">
         <div>
-          <Link href="/" prefetch={false} aria-label="Accueil du CFVV" className="inline-flex">
-            <ClubLogo />
-          </Link>
-          <p className="mt-5 max-w-md font-display text-sm font-black uppercase leading-6 text-white">
+          <p className="max-w-md font-display text-sm font-black uppercase leading-6 text-white">
             {settings.club.fullName}
           </p>
           <div className="mt-5 grid gap-3 text-sm leading-6 text-slate-200">

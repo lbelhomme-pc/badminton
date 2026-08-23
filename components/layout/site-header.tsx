@@ -15,7 +15,7 @@ const primaryLinks = [
   { href: "/club/bureau-benevoles", label: "Le Bureau" },
   { href: "/agenda", label: "Agenda" },
   { href: "/club", label: "Le Club" },
-  { href: "/partenaires", label: "Partenaires" },
+  { href: "/inscription", label: "Inscriptions 2026-2027" },
   { href: "/contact", label: "Contact" }
 ];
 
