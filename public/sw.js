@@ -1,13 +1,13 @@
-const CACHE_NAME = "cfvv-static-v2";
+const CACHE_NAME = "cfvv-static-v3";
 const STATIC_ASSETS = [
   "/",
   "/creneaux",
   "/inscription",
   "/vie-du-club/evenements",
-  "/icons/favicon-32-v2.png",
-  "/icons/apple-touch-icon-v2.png",
-  "/icons/pwa-icon-192-v2.png",
-  "/icons/pwa-icon-512-v2.png"
+  "/icons/favicon-32-v3.png",
+  "/icons/apple-touch-icon-v3.png",
+  "/icons/pwa-icon-192-v3.png",
+  "/icons/pwa-icon-512-v3.png"
 ];
 
 const PRIVATE_PATHS = [
