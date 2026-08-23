@@ -193,7 +193,7 @@ export default async function HomePage() {
         {newsItems.length > 0 ? (
           <div className="mt-9 grid gap-7 lg:grid-cols-3">
             {newsItems.map((item) => (
-              <article key={item.id} className="relative grid aspect-square grid-rows-[44%_56%] overflow-hidden rounded border border-slate-200 bg-white shadow-[0_8px_20px_rgba(6,27,42,0.06)] transition hover:border-[#00a8bc] hover:shadow-[0_12px_28px_rgba(6,27,42,0.12)]">
+              <article key={item.id} className="relative grid aspect-square grid-rows-[40%_60%] overflow-hidden rounded border border-slate-200 bg-white shadow-[0_8px_20px_rgba(6,27,42,0.06)] transition hover:border-[#00a8bc] hover:shadow-[0_12px_28px_rgba(6,27,42,0.12)]">
                 <Link href={`/vie-du-club/actualites#${item.id}`} prefetch={false} className="absolute inset-0 z-10 rounded focus:outline-none focus-visible:ring-4 focus-visible:ring-[#00a8bc]/40" aria-label={`Lire toute l’actualité : ${item.title}`} />
                 <div className="relative min-h-0 bg-gradient-to-br from-cyan-950/85 to-cyan-500/35">
                   {isSafeDisplayUrl(item.imageUrl) ? (
@@ -221,10 +221,10 @@ export default async function HomePage() {
                   )}
                   <span className="absolute bottom-0 left-4 bg-[#0097a9] px-3 py-1 font-display text-[11px] font-black uppercase text-white">{item.label}</span>
                 </div>
-                <div className="flex min-h-0 flex-col overflow-hidden p-5">
+                <div className="flex min-h-0 flex-col overflow-hidden p-4 sm:p-5">
                   <p className="font-display text-xs font-black uppercase text-slate-500">{item.date}</p>
-                  <h3 className="mt-2 line-clamp-2 font-display text-2xl font-black text-[#061b2a]">{item.title}</h3>
-                  <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{item.text}</p>
+                  <h3 className="mt-2 break-words font-display text-xl font-black leading-tight text-[#061b2a] sm:text-2xl">{item.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm leading-5 text-slate-600">{item.text}</p>
                   <HomeNewsLink href={item.linkUrl} label={item.linkLabel || "Lire la suite"} />
                 </div>
               </article>
@@ -348,7 +348,7 @@ export default async function HomePage() {
 
 function HomeNewsLink({ href, label }: { href: string | null | undefined; label: string }) {
   const safeHref = isSafeDisplayUrl(href) ? href ?? "/vie-du-club/actualites" : "/vie-du-club/actualites";
-  const className = "relative z-20 mt-4 inline-flex items-center gap-2 font-display text-sm font-black text-[#0097a9] hover:underline";
+  const className = "relative z-20 mt-auto inline-flex items-center gap-2 pt-2 font-display text-sm font-black text-[#0097a9] hover:underline";
 
   if (isExternalUrl(safeHref)) {
     return (
