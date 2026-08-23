@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 export default function ReservationsPage() {
   return (
     <InfoPage
+      contentKey="/reservations"
       eyebrow="Réservations"
       title="Réserver au CFVV"
       intro="La réservation doit être rapide : choisir un créneau, confirmer sa place, ou réserver des volants à régler sur place."

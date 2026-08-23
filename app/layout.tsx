@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { PwaInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 import { Providers } from "@/components/providers";
 import { getSiteUrl } from "@/lib/seo";
+import { getPublicClubSettings } from "@/services/club.service";
 
 export const revalidate = 60;
 
@@ -57,7 +58,9 @@ export const metadata: Metadata = {
   }
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const settings = await getPublicClubSettings();
+
   return (
     <html lang="fr">
       <body>
@@ -65,11 +68,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <a href="#main-content" className="skip-link">
             Aller au contenu
           </a>
-          <SiteHeader />
+          <SiteHeader appearance={settings.appearance} content={settings.content} />
           <main id="main-content" tabIndex={-1}>
             {children}
           </main>
-          <SiteFooter />
+          <SiteFooter settings={settings} />
           <PwaInstallPrompt />
           <MobileBottomNav />
         </Providers>

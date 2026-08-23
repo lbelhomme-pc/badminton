@@ -28,6 +28,7 @@ export default async function BureauBenevolesPage() {
 
   return (
     <InfoPage
+      contentKey="/club/bureau-benevoles"
       eyebrow="Le Bureau"
       title="Les bénévoles qui font vivre le club"
       intro="Le bureau organise les créneaux, les inscriptions, les événements et la communication. Les contacts personnels ne sont affichés que s'ils sont validés par le club."

@@ -30,6 +30,7 @@ const steps = [
 export default function DevenirPartenairePage() {
   return (
     <InfoPage
+      contentKey="/devenir-partenaire"
       eyebrow="Partenariat"
       title="Devenir partenaire du CFVV"
       intro="Le partenariat doit rester simple, transparent et utile au club. Ce formulaire ne crée aucun engagement automatique : il permet seulement au bureau de reprendre contact."

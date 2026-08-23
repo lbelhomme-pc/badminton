@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 export default function EncadrantsPage() {
   return (
     <InfoPage
+      contentKey="/club/encadrants"
       eyebrow="Le club"
       title="Encadrants et responsables de séances"
       intro="Les encadrants et responsables de créneaux accompagnent les jeunes, les adultes débutants et les compétiteurs avec des objectifs adaptés à chaque public."

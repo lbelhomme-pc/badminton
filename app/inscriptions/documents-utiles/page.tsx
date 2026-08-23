@@ -41,6 +41,7 @@ const registrationDocuments = [
 export default function DocumentsUtilesPage() {
   return (
     <InfoPage
+      contentKey="/inscriptions/documents-utiles"
       eyebrow="Inscriptions"
       title="Documents d'inscription 2026-2027"
       intro="Téléchargez les formulaires officiels nécessaires pour préparer votre inscription adulte ou mineur au CFVV pour la saison 2026-2027."

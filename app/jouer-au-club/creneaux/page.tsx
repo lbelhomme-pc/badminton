@@ -20,6 +20,7 @@ export default function CreneauxPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
       <InteriorHero
+        contentKey="/jouer-au-club/creneaux"
         eyebrow="Jouer au club"
         title="Créneaux badminton du CFVV à Vendôme"
         intro="Retrouve la semaine type du club, les horaires principaux, les lieux et les modalités à connaître avant de venir jouer."

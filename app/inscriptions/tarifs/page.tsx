@@ -5,6 +5,7 @@ import { TarifsList } from "@/components/public/tarifs-list";
 export default function TarifsPage() {
   return (
     <InfoPage
+      contentKey="/inscriptions/tarifs"
       eyebrow="Inscriptions"
       title="Tarifs et inscriptions"
       intro="Les tarifs de saison doivent être confirmés chaque année par le bureau du CFVV. Les consignes du club et le lien d'inscription validé font foi pour le montant final."

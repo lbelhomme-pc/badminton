@@ -110,6 +110,16 @@ export default async function HomePage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }} />
 
       <section className="relative overflow-hidden bg-[#031d2b] text-white">
+        {settings.appearance.homeHeroImageUrl ? (
+          <img
+            src={settings.appearance.homeHeroImageUrl}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full object-cover opacity-50"
+            loading="eager"
+            decoding="async"
+          />
+        ) : null}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_78%_18%,rgba(255,255,255,0.34),transparent_5%),radial-gradient(circle_at_64%_22%,rgba(255,255,255,0.18),transparent_4%),linear-gradient(90deg,rgba(3,29,43,0.96)_0%,rgba(3,29,43,0.82)_38%,rgba(2,45,62,0.38)_72%,rgba(0,151,169,0.42)_100%)]" />
         <div className="absolute inset-y-0 right-0 hidden w-[58%] bg-[radial-gradient(circle_at_52%_40%,rgba(0,151,169,0.52),transparent_27%),linear-gradient(135deg,rgba(255,255,255,0.08),rgba(255,255,255,0))] lg:block" />
         <div className="absolute bottom-0 right-0 hidden h-48 w-[430px] -rotate-6 opacity-95 lg:block">
@@ -128,11 +138,11 @@ export default async function HomePage() {
         <div className="relative mx-auto grid min-h-[430px] max-w-[1180px] items-center px-5 py-14 lg:grid-cols-[1fr_0.85fr] lg:px-8">
           <div className="max-w-2xl">
             <h1 className="font-display text-[2.15rem] font-black uppercase leading-[1.02] tracking-normal sm:text-6xl sm:leading-[0.95]">
-              Le badminton à {settings.club.city},
-              <span className="mt-2 block text-[#00a8bc]">dans une ambiance conviviale et dynamique</span>
+              {settings.content.homeTitle}
+              <span className="mt-2 block text-[#00a8bc]">{settings.content.homeHighlight}</span>
             </h1>
             <p className="mt-8 max-w-xl text-lg font-medium leading-8 text-white/92">
-              {settings.club.fullName} accueille les débutants comme les joueurs confirmés, pour partager le plaisir du jeu dans la bonne humeur.
+              {settings.content.homeIntro}
             </p>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row">
               <Link href="/creneaux" prefetch={false} className="inline-flex h-12 items-center justify-center gap-3 rounded bg-[#0097a9] px-6 font-display text-sm font-black uppercase text-white shadow-[0_12px_26px_rgba(0,151,169,0.25)] transition hover:bg-[#007f8f]">

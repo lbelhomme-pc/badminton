@@ -16,6 +16,7 @@ export default function SeanceEssaiPage() {
 
   return (
     <InfoPage
+      contentKey="/inscriptions/seance-essai"
       eyebrow="Inscriptions"
       title="Séance d'essai"
       intro="Le CFVV propose jusqu'à 3 séances d'essai gratuites pour découvrir le club, le gymnase, l'ambiance et le bon créneau selon votre profil."

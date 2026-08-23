@@ -25,6 +25,7 @@ export default async function EvenementsPage() {
       ) : null}
 
       <InteriorHero
+        contentKey="/vie-du-club/evenements"
         eyebrow="Vie du club"
         title="Agenda du CFVV"
         intro="Retrouve les compétitions, événements associatifs, réunions, stages, fermetures exceptionnelles et anniversaires publiés avec autorisation."

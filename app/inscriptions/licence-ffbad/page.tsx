@@ -9,6 +9,7 @@ export default async function LicenceFfbadPage() {
 
   return (
     <InfoPage
+      contentKey="/inscriptions/licence-ffbad"
       eyebrow="Inscriptions"
       title="Licence FFBaD"
       intro={`La licence rattache le joueur au ${settings.club.name} et ouvre l'accès aux créneaux, à l'assurance fédérale et aux compétitions selon la formule choisie.`}

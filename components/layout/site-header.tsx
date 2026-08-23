@@ -8,6 +8,7 @@ import { UserMenu } from "@/components/auth/user-menu";
 import { ClubLogo } from "@/components/brand/club-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import type { PublicAppearanceSettings, PublicContentSettings } from "@/services/club.service";
 
 const primaryLinks = [
   { href: "/", label: "Accueil" },
@@ -28,7 +29,7 @@ const mobileLinks = [
   { href: "/faq", label: "FAQ" }
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ appearance, content }: { appearance: PublicAppearanceSettings; content: PublicContentSettings }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -67,7 +68,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-[0_6px_18px_rgba(2,24,35,0.08)]">
       <div className="mx-auto flex min-h-[104px] max-w-[1180px] items-center justify-between gap-5 px-5 lg:px-8">
         <Link href="/" prefetch={false} className="flex min-w-0 items-center gap-3" aria-label="Accueil du CFVV">
-          <ClubLogo compact priority />
+          <ClubLogo compact priority src={appearance.headerLogoUrl} alt={appearance.headerLogoAlt} />
         </Link>
 
         <nav className="hidden items-center gap-5 xl:gap-7 lg:flex" aria-label="Navigation principale">
@@ -83,7 +84,7 @@ export function SiteHeader() {
                 isActive(item.href) ? "text-[#0097a9] after:scale-x-100" : "after:scale-x-0 hover:text-[#0097a9] hover:after:scale-x-100"
               )}
             >
-              {item.label}
+              {item.href === "/inscription" ? content.headerRegistrationLabel : item.label}
             </Link>
           ))}
         </nav>
@@ -127,7 +128,7 @@ export function SiteHeader() {
                 )}
                 onClick={() => setMobileOpen(false)}
               >
-                {item.label}
+                {item.href === "/inscription" ? content.headerRegistrationLabel : item.label}
               </Link>
             ))}
             <div className="mt-3 border-t border-court-200 pt-3 sm:hidden">

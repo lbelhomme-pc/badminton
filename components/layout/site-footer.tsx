@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ExternalLink, Mail, MapPin, Phone, UserRound } from "lucide-react";
-import { getPublicClubSettings } from "@/services/club.service";
+import type { PublicClubSettings } from "@/services/club.service";
 
 const footerSections = [
   {
@@ -52,8 +52,7 @@ const organismLinks = [
   { label: "HelloAsso", href: "https://www.helloasso.com/" }
 ];
 
-export async function SiteFooter() {
-  const settings = await getPublicClubSettings();
+export function SiteFooter({ settings }: { settings: PublicClubSettings }) {
   const socialLinks = [
     settings.contact.facebookUrl ? { label: "Facebook", href: settings.contact.facebookUrl, icon: "facebook" } : null,
     settings.contact.instagramUrl ? { label: "Instagram", href: settings.contact.instagramUrl, icon: "external" } : null
@@ -63,9 +62,19 @@ export async function SiteFooter() {
     <footer className="bg-[#031d2b] pb-24 text-white md:pb-0">
       <div className="mx-auto grid max-w-[1180px] gap-10 px-5 py-12 sm:px-6 lg:grid-cols-[1.15fr_2fr] lg:px-8">
         <div>
+          {settings.appearance.footerImageUrl ? (
+            <img
+              src={settings.appearance.footerImageUrl}
+              alt={settings.appearance.footerImageAlt}
+              className="mb-5 max-h-24 max-w-[260px] object-contain"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : null}
           <p className="max-w-md font-display text-sm font-black uppercase leading-6 text-white">
-            {settings.club.fullName}
+            {settings.content.footerHeading}
           </p>
+          <p className="mt-3 max-w-md text-sm leading-6 text-slate-300">{settings.content.footerDescription}</p>
           <div className="mt-5 grid gap-3 text-sm leading-6 text-slate-200">
             <p className="flex gap-2">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#00a8bc]" aria-hidden="true" />

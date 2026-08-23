@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 export default function PresentationPage() {
   return (
     <InfoPage
+      contentKey="/club/presentation"
       eyebrow="Le club"
       title="Un club vendômois pour jouer, progresser et partager"
       intro="Le CFVV accueille les débutants, les loisirs, les jeunes et les compétiteurs avec une organisation simple, lisible et associative."

@@ -6,6 +6,7 @@ import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { editablePublicPages, type PageContentOverride } from "@/lib/site-content";
 import { defaultPublicClubSettings, type PublicBureauMember, type PublicPartner } from "@/services/club.service";
 import { fetchSiteSettings, upsertSiteSetting, type SiteSettingRow } from "@/services/supabase-data.service";
 
@@ -33,6 +34,8 @@ type BureauForm = {
 type PartnersForm = {
   items: PublicPartner[];
 };
+type AppearanceForm = typeof defaultPublicClubSettings.appearance;
+type ContentForm = typeof defaultPublicClubSettings.content;
 
 const defaultBureau: BureauForm = {
   members: defaultPublicClubSettings.bureau
@@ -40,6 +43,8 @@ const defaultBureau: BureauForm = {
 const defaultPartners: PartnersForm = {
   items: defaultPublicClubSettings.partners
 };
+const defaultAppearance: AppearanceForm = defaultPublicClubSettings.appearance;
+const defaultContent: ContentForm = defaultPublicClubSettings.content;
 
 function getSetting(rows: SiteSettingRow[], key: SiteSettingRow["key"]) {
   return rows.find((row) => row.key === key)?.value ?? {};
@@ -107,6 +112,35 @@ function getContactSetting(rows: SiteSettingRow[]): ContactForm {
   };
 }
 
+function getAppearanceSetting(rows: SiteSettingRow[]): AppearanceForm {
+  const value = getSetting(rows, "appearance");
+
+  return {
+    headerLogoUrl: typeof value.headerLogoUrl === "string" ? value.headerLogoUrl : typeof value.header_logo_url === "string" ? value.header_logo_url : defaultAppearance.headerLogoUrl,
+    headerLogoAlt: typeof value.headerLogoAlt === "string" ? value.headerLogoAlt : typeof value.header_logo_alt === "string" ? value.header_logo_alt : defaultAppearance.headerLogoAlt,
+    footerImageUrl: typeof value.footerImageUrl === "string" ? value.footerImageUrl : typeof value.footer_image_url === "string" ? value.footer_image_url : defaultAppearance.footerImageUrl,
+    footerImageAlt: typeof value.footerImageAlt === "string" ? value.footerImageAlt : typeof value.footer_image_alt === "string" ? value.footer_image_alt : defaultAppearance.footerImageAlt,
+    homeHeroImageUrl: typeof value.homeHeroImageUrl === "string" ? value.homeHeroImageUrl : typeof value.home_hero_image_url === "string" ? value.home_hero_image_url : defaultAppearance.homeHeroImageUrl
+  };
+}
+
+function getContentSetting(rows: SiteSettingRow[]): ContentForm {
+  const value = getSetting(rows, "content");
+  const pages = typeof value.pages === "object" && value.pages !== null && !Array.isArray(value.pages)
+    ? (value.pages as Record<string, PageContentOverride>)
+    : {};
+
+  return {
+    headerRegistrationLabel: typeof value.headerRegistrationLabel === "string" ? value.headerRegistrationLabel : defaultContent.headerRegistrationLabel,
+    footerHeading: typeof value.footerHeading === "string" ? value.footerHeading : defaultContent.footerHeading,
+    footerDescription: typeof value.footerDescription === "string" ? value.footerDescription : defaultContent.footerDescription,
+    homeTitle: typeof value.homeTitle === "string" ? value.homeTitle : defaultContent.homeTitle,
+    homeHighlight: typeof value.homeHighlight === "string" ? value.homeHighlight : defaultContent.homeHighlight,
+    homeIntro: typeof value.homeIntro === "string" ? value.homeIntro : defaultContent.homeIntro,
+    pages
+  };
+}
+
 export function AdminParametres() {
   return (
     <AdminRoute>
@@ -120,6 +154,8 @@ function AdminParametresContent() {
   const [contact, setContact] = useState<ContactForm>(defaultContact);
   const [bureau, setBureau] = useState<BureauForm>(defaultBureau);
   const [partners, setPartners] = useState<PartnersForm>(defaultPartners);
+  const [appearance, setAppearance] = useState<AppearanceForm>(defaultAppearance);
+  const [content, setContent] = useState<ContentForm>(defaultContent);
   const [feedback, setFeedback] = useState<AdminFeedbackMessage>(null);
   const [pending, setPending] = useState(false);
 
@@ -135,6 +171,8 @@ function AdminParametresContent() {
     setContact(getContactSetting(result.data));
     setBureau(getBureauSetting(result.data));
     setPartners(getPartnersSetting(result.data));
+    setAppearance(getAppearanceSetting(result.data));
+    setContent(getContentSetting(result.data));
   }
 
   useEffect(() => {
@@ -165,6 +203,24 @@ function AdminParametresContent() {
     }));
   }
 
+  function updateAppearance(field: keyof AppearanceForm, value: string) {
+    setAppearance((current) => ({ ...current, [field]: value }));
+  }
+
+  function updateContent(field: Exclude<keyof ContentForm, "pages">, value: string) {
+    setContent((current) => ({ ...current, [field]: value }));
+  }
+
+  function updatePageContent(pageKey: string, field: keyof PageContentOverride, value: string) {
+    setContent((current) => ({
+      ...current,
+      pages: {
+        ...current.pages,
+        [pageKey]: { ...(current.pages[pageKey] ?? {}), [field]: value }
+      }
+    }));
+  }
+
   function addPartner() {
     setPartners((current) => ({
       items: [
@@ -188,16 +244,18 @@ function AdminParametresContent() {
     setPending(true);
     setFeedback(loadingFeedback("Enregistrement des paramètres du site en cours..."));
 
-    const [clubResult, contactResult, bureauResult, partnersResult] = await Promise.all([
+    const [clubResult, contactResult, bureauResult, partnersResult, appearanceResult, contentResult] = await Promise.all([
       upsertSiteSetting({ key: "club", value: club, visibility: "public" }),
       upsertSiteSetting({ key: "contact", value: contact, visibility: "public" }),
       upsertSiteSetting({ key: "bureau", value: bureau, visibility: "public" }),
-      upsertSiteSetting({ key: "partners", value: partners, visibility: "public" })
+      upsertSiteSetting({ key: "partners", value: partners, visibility: "public" }),
+      upsertSiteSetting({ key: "appearance", value: { ...appearance }, visibility: "public" }),
+      upsertSiteSetting({ key: "content", value: { ...content }, visibility: "public" })
     ]);
 
     setPending(false);
     setFeedback(
-      clubResult.ok && contactResult.ok && bureauResult.ok && partnersResult.ok
+      clubResult.ok && contactResult.ok && bureauResult.ok && partnersResult.ok && appearanceResult.ok && contentResult.ok
         ? successFeedback("Paramètres du site mis à jour.")
         : errorFeedback(
             !clubResult.ok
@@ -206,11 +264,15 @@ function AdminParametresContent() {
                 ? contactResult.message
                 : !bureauResult.ok
                   ? bureauResult.message
-                  : partnersResult.message
+                : !partnersResult.ok
+                  ? partnersResult.message
+                  : !appearanceResult.ok
+                    ? appearanceResult.message
+                    : contentResult.message
           )
     );
 
-    if (clubResult.ok && contactResult.ok && bureauResult.ok && partnersResult.ok) {
+    if (clubResult.ok && contactResult.ok && bureauResult.ok && partnersResult.ok && appearanceResult.ok && contentResult.ok) {
       await load();
     }
   }
@@ -257,6 +319,98 @@ function AdminParametresContent() {
             />
             <SettingsInput label="Facebook" required={false} value={contact.facebook_url} onChange={(value) => updateContact("facebook_url", value)} />
             <SettingsInput label="Instagram" required={false} value={contact.instagram_url} onChange={(value) => updateContact("instagram_url", value)} />
+          </div>
+        </Card>
+
+        <Card className="p-5 lg:col-span-2">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-black text-court-900">Images du site</h2>
+              <p className="mt-2 text-sm leading-6 text-ink-500">
+                Téléverse d'abord une image dans la médiathèque, puis colle son URL publique ici. Une valeur vide conserve l'affichage de secours.
+              </p>
+            </div>
+            <a href="/admin/medias" className="font-display text-sm font-bold text-court-600 hover:underline">
+              Ouvrir la médiathèque
+            </a>
+          </div>
+          <div className="mt-5 grid gap-5 lg:grid-cols-3">
+            <SettingsImageInput
+              label="Logo du header"
+              url={appearance.headerLogoUrl}
+              alt={appearance.headerLogoAlt}
+              onUrlChange={(value) => updateAppearance("headerLogoUrl", value)}
+              onAltChange={(value) => updateAppearance("headerLogoAlt", value)}
+            />
+            <SettingsImageInput
+              label="Image du footer"
+              url={appearance.footerImageUrl}
+              alt={appearance.footerImageAlt}
+              onUrlChange={(value) => updateAppearance("footerImageUrl", value)}
+              onAltChange={(value) => updateAppearance("footerImageAlt", value)}
+            />
+            <SettingsImageInput
+              label="Photo de l'accueil"
+              url={appearance.homeHeroImageUrl}
+              alt=""
+              onUrlChange={(value) => updateAppearance("homeHeroImageUrl", value)}
+              onAltChange={() => undefined}
+              decorative
+            />
+          </div>
+        </Card>
+
+        <Card className="p-5 lg:col-span-2">
+          <h2 className="text-xl font-black text-court-900">Textes globaux</h2>
+          <p className="mt-2 text-sm leading-6 text-ink-500">
+            Ces textes apparaissent dans la navigation, l'accueil et le pied de page.
+          </p>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <SettingsInput label="Lien d'inscription du menu" value={content.headerRegistrationLabel} onChange={(value) => updateContent("headerRegistrationLabel", value)} />
+            <SettingsInput label="Titre du footer" value={content.footerHeading} onChange={(value) => updateContent("footerHeading", value)} />
+            <SettingsTextarea label="Description du footer" value={content.footerDescription} onChange={(value) => updateContent("footerDescription", value)} />
+            <SettingsInput label="Titre principal de l'accueil" value={content.homeTitle} onChange={(value) => updateContent("homeTitle", value)} />
+            <SettingsInput label="Titre coloré de l'accueil" value={content.homeHighlight} onChange={(value) => updateContent("homeHighlight", value)} />
+            <SettingsTextarea label="Introduction de l'accueil" value={content.homeIntro} onChange={(value) => updateContent("homeIntro", value)} />
+          </div>
+        </Card>
+
+        <Card className="p-5 lg:col-span-2">
+          <h2 className="text-xl font-black text-court-900">Textes et bandeaux des pages</h2>
+          <p className="mt-2 text-sm leading-6 text-ink-500">
+            Ouvre une page pour remplacer son surtitre, son titre, son introduction ou sa photo de bandeau. Un champ vide conserve le texte prévu dans le site.
+          </p>
+          <div className="mt-5 grid gap-4">
+            {editablePublicPages.map((page) => {
+              const pageContent = content.pages[page.key] ?? {};
+
+              return (
+                <details key={page.key} className="rounded-lg border border-court-100 bg-court-50 p-4">
+                  <summary className="cursor-pointer font-display font-black text-court-900">
+                    {page.label} <span className="ml-2 text-xs font-semibold text-ink-500">{page.key}</span>
+                  </summary>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <SettingsInput label="Surtitre" required={false} value={pageContent.eyebrow ?? ""} onChange={(value) => updatePageContent(page.key, "eyebrow", value)} />
+                    <SettingsInput label="Titre" required={false} value={pageContent.title ?? ""} onChange={(value) => updatePageContent(page.key, "title", value)} />
+                    <SettingsTextarea label="Introduction" value={pageContent.intro ?? ""} onChange={(value) => updatePageContent(page.key, "intro", value)} />
+                    <SettingsInput label="URL de l'image de bandeau" required={false} value={pageContent.imageUrl ?? ""} onChange={(value) => updatePageContent(page.key, "imageUrl", value)} />
+                    <SettingsInput label="Texte alternatif de l'image" required={false} value={pageContent.imageAlt ?? ""} onChange={(value) => updatePageContent(page.key, "imageAlt", value)} />
+                    {(!("bodyEditable" in page) || page.bodyEditable) ? (
+                      <div className="md:col-span-2">
+                        <SettingsTextarea
+                          label="Contenu principal complet (facultatif)"
+                          value={pageContent.body ?? ""}
+                          onChange={(value) => updatePageContent(page.key, "body", value)}
+                        />
+                        <p className="mt-1 text-xs leading-5 text-ink-500">
+                          Si ce champ est rempli, il remplace les cartes et paragraphes prévus par défaut sur cette page. Les retours à la ligne sont conservés.
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                </details>
+              );
+            })}
           </div>
         </Card>
 
@@ -404,5 +558,40 @@ function SettingsTextarea({
         className="min-h-24 rounded-lg border border-court-200 bg-white px-3 py-3 outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20"
       />
     </label>
+  );
+}
+
+function SettingsImageInput({
+  label,
+  url,
+  alt,
+  onUrlChange,
+  onAltChange,
+  decorative = false
+}: {
+  label: string;
+  url: string;
+  alt: string;
+  onUrlChange: (value: string) => void;
+  onAltChange: (value: string) => void;
+  decorative?: boolean;
+}) {
+  return (
+    <div className="rounded-lg border border-court-100 bg-court-50 p-4">
+      <p className="font-display text-sm font-black text-court-900">{label}</p>
+      {url ? (
+        <div className="mt-3 flex h-32 items-center justify-center overflow-hidden rounded-lg border border-court-100 bg-white p-3">
+          <img src={url} alt={alt} className="max-h-full max-w-full object-contain" />
+        </div>
+      ) : (
+        <div className="mt-3 flex h-32 items-center justify-center rounded-lg border border-dashed border-court-200 bg-white text-sm text-ink-500">
+          Aucune image configurée
+        </div>
+      )}
+      <div className="mt-4 grid gap-3">
+        <SettingsInput label="URL publique" required={false} value={url} onChange={onUrlChange} />
+        {!decorative ? <SettingsInput label="Texte alternatif" required={false} value={alt} onChange={onAltChange} /> : null}
+      </div>
+    </div>
   );
 }

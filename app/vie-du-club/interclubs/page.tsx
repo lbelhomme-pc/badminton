@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 export default function InterclubsPage() {
   return (
     <InfoPage
+      contentKey="/vie-du-club/interclubs"
       eyebrow="Vie du club"
       title="Interclubs"
       intro="Les interclubs permettent de représenter le CFVV en équipe, dans une ambiance sportive et collective. Les équipes exactes, capitaines et calendriers sont à confirmer par le club chaque saison."

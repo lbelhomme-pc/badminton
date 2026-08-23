@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 export default function LoisirsPage() {
   return (
     <InfoPage
+      contentKey="/jouer-au-club/loisirs"
       eyebrow="Jouer au club"
       title="Loisirs"
       intro="Les créneaux loisirs sont faits pour jouer régulièrement, rencontrer du monde et garder un bon rythme sportif sans obligation de compétition."

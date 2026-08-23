@@ -1,6 +1,7 @@
 import { events, ffbadRegistrationUrl, rankings, shuttleProducts, slots, venues } from "@/lib/mock-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { fetchPublicEvents } from "@/services/supabase-data.service";
+import type { PageContentOverride } from "@/lib/site-content";
 import type { ClubEvent } from "@/types/domain";
 
 export interface PublicClubSettings {
@@ -20,6 +21,26 @@ export interface PublicClubSettings {
   };
   bureau: PublicBureauMember[];
   partners: PublicPartner[];
+  appearance: PublicAppearanceSettings;
+  content: PublicContentSettings;
+}
+
+export interface PublicAppearanceSettings {
+  headerLogoUrl: string;
+  headerLogoAlt: string;
+  footerImageUrl: string;
+  footerImageAlt: string;
+  homeHeroImageUrl: string;
+}
+
+export interface PublicContentSettings {
+  headerRegistrationLabel: string;
+  footerHeading: string;
+  footerDescription: string;
+  homeTitle: string;
+  homeHighlight: string;
+  homeIntro: string;
+  pages: Record<string, PageContentOverride>;
 }
 
 export interface PublicBureauMember {
@@ -99,6 +120,22 @@ export const defaultPublicClubSettings: PublicClubSettings = {
     genericContacts: ["Clovis Bellan", "Didier Remule", "Julie Remule"],
     facebookUrl: "https://www.facebook.com/CFVVBadminton/",
     instagramUrl: ""
+  },
+  appearance: {
+    headerLogoUrl: "/logos/cfvv-horizontal.png",
+    headerLogoAlt: "Logo du CFVV",
+    footerImageUrl: "",
+    footerImageAlt: "",
+    homeHeroImageUrl: ""
+  },
+  content: {
+    headerRegistrationLabel: "Inscriptions 2026-2027",
+    footerHeading: "Club des fous du Volants Vendômois",
+    footerDescription: "Badminton à Vendôme : pratique loisir, progression, compétition et vie associative.",
+    homeTitle: "Le badminton à Vendôme,",
+    homeHighlight: "dans une ambiance conviviale et dynamique",
+    homeIntro: "Le Club des fous du Volants Vendômois accueille les débutants comme les joueurs confirmés, pour partager le plaisir du jeu dans la bonne humeur.",
+    pages: {}
   },
   partners: defaultPublicPartners,
   bureau: [
@@ -186,12 +223,44 @@ export const defaultPublicClubSettings: PublicClubSettings = {
 };
 
 interface SettingRow {
-  key: "club" | "contact" | "bureau" | "partners";
+  key: "club" | "contact" | "bureau" | "partners" | "appearance" | "content";
   value: Record<string, unknown> | null;
 }
 
 function cleanText(value: unknown, fallback = "") {
   return typeof value === "string" && value.trim().length > 0 ? value.trim() : fallback;
+}
+
+function cleanMediaUrl(value: unknown, fallback = "") {
+  const url = cleanText(value, fallback);
+  if (!url) return "";
+  if (url.startsWith("/") && !url.startsWith("//")) return url;
+
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === "https:" || parsed.protocol === "http:" ? url : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function cleanPageOverrides(value: unknown): Record<string, PageContentOverride> {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return {};
+
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>).flatMap(([key, raw]) => {
+      if (typeof raw !== "object" || raw === null || Array.isArray(raw)) return [];
+      const record = raw as Record<string, unknown>;
+      return [[key, {
+        eyebrow: cleanText(record.eyebrow),
+        title: cleanText(record.title),
+        intro: cleanText(record.intro),
+        body: cleanText(record.body),
+        imageUrl: cleanMediaUrl(record.imageUrl ?? record.image_url),
+        imageAlt: cleanText(record.imageAlt ?? record.image_alt)
+      } satisfies PageContentOverride]];
+    })
+  );
 }
 
 function cleanStringList(value: unknown, fallback: string[]) {
@@ -276,7 +345,7 @@ export async function getPublicClubSettings(): Promise<PublicClubSettings> {
     const { data, error } = await supabase
       .from("settings_site")
       .select("key, value")
-      .in("key", ["club", "contact", "bureau", "partners"]);
+      .in("key", ["club", "contact", "bureau", "partners", "appearance", "content"]);
 
     if (error) {
       return defaultPublicClubSettings;
@@ -287,6 +356,8 @@ export async function getPublicClubSettings(): Promise<PublicClubSettings> {
     const contact = getSettingValue(rows, "contact");
     const bureau = getSettingValue(rows, "bureau");
     const partners = getSettingValue(rows, "partners");
+    const appearance = getSettingValue(rows, "appearance");
+    const content = getSettingValue(rows, "content");
 
     return {
       club: {
@@ -302,6 +373,22 @@ export async function getPublicClubSettings(): Promise<PublicClubSettings> {
         genericContacts: cleanStringList(contact.generic_contacts ?? contact.genericContacts, defaultPublicClubSettings.contact.genericContacts),
         facebookUrl: cleanText(contact.facebook_url, defaultPublicClubSettings.contact.facebookUrl),
         instagramUrl: cleanText(contact.instagram_url, defaultPublicClubSettings.contact.instagramUrl)
+      },
+      appearance: {
+        headerLogoUrl: cleanMediaUrl(appearance.header_logo_url ?? appearance.headerLogoUrl, defaultPublicClubSettings.appearance.headerLogoUrl),
+        headerLogoAlt: cleanText(appearance.header_logo_alt ?? appearance.headerLogoAlt, defaultPublicClubSettings.appearance.headerLogoAlt),
+        footerImageUrl: cleanMediaUrl(appearance.footer_image_url ?? appearance.footerImageUrl),
+        footerImageAlt: cleanText(appearance.footer_image_alt ?? appearance.footerImageAlt),
+        homeHeroImageUrl: cleanMediaUrl(appearance.home_hero_image_url ?? appearance.homeHeroImageUrl)
+      },
+      content: {
+        headerRegistrationLabel: cleanText(content.header_registration_label ?? content.headerRegistrationLabel, defaultPublicClubSettings.content.headerRegistrationLabel),
+        footerHeading: cleanText(content.footer_heading ?? content.footerHeading, defaultPublicClubSettings.content.footerHeading),
+        footerDescription: cleanText(content.footer_description ?? content.footerDescription, defaultPublicClubSettings.content.footerDescription),
+        homeTitle: cleanText(content.home_title ?? content.homeTitle, defaultPublicClubSettings.content.homeTitle),
+        homeHighlight: cleanText(content.home_highlight ?? content.homeHighlight, defaultPublicClubSettings.content.homeHighlight),
+        homeIntro: cleanText(content.home_intro ?? content.homeIntro, defaultPublicClubSettings.content.homeIntro),
+        pages: cleanPageOverrides(content.pages)
       },
       bureau: cleanBureau(bureau.members),
       partners: cleanPartners(partners.items)

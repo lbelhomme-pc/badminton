@@ -22,6 +22,7 @@ export default function GymnasesAccesPage() {
 
   return (
     <InfoPage
+      contentKey="/club/gymnases-acces"
       eyebrow="Lieux et accès"
       title="Venir jouer au gymnase"
       intro="Chaque créneau précise son lieu, son horaire et le public concerné. La carte intégrée n'est pas affichée par défaut afin d'éviter un outil tiers sans consentement."

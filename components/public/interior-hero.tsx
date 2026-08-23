@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
 import type { ConfiguredClubPhotoSlot } from "@/lib/club-photos";
 import { cn } from "@/lib/utils";
+import { getPublicClubSettings } from "@/services/club.service";
 
 type HeroTone = "creneaux" | "bureau" | "agenda" | "club" | "partenaires" | "contact";
 
@@ -20,6 +21,7 @@ interface InteriorHeroBadge {
 }
 
 export interface InteriorHeroProps {
+  contentKey?: string;
   eyebrow: string;
   title: string;
   intro: string;
@@ -44,7 +46,8 @@ const actionClasses = {
   secondary: "border border-white/35 bg-white/8 text-white hover:bg-white/14"
 };
 
-export function InteriorHero({
+export async function InteriorHero({
+  contentKey,
   eyebrow,
   title,
   intro,
@@ -54,8 +57,16 @@ export function InteriorHero({
   actions = [],
   badges = []
 }: InteriorHeroProps) {
-  const heroPhoto = photo?.src ? photo : null;
+  const settings = contentKey ? await getPublicClubSettings() : null;
+  const override = contentKey ? settings?.content.pages[contentKey] : undefined;
+  const configuredPhoto = override?.imageUrl
+    ? { id: "homeHero" as const, src: override.imageUrl, alt: override.imageAlt || "", width: 1400, height: 900 }
+    : null;
+  const heroPhoto = configuredPhoto ?? (photo?.src ? photo : null);
   const toneLabel = toneLabels[tone];
+  const displayedEyebrow = override?.eyebrow || eyebrow;
+  const displayedTitle = override?.title || title;
+  const displayedIntro = override?.intro || intro;
 
   return (
     <section className="relative overflow-hidden rounded bg-[#031d2b] text-white shadow-[0_16px_35px_rgba(3,29,43,0.22)]">
@@ -82,9 +93,9 @@ export function InteriorHero({
 
       <div className="relative grid min-h-[320px] items-center gap-7 px-6 py-10 sm:px-8 lg:grid-cols-[minmax(0,1fr)_0.52fr] lg:px-12 lg:py-12">
         <div className="max-w-4xl">
-          <p className="font-display text-sm font-black uppercase text-[#00a8bc]">{eyebrow}</p>
-          <h1 className="mt-4 text-4xl font-black uppercase leading-[0.98] text-white sm:text-5xl lg:text-6xl">{title}</h1>
-          <p className="mt-6 max-w-3xl text-base font-medium leading-7 text-white/88 sm:text-lg sm:leading-8">{intro}</p>
+          <p className="font-display text-sm font-black uppercase text-[#00a8bc]">{displayedEyebrow}</p>
+          <h1 className="mt-4 text-4xl font-black uppercase leading-[0.98] text-white sm:text-5xl lg:text-6xl">{displayedTitle}</h1>
+          <p className="mt-6 max-w-3xl text-base font-medium leading-7 text-white/88 sm:text-lg sm:leading-8">{displayedIntro}</p>
 
           <div className="mt-7 flex flex-col gap-4 xl:flex-row xl:items-center">
             {actions.length > 0 ? (

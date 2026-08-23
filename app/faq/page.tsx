@@ -70,6 +70,7 @@ const faqItems = [
 export default function FaqPage() {
   return (
     <InfoPage
+      contentKey="/faq"
       eyebrow="FAQ"
       title="Questions fréquentes"
       intro="Les réponses rapides pour comprendre le fonctionnement du CFVV avant de venir jouer, essayer ou s'inscrire."

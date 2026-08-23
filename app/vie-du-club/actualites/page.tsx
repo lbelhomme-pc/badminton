@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 export default function ActualitesPage() {
   return (
     <InfoPage
+      contentKey="/vie-du-club/actualites"
       eyebrow="Vie du club"
       title="Actualités"
       intro="Les dernières informations utiles du club : planning, bénévoles, événements et annonces."

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 export default function JeunesPage() {
   return (
     <InfoPage
+      contentKey="/jouer-au-club/jeunes"
       eyebrow="Jouer au club"
       title="Jeunes"
       intro="Les séances jeunes permettent de découvrir le badminton, de progresser techniquement et de prendre plaisir à jouer en groupe dans un cadre adapté."

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 export default function TournoisPage() {
   return (
     <InfoPage
+      contentKey="/vie-du-club/tournois"
       eyebrow="Vie du club"
       title="Tournois"
       intro="Tournois internes, sorties compétition et informations pratiques pour les joueuses et joueurs motivés."

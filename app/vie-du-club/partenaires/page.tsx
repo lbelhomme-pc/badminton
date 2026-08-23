@@ -45,6 +45,7 @@ export default async function PartenairesPage() {
 
   return (
     <InfoPage
+      contentKey="/vie-du-club/partenaires"
       eyebrow="Partenaires"
       title="Soutenir le badminton local"
       intro="Les partenaires affichés ici proviennent des paramètres publics du site. Le bureau peut les publier, modifier ou retirer sans changer le code."

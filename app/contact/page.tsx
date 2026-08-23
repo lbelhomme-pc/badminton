@@ -23,6 +23,7 @@ export default async function ContactPage() {
 
   return (
     <InfoPage
+      contentKey="/contact"
       eyebrow="Contact"
       title="Contacter le club"
       intro="Une question sur une inscription, une séance d'essai, un créneau, les volants, la compétition ou un partenariat ? Envoyez une demande au CFVV."

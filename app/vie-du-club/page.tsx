@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 export default function VieDuClubPage() {
   return (
     <InfoPage
+      contentKey="/vie-du-club"
       eyebrow="Vie du club"
       title="Actualités, événements et compétitions"
       intro="La vie du CFVV ne se limite pas aux créneaux : événements, interclubs, tournois et bénévoles rythment la saison."

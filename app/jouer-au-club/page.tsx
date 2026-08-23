@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 export default function JouerAuClubPage() {
   return (
     <InfoPage
+      contentKey="/jouer-au-club"
       eyebrow="Jouer au club"
       title="Trouver le bon créneau pour jouer au CFVV"
       intro="La rubrique regroupe les créneaux et les parcours de jeu selon l'âge, le niveau et l'envie de compétition."

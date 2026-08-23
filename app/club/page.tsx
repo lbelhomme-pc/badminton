@@ -50,6 +50,7 @@ export default function ClubPage() {
 
   return (
     <InfoPage
+      contentKey="/club"
       eyebrow="Le Club"
       title="Un club de badminton associatif à Vendôme"
       intro="Le CFVV accueille les joueurs qui veulent découvrir, jouer régulièrement, progresser ou représenter le club en compétition."

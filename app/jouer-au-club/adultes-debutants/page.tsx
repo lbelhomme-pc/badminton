@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 export default function AdultesDebutantsPage() {
   return (
     <InfoPage
+      contentKey="/jouer-au-club/adultes-debutants"
       eyebrow="Jouer au club"
       title="Adultes débutants"
       intro="Un parcours simple pour venir essayer, apprendre les bases et rejoindre progressivement les créneaux loisirs sans pression."

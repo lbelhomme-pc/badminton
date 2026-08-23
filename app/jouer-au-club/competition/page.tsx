@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 export default function CompetitionPage() {
   return (
     <InfoPage
+      contentKey="/jouer-au-club/competition"
       eyebrow="Jouer au club"
       title="Compétition"
       intro="Pour les joueurs qui veulent progresser, représenter le club et participer aux interclubs ou tournois selon leur niveau et leurs disponibilités."
