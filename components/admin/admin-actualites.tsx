@@ -482,7 +482,7 @@ function ActualitePreview({ value, title }: { value: ActualiteForm; title: strin
             alt={`Illustration : ${visibleTitle}`}
             loading="lazy"
             decoding="async"
-            className="h-full w-full object-cover"
+            className="h-full w-full bg-court-50 object-contain"
           />
         ) : (
           <div className="flex min-h-0 items-center justify-center gap-2 bg-court-50 px-4 text-sm font-semibold text-ink-500">

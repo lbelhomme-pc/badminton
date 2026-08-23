@@ -111,7 +111,7 @@ export function ActualitesList({ limit }: ActualitesListProps) {
                 loading="lazy"
                 decoding="async"
                 sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
-                className="h-full w-full object-cover"
+                className="h-full w-full bg-court-50 object-contain"
               />
             ) : (
               <div className="flex min-h-0 items-center justify-center bg-gradient-to-br from-court-900 to-court-500 text-white">
@@ -182,7 +182,7 @@ function ActualiteDialog({ actualite, onClose }: { actualite: ActualiteRow; onCl
           </button>
         </div>
         {hasImage ? (
-          <img src={actualite.image_url ?? ""} alt={`Photo ou illustration de l'actualité : ${actualite.titre}`} className="aspect-square w-full object-cover sm:max-h-[420px] sm:aspect-auto" />
+          <img src={actualite.image_url ?? ""} alt={`Photo ou illustration de l'actualité : ${actualite.titre}`} className="aspect-square w-full bg-court-50 object-contain sm:max-h-[520px]" />
         ) : null}
         <div className="p-5 sm:p-7">
           <h2 id={`actualite-dialog-${actualite.id}`} className="font-display text-3xl font-black text-court-900">{actualite.titre}</h2>

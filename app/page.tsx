@@ -200,7 +200,7 @@ export default async function HomePage() {
                     <img
                       src={item.imageUrl ?? ""}
                       alt={`Illustration de l'actualité : ${item.title}`}
-                      className="h-full w-full object-cover"
+                      className="h-full w-full bg-slate-50 object-contain"
                       loading="lazy"
                       decoding="async"
                     />
