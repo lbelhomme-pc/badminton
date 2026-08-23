@@ -117,7 +117,7 @@ export function validateEvent(event: ClubEvent) {
   if (!event.startsAt || Number.isNaN(new Date(event.startsAt).getTime())) errors.push("date de début invalide");
   if (event.endsAt && new Date(event.endsAt) <= new Date(event.startsAt)) errors.push("date de fin avant le début");
   if (!event.description) errors.push("description manquante");
-  if (event.status === "scheduled" && !event.scheduledFor) errors.push("date de publication programmee manquante");
+  if (event.status === "scheduled" && !event.scheduledFor) errors.push("date de publication programmée manquante");
   if (event.status === "cancelled" && !event.cancellationMessage) errors.push("message d'annulation manquant");
   return errors;
 }

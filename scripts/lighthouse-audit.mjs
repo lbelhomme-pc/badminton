@@ -158,7 +158,7 @@ async function runLighthouse(lighthouse, url, outputPath, chromeProfilePath) {
       throw commandError;
     }
 
-    throw new Error(`Le rapport Lighthouse n'a pas ete cree : ${outputPath}`);
+    throw new Error(`Le rapport Lighthouse n'a pas été créé : ${outputPath}`);
   }
 
   if (commandError && !isWindowsCleanupWarning(commandError)) {
@@ -185,7 +185,7 @@ function runCommand(command, args, timeout) {
     let stdout = "";
     const timer = setTimeout(() => {
       child.kill("SIGTERM");
-      reject(new Error(`Timeout apres ${Math.round(timeout / 1000)}s pour ${command}.`));
+      reject(new Error(`Délai dépassé après ${Math.round(timeout / 1000)} s pour ${command}.`));
     }, timeout);
 
     child.stdout.on("data", (chunk) => {
@@ -209,7 +209,7 @@ function runCommand(command, args, timeout) {
       }
 
       const details = [stderr.trim(), stdout.trim()].filter(Boolean).join("\n");
-      reject(new Error(details || `${command} a quitte avec le code ${code}.`));
+      reject(new Error(details || `${command} a quitté le processus avec le code ${code}.`));
     });
   });
 }

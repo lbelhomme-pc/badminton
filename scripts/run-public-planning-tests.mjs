@@ -179,7 +179,7 @@ const duplicateCreneaux = [
   }
 ];
 
-assert.equal(dedupeCreneauxForPublicDisplay(duplicateCreneaux).length, 1, "doublons de creneaux supprimes cote affichage");
+assert.equal(dedupeCreneauxForPublicDisplay(duplicateCreneaux).length, 1, "doublons de créneaux supprimés côté affichage");
 assert.equal(creneauxToSlotOccurrences(duplicateCreneaux).length, 1, "cartes publiques sans doublon");
 
 const event = {
@@ -235,14 +235,14 @@ const nextHomeEvents = getNextPublicEvents(
 assert.deepEqual(
   nextHomeEvents.map((item) => item.id),
   ["first", "second", "third"],
-  "accueil : trois prochains evenements publics uniquement"
+  "accueil : trois prochains événements publics uniquement"
 );
 
 assert.equal(validateEvent(event).length, 0, "événement valide");
 assert.ok(validateEvent({ ...cancelled, cancellationMessage: "" }).includes("message d'annulation manquant"), "annulation documentée");
 assert.ok(
   validateEvent({ ...event, status: "scheduled", scheduledFor: undefined }).some((message) => message.includes("publication")),
-  "programmation sans date refusee"
+  "programmation sans date refusée"
 );
 assert.equal(
   validateEvent({ ...event, status: "scheduled", scheduledFor: "2026-08-01T10:00:00+02:00" }).length,
@@ -314,7 +314,7 @@ assert.equal(isInvitationUsable(usableInvitation, new Date("2026-08-01T10:00:00+
 assert.equal(getInvitationAccessState(usableInvitation, new Date("2026-10-01T10:00:00+02:00")), "expired", "invitation expirée");
 assert.equal(getInvitationAccessState({ ...usableInvitation, used_at: "2026-08-02T10:00:00+02:00" }), "used", "invitation à usage unique");
 assert.equal(canPrepareInvitationReminder(usableInvitation, new Date("2026-08-01T10:00:00+02:00")), true, "relance possible avant expiration");
-assert.equal(canPrepareInvitationReminder({ ...usableInvitation, revoked_at: "2026-08-02T10:00:00+02:00" }), false, "relance interdite apres revocation");
+assert.equal(canPrepareInvitationReminder({ ...usableInvitation, revoked_at: "2026-08-02T10:00:00+02:00" }), false, "relance interdite après révocation");
 assert.equal(buildActivationUrl("https://cfvv.example/", "abc 123"), "https://cfvv.example/creation-compte?invitation=abc%20123", "url activation stable");
 assert.equal(getDefaultInvitationExpiration(new Date("2026-08-01T10:00:00+02:00"), 14), "2026-08-15T08:00:00.000Z", "expiration invitation");
 
@@ -331,12 +331,12 @@ const baseReservationRule = {
 assert.equal(
   getReservationActionState(baseReservationRule, new Date("2026-09-01T09:00:00+02:00")),
   "reservable",
-  "creneau reservable dans la fenetre"
+  "créneau réservable dans la fenêtre"
 );
 assert.equal(
   getReservationActionState({ ...baseReservationRule, alreadyReserved: true }, new Date("2026-09-01T09:00:00+02:00")),
   "already_reserved",
-  "double clic ou doublon rendu idempotent cote interface"
+  "double clic ou doublon rendu idempotent côté interface"
 );
 assert.equal(
   getReservationActionState({ ...baseReservationRule, placesLeft: 0 }, new Date("2026-09-01T09:00:00+02:00")),
@@ -366,7 +366,7 @@ assert.equal(
     new Date("2026-09-02T16:00:00+02:00")
   ),
   true,
-  "annulation autorisee avant la limite"
+  "annulation autorisée avant la limite"
 );
 assert.equal(
   canCancelReservation(
@@ -374,7 +374,7 @@ assert.equal(
     new Date("2026-09-02T18:00:00+02:00")
   ),
   false,
-  "annulation bloquee apres la limite"
+  "annulation bloquée après la limite"
 );
 
 const dstRule = {
@@ -417,32 +417,32 @@ assert.ok(
   "URL HelloAsso enrichie avec quantite indicative"
 );
 
-assert.equal(canAccessPrivateDocument(["member"], ["member"]), true, "adherent autorise document membre");
-assert.equal(canAccessPrivateDocument(["member"], ["manager"]), false, "adherent bloque document gestionnaire");
+assert.equal(canAccessPrivateDocument(["member"], ["member"]), true, "adhérent autorisé à consulter un document membre");
+assert.equal(canAccessPrivateDocument(["member"], ["manager"]), false, "adhérent bloqué pour un document gestionnaire");
 assert.equal(canAccessPrivateDocument(["manager"], ["admin"]), true, "manager/admin ont acces bureau");
 assert.equal(
   isAllowedPrivateDocumentFile({ mimeType: "application/pdf", sizeBytes: 1024 }),
   true,
-  "document PDF autorise"
+  "document PDF autorisé"
 );
 assert.equal(
   isAllowedPrivateDocumentFile({ mimeType: "application/x-msdownload", sizeBytes: 1024 }),
   false,
   "type dangereux refuse"
 );
-assert.equal(sanitizePrivateDocumentFileName("Compte rendu AG été 2026!!.pdf"), "compte-rendu-ag-ete-2026.pdf", "nom fichier nettoye");
+assert.equal(sanitizePrivateDocumentFileName("Compte rendu AG été 2026!!.pdf"), "compte-rendu-ag-ete-2026.pdf", "nom de fichier nettoyé");
 
-assert.equal(canPerformBackOfficeAction(["manager"], "publish_content"), true, "editeur peut publier un contenu");
-assert.equal(canPerformBackOfficeAction(["manager"], "manage_admins"), false, "editeur ne gere pas les admins");
+assert.equal(canPerformBackOfficeAction(["manager"], "publish_content"), true, "éditeur autorisé à publier un contenu");
+assert.equal(canPerformBackOfficeAction(["manager"], "manage_admins"), false, "éditeur non autorisé à gérer les administrateurs");
 assert.equal(canPerformBackOfficeAction(["admin"], "manage_admins"), true, "admin gere les droits sensibles");
-assert.equal(canPerformBackOfficeAction(["manager"], "delete_permanently"), false, "suppression definitive reservee admin");
+assert.equal(canPerformBackOfficeAction(["manager"], "delete_permanently"), false, "suppression définitive réservée à l'administrateur");
 
 const csvPreview = parseMemberCsvPreview(
   "email;prenom;nom;licence_ffbad;role\nalice@example.test;Alice;Dupont;123;member\nalice@example.test;Alice;Doublon;124;manager\nbad-email;Bob;Martin;;member"
 );
 assert.equal(csvPreview.rows.length, 3, "import CSV produit un apercu");
-assert.ok(csvPreview.issues.some((issue) => issue.message.includes("Doublon")), "import CSV detecte les doublons");
-assert.ok(csvPreview.issues.some((issue) => issue.message.includes("Email invalide")), "import CSV detecte les emails invalides");
+assert.ok(csvPreview.issues.some((issue) => issue.message.includes("Doublon")), "import CSV détecte les doublons");
+assert.ok(csvPreview.issues.some((issue) => issue.message.includes("Email invalide")), "import CSV détecte les e-mails invalides");
 
 const csvPreviewWithExistingData = parseMemberCsvPreview(
   'email,prenom,nom,licence_ffbad,role\n"membre@example.test",Marie,Club,999,member\ninvite@example.test,Paul,Invite,888,member',
@@ -453,8 +453,8 @@ const csvPreviewWithExistingData = parseMemberCsvPreview(
   }
 );
 assert.equal(csvPreviewWithExistingData.rows.length, 2, "import CSV accepte aussi la virgule");
-assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("déjà présent")), "import CSV detecte un adherent deja present");
-assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("déjà en attente")), "import CSV detecte une invitation deja en attente");
+assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("déjà présent")), "import CSV détecte un adhérent déjà présent");
+assert.ok(csvPreviewWithExistingData.issues.some((issue) => issue.message.includes("déjà en attente")), "import CSV détecte une invitation déjà en attente");
 
 const licenceCsvPreview = parseLicenceCsvPreview(
   "Nom;Prénom;Licence;Catégorie\nAUBRY;Pauline;07172923;Veteran 1\nAUTRIVE;Kévin;07705663;Senior"
@@ -464,13 +464,13 @@ assert.equal(licenceCsvPreview.rows[1].prenom, "Kévin", "import licences conser
 assert.equal(licenceCsvPreview.rows[0].licence_ffbad, "07172923", "import licences conserve les zeros initiaux");
 
 const licenceCsvWithDuplicate = parseLicenceCsvPreview("Nom;Prenom;Licence\nA;B;123\nC;D;123");
-assert.ok(licenceCsvWithDuplicate.issues.some((issue) => issue.message.includes("Doublon")), "import licences detecte les doublons");
+assert.ok(licenceCsvWithDuplicate.issues.some((issue) => issue.message.includes("Doublon")), "import de licences détecte les doublons");
 
 assert.equal(nextContentStatus("brouillon", "publish"), "publie", "publication brouillon");
-assert.equal(nextContentStatus("publie", "unpublish"), "brouillon", "depublication");
+assert.equal(nextContentStatus("publie", "unpublish"), "brouillon", "dépublication");
 assert.equal(nextContentStatus("brouillon", "schedule", "2026-09-01T10:00:00+02:00"), "programme", "planification");
 assert.equal(nextContentStatus("archive", "restore"), "brouillon", "restauration");
-assert.equal(nextContentStatus("brouillon", "delete_permanently"), null, "suppression definitive interdite hors corbeille");
+assert.equal(nextContentStatus("brouillon", "delete_permanently"), null, "suppression définitive interdite hors corbeille");
 
 const media = validateMediaUpload({
   fileName: "Affiche tournoi été 2026.pdf",
@@ -479,18 +479,18 @@ const media = validateMediaUpload({
   informative: false
 });
 assert.equal(media.ok, true, "media valide");
-assert.equal(media.cleanName, "affiche-tournoi-ete-2026.pdf", "media nettoye");
+assert.equal(media.cleanName, "affiche-tournoi-ete-2026.pdf", "média nettoyé");
 assert.equal(
   validateMediaUpload({ fileName: "photo.jpg", mimeType: "image/jpeg", sizeBytes: 2048, informative: true }).ok,
   false,
   "texte alternatif obligatoire pour image informative"
 );
 
-assert.equal(getMediaKind("image/webp"), "image", "mediatheque reconnait image webp");
-assert.equal(getMediaKind("application/pdf"), "document", "mediatheque reconnait document public");
-assert.equal(isAllowedPublicMediaFile({ mimeType: "image/png", sizeBytes: 2048 }), true, "mediatheque accepte image valide");
-assert.equal(isAllowedPublicMediaFile({ mimeType: "image/png", sizeBytes: 9 * 1024 * 1024 }), false, "mediatheque refuse fichier trop lourd");
-assert.equal(sanitizeMediaFileName("Photo rentree CFVV!!.webp"), "photo-rentree-cfvv.webp", "nom media nettoye");
+assert.equal(getMediaKind("image/webp"), "image", "médiathèque reconnaît une image webp");
+assert.equal(getMediaKind("application/pdf"), "document", "médiathèque reconnaît un document public");
+assert.equal(isAllowedPublicMediaFile({ mimeType: "image/png", sizeBytes: 2048 }), true, "médiathèque accepte une image valide");
+assert.equal(isAllowedPublicMediaFile({ mimeType: "image/png", sizeBytes: 9 * 1024 * 1024 }), false, "médiathèque refuse un fichier trop lourd");
+assert.equal(sanitizeMediaFileName("Photo rentree CFVV!!.webp"), "photo-rentree-cfvv.webp", "nom de média nettoyé");
 assert.equal(
   validateMediaAssetInput({
     fileName: "hero.webp",
@@ -515,8 +515,8 @@ assert.equal(
   true,
   "image informative valide avec alt"
 );
-assert.equal(canDeleteMediaAsset({ knownUsage: ["accueil"], status: "archived" }).ok, false, "suppression bloquee si usage connu");
+assert.equal(canDeleteMediaAsset({ knownUsage: ["accueil"], status: "archived" }).ok, false, "suppression bloquée si usage connu");
 assert.equal(canDeleteMediaAsset({ knownUsage: [], status: "active" }).ok, false, "suppression impose archivage");
-assert.equal(canDeleteMediaAsset({ knownUsage: [], status: "archived" }).ok, true, "suppression autorisee apres archivage sans usage");
+assert.equal(canDeleteMediaAsset({ knownUsage: [], status: "archived" }).ok, true, "suppression autorisée après archivage sans usage");
 
 console.log("Public planning and member access tests passed");

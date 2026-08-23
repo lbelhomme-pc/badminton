@@ -11,6 +11,14 @@ const dayIndexes: Record<string, number> = {
   samedi: 6
 };
 
+const audienceLabels: Record<string, string> = {
+  adultes: "adultes",
+  competiteurs: "compétiteurs",
+  compétiteurs: "compétiteurs",
+  jeunes: "jeunes",
+  loisirs: "loisirs"
+};
+
 function normalizeDay(value: string) {
   return value
     .toLowerCase()
@@ -88,7 +96,8 @@ function titleForCreneau(creneau: CreneauRow) {
   if (type === "adult_training") return "Entraînement adultes";
   if (type === "competitive_training") return "Créneau compétition";
 
-  const audience = creneau.public && creneau.public !== "tous" ? ` ${creneau.public}` : "";
+  const publicKey = normalizeIdentityPart(creneau.public);
+  const audience = publicKey && publicKey !== "tous" ? ` ${audienceLabels[publicKey] ?? creneau.public}` : "";
   return `Jeu libre${audience}`;
 }
 
@@ -110,8 +119,8 @@ export function creneauxToSlotOccurrences(creneaux: CreneauRow[]): SlotOccurrenc
         venueName: creneau.gymnase,
         address: creneau.adresse ?? "",
         managerName: creneau.responsable ?? "Responsable créneau à confirmer",
-        recommendedLevel: creneau.niveau ?? creneau.public,
-        audience: creneau.public,
+        recommendedLevel: creneau.niveau ?? audienceLabels[normalizeIdentityPart(creneau.public)] ?? creneau.public,
+        audience: audienceLabels[normalizeIdentityPart(creneau.public)] ?? creneau.public,
         courtsCount: 7,
         capacityMax: capacity,
         registeredCount: 0,

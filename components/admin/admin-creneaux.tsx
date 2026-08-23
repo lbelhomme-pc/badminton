@@ -39,6 +39,31 @@ const initialForm = {
 
 type CreneauForm = typeof initialForm;
 
+const creneauTypeOptions = [
+  { value: "jeu_libre", label: "Jeu libre" },
+  { value: "entrainement", label: "Entraînement" },
+  { value: "competition", label: "Compétition" },
+  { value: "jeunes", label: "Jeunes" },
+  { value: "adultes", label: "Adultes" }
+];
+
+const creneauPublicOptions = [
+  { value: "jeunes", label: "Jeunes" },
+  { value: "adultes", label: "Adultes" },
+  { value: "loisirs", label: "Loisirs" },
+  { value: "competiteurs", label: "Compétiteurs" },
+  { value: "tous", label: "Tous" }
+];
+
+const booleanOptions = [
+  { value: "false", label: "Non" },
+  { value: "true", label: "Oui" }
+];
+
+function optionLabel(options: Array<{ value: string; label: string }>, value: string) {
+  return options.find((option) => option.value === value)?.label ?? value;
+}
+
 function normalizeDay(value: string) {
   return value
     .toLowerCase()
@@ -246,11 +271,11 @@ function AdminCreneauxContent() {
           <AdminInput label="Gymnase" value={form.gymnase} onChange={(value) => update("gymnase", value)} />
           <AdminInput label="Adresse" required={false} value={form.adresse} onChange={(value) => update("adresse", value)} />
           <AdminInput label="Places max" type="number" value={form.places_max} onChange={(value) => update("places_max", value)} />
-          <AdminSelect label="Type" value={form.type} onChange={(value) => update("type", value)} options={["jeu_libre", "entrainement", "competition", "jeunes", "adultes"]} />
-          <AdminSelect label="Public" value={form.public} onChange={(value) => update("public", value)} options={["jeunes", "adultes", "loisirs", "competiteurs", "tous"]} />
+          <AdminSelect label="Type" value={form.type} onChange={(value) => update("type", value)} options={creneauTypeOptions} />
+          <AdminSelect label="Public" value={form.public} onChange={(value) => update("public", value)} options={creneauPublicOptions} />
           <AdminInput label="Niveau" required={false} value={form.niveau} onChange={(value) => update("niveau", value)} />
           <AdminInput label="Responsable créneau" required={false} value={form.responsable} onChange={(value) => update("responsable", value)} />
-          <AdminSelect label="Réservation active" value={form.reservation_active} onChange={(value) => update("reservation_active", value)} options={["false", "true"]} />
+          <AdminSelect label="Réservation active" value={form.reservation_active} onChange={(value) => update("reservation_active", value)} options={booleanOptions} />
           <AdminInput label="Ouverture J-" type="number" value={form.reservation_open_days} onChange={(value) => update("reservation_open_days", value)} />
           <AdminInput label="Heure d'ouverture" type="time" value={form.reservation_open_time} onChange={(value) => update("reservation_open_time", value)} />
           <AdminInput label="Fermeture avant séance (min)" type="number" value={form.reservation_close_minutes_before} onChange={(value) => update("reservation_close_minutes_before", value)} />
@@ -273,11 +298,11 @@ function AdminCreneauxContent() {
           <Card key={creneau.id} className="p-5">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <h2 className="text-xl font-black text-court-900">{creneau.jour} · {creneau.type}</h2>
+                <h2 className="text-xl font-black text-court-900">{creneau.jour} · {optionLabel(creneauTypeOptions, creneau.type)}</h2>
                 <p className="mt-2 text-sm text-ink-500">
                   {creneau.heure_debut.slice(0, 5)} - {creneau.heure_fin.slice(0, 5)} · {creneau.gymnase}
                 </p>
-                <p className="mt-1 text-sm text-ink-500">{creneau.public} · {creneau.niveau || "Niveau non précisé"}</p>
+                <p className="mt-1 text-sm text-ink-500">{optionLabel(creneauPublicOptions, creneau.public)} · {creneau.niveau || "Niveau non précisé"}</p>
                 <p className="mt-1 text-sm font-semibold text-court-700">Responsable : {creneau.responsable || "À renseigner"}</p>
               </div>
               <span className={creneau.actif ? "rounded-full bg-court-100 px-3 py-1 text-xs font-black text-court-600" : "rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700"}>
@@ -297,11 +322,11 @@ function AdminCreneauxContent() {
                 <AdminInput label="Places max" type="number" value={current.places_max} onChange={(value) => updateEdit(creneau.id, "places_max", value)} />
                 <AdminInput label="Gymnase" value={current.gymnase} onChange={(value) => updateEdit(creneau.id, "gymnase", value)} />
                 <AdminInput label="Responsable" required={false} value={current.responsable} onChange={(value) => updateEdit(creneau.id, "responsable", value)} />
-                <AdminSelect label="Type" value={current.type} onChange={(value) => updateEdit(creneau.id, "type", value)} options={["jeu_libre", "entrainement", "competition", "jeunes", "adultes"]} />
-                <AdminSelect label="Public" value={current.public} onChange={(value) => updateEdit(creneau.id, "public", value)} options={["jeunes", "adultes", "loisirs", "competiteurs", "tous"]} />
+                <AdminSelect label="Type" value={current.type} onChange={(value) => updateEdit(creneau.id, "type", value)} options={creneauTypeOptions} />
+                <AdminSelect label="Public" value={current.public} onChange={(value) => updateEdit(creneau.id, "public", value)} options={creneauPublicOptions} />
                 <AdminInput label="Niveau" required={false} value={current.niveau} onChange={(value) => updateEdit(creneau.id, "niveau", value)} />
                 <AdminInput label="Adresse" required={false} value={current.adresse} onChange={(value) => updateEdit(creneau.id, "adresse", value)} />
-                <AdminSelect label="Réservation active" value={current.reservation_active} onChange={(value) => updateEdit(creneau.id, "reservation_active", value)} options={["false", "true"]} />
+                <AdminSelect label="Réservation active" value={current.reservation_active} onChange={(value) => updateEdit(creneau.id, "reservation_active", value)} options={booleanOptions} />
                 <AdminInput label="Ouverture J-" type="number" value={current.reservation_open_days} onChange={(value) => updateEdit(creneau.id, "reservation_open_days", value)} />
                 <AdminInput label="Heure d'ouverture" type="time" value={current.reservation_open_time} onChange={(value) => updateEdit(creneau.id, "reservation_open_time", value)} />
                 <AdminInput label="Fermeture avant séance (min)" type="number" value={current.reservation_close_minutes_before} onChange={(value) => updateEdit(creneau.id, "reservation_close_minutes_before", value)} />
@@ -391,7 +416,7 @@ function AdminSelect({
   label: string;
   value: string;
   onChange: (value: string) => void;
-  options: string[];
+  options: Array<string | { value: string; label: string }>;
 }) {
   return (
     <label className="grid gap-2 text-sm font-semibold text-court-900">
@@ -401,11 +426,14 @@ function AdminSelect({
         onChange={(event) => onChange(event.target.value)}
         className="h-11 rounded-lg border border-court-200 bg-court-50 px-3 outline-none focus:border-court-500 focus:ring-2 focus:ring-court-500/20"
       >
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+        {options.map((option) => {
+          const optionValue = typeof option === "string" ? option : option.value;
+          const optionLabel = typeof option === "string" ? option : option.label;
+
+          return <option key={optionValue} value={optionValue}>
+            {optionLabel}
           </option>
-        ))}
+        })}
       </select>
     </label>
   );

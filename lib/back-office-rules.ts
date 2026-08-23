@@ -285,7 +285,7 @@ export function parseLicenceCsvPreview(csv: string) {
     }
 
     if (statut && !["actif", "inactif", "archive"].includes(statut)) {
-      issues.push({ row: rowNumber, field: "statut", message: "Statut invalide. Utilise actif, inactif ou archive." });
+      issues.push({ row: rowNumber, field: "statut", message: "Statut invalide. Utilise actif, inactif ou archivé." });
     }
 
     rows.push({

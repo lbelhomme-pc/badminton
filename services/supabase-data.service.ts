@@ -1178,7 +1178,7 @@ export async function replaceMediaAssetFile(asset: MediaAssetRow, file: File) {
   });
 
   if (!validation.ok || !validation.kind) {
-    return { ok: false, message: validation.issues.join(" ") || "Nouveau fichier refuse." };
+    return { ok: false, message: validation.issues.join(" ") || "Nouveau fichier refusé." };
   }
 
   if (validation.kind !== asset.kind) {

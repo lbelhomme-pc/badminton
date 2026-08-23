@@ -43,7 +43,7 @@ export function validateMediaAssetInput(input: {
   if (!input.title.trim()) issues.push("Titre obligatoire.");
   if (!cleanName) issues.push("Nom de fichier invalide.");
   if (!isAllowedPublicMediaFile({ mimeType: input.mimeType, sizeBytes: input.sizeBytes })) {
-    issues.push("Type ou taille de fichier non autorise.");
+    issues.push("Type ou taille de fichier non autorisé.");
   }
   if (kind === "image" && input.informative && !input.altText?.trim()) {
     issues.push("Texte alternatif obligatoire pour une image informative.");
@@ -63,5 +63,5 @@ export function canDeleteMediaAsset(input: { knownUsage?: string[] | null; statu
     return { ok: false, message: "Archive le média avant suppression définitive." };
   }
 
-  return { ok: true, message: "Suppression autorisee." };
+  return { ok: true, message: "Suppression autorisée." };
 }
