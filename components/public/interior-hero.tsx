@@ -4,6 +4,8 @@ import { ArrowRight } from "lucide-react";
 import type { ConfiguredClubPhotoSlot } from "@/lib/club-photos";
 import { cn } from "@/lib/utils";
 import { getPublicClubSettings } from "@/services/club.service";
+import { AdminEditLink } from "@/components/admin/admin-edit-link";
+import { pageEditorId } from "@/lib/site-content";
 
 type HeroTone = "creneaux" | "bureau" | "agenda" | "club" | "partenaires" | "contact";
 
@@ -69,7 +71,8 @@ export async function InteriorHero({
   const displayedIntro = override?.intro || intro;
 
   return (
-    <section className="relative overflow-hidden rounded bg-[#031d2b] text-white shadow-[0_16px_35px_rgba(3,29,43,0.22)]">
+    <section data-admin-editable={contentKey ? true : undefined} className="relative overflow-hidden rounded bg-[#031d2b] text-white shadow-[0_16px_35px_rgba(3,29,43,0.22)]">
+      {contentKey ? <AdminEditLink href={`/admin/parametres#${pageEditorId(contentKey)}`} label="ce bandeau" /> : null}
       {heroPhoto ? (
         <img
           src={heroPhoto.src}

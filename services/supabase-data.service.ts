@@ -1150,7 +1150,11 @@ export async function uploadMediaAsset(input: {
     await supabase.storage.from(mediaBucketName).remove([filePath]);
   }
 
-  return { ok: !error, message: friendlyDatabaseError(error) ?? "Média ajouté à la médiathèque." };
+  return {
+    ok: !error,
+    message: friendlyDatabaseError(error) ?? "Média ajouté à la médiathèque.",
+    publicUrl: error ? undefined : publicUrl
+  };
 }
 
 export async function updateMediaAsset(

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ExternalLink, Mail, MapPin, Phone, UserRound } from "lucide-react";
 import type { PublicClubSettings } from "@/services/club.service";
+import { AdminEditLink } from "@/components/admin/admin-edit-link";
 
 const footerSections = [
   {
@@ -59,7 +60,8 @@ export function SiteFooter({ settings }: { settings: PublicClubSettings }) {
   ].filter((item): item is { label: string; href: string; icon: "facebook" | "external" } => Boolean(item));
 
   return (
-    <footer className="bg-[#031d2b] pb-24 text-white md:pb-0">
+    <footer data-admin-editable className="relative bg-[#031d2b] pb-24 text-white md:pb-0">
+      <AdminEditLink href="/admin/parametres#header-footer" label="le footer" />
       <div className="mx-auto grid max-w-[1180px] gap-10 px-5 py-12 sm:px-6 lg:grid-cols-[1.15fr_2fr] lg:px-8">
         <div>
           {settings.appearance.footerImageUrl ? (

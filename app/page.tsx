@@ -23,6 +23,7 @@ import { formatDate, formatTime } from "@/lib/utils";
 import { fetchActualites, fetchPublicCreneaux, type ActualiteRow } from "@/services/supabase-data.service";
 import { getOpenSlots, getPublicClubSettings, getPublicEvents, type PublicBureauMember, type PublicPartner } from "@/services/club.service";
 import type { ClubEvent, SlotOccurrence } from "@/types/domain";
+import { AdminEditLink } from "@/components/admin/admin-edit-link";
 
 export const metadata: Metadata = {
   title: "CFVV - Club de badminton à Vendôme",
@@ -109,7 +110,8 @@ export default async function HomePage() {
     <div className="bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }} />
 
-      <section className="relative overflow-hidden bg-[#031d2b] text-white">
+      <section data-admin-editable className="relative overflow-hidden bg-[#031d2b] text-white">
+        <AdminEditLink href="/admin/parametres#accueil" label="l'accueil" />
         {settings.appearance.homeHeroImageUrl ? (
           <img
             src={settings.appearance.homeHeroImageUrl}
@@ -185,7 +187,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1180px] px-5 py-10 lg:px-8">
+      <section data-admin-editable className="relative mx-auto max-w-[1180px] px-5 py-10 lg:px-8">
+        <AdminEditLink href="/admin/actualites" label="les actualités" />
         <SectionHeader title="Actualités du club" href="/vie-du-club/actualites" label="Voir toutes les actualités" />
         {newsItems.length > 0 ? (
           <div className="mt-9 grid gap-7 lg:grid-cols-3">
@@ -232,7 +235,8 @@ export default async function HomePage() {
       </section>
 
       <section className="mx-auto grid max-w-[1180px] gap-10 px-5 py-3 lg:grid-cols-[1.35fr_1fr] lg:px-8">
-        <div>
+        <div data-admin-editable className="relative">
+          <AdminEditLink href="/admin/creneaux" label="les créneaux" />
           <SectionHeader title="Nos créneaux" href="/creneaux" label="Voir tous les créneaux" />
           {slots.length > 0 ? (
             <div className="mt-9 grid gap-4 sm:grid-cols-2">
@@ -254,7 +258,8 @@ export default async function HomePage() {
           )}
         </div>
 
-        <div className="lg:border-l lg:border-slate-200 lg:pl-9">
+        <div data-admin-editable className="relative lg:border-l lg:border-slate-200 lg:pl-9">
+          <AdminEditLink href="/admin/agenda" label="l'agenda" />
           <SectionHeader title="Agenda" href="/agenda" label="Voir tout l'agenda" />
           {events.length > 0 ? (
             <div className="mt-9 grid gap-3">
@@ -268,7 +273,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1180px] px-5 py-10 lg:px-8">
+      <section data-admin-editable className="relative mx-auto max-w-[1180px] px-5 py-10 lg:px-8">
+        <AdminEditLink href="/admin/parametres#bureau" label="le bureau" />
         <SectionHeader title="Le Bureau" href="/club/bureau-benevoles" label="Découvrir le bureau complet" />
         <div className="mt-9 grid gap-7 lg:grid-cols-3">
           {bureauPreview.map((person) => (
@@ -314,7 +320,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1180px] px-5 pb-12 pt-2 lg:px-8">
+      <section data-admin-editable className="relative mx-auto max-w-[1180px] px-5 pb-12 pt-2 lg:px-8">
+        <AdminEditLink href="/admin/parametres#partenaires" label="les partenaires" />
         <SectionHeader title="Ils nous soutiennent" href="/partenaires" label="Voir la page partenaires" />
         {partnersPreview.length > 0 ? (
           <div className="mt-8 grid grid-cols-2 items-center gap-5 md:grid-cols-3 lg:grid-cols-6">

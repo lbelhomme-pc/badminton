@@ -36,3 +36,7 @@ export const editablePublicPages = [
 ] as const;
 
 export type EditablePublicPageKey = (typeof editablePublicPages)[number]["key"];
+
+export function pageEditorId(pageKey: string) {
+  return `page-${pageKey.replace(/^\/+/, "").replace(/[^a-z0-9]+/gi, "-") || "accueil"}`;
+}

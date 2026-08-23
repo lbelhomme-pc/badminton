@@ -4,11 +4,12 @@ import { useEffect, useState } from "react";
 import { AdminFeedback, errorFeedback, loadingFeedback, successFeedback, type AdminFeedbackMessage } from "@/components/admin/admin-feedback";
 import { AdminShell } from "@/components/admin/admin-shell";
 import { AdminRoute } from "@/components/auth/admin-route";
+import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { editablePublicPages, type PageContentOverride } from "@/lib/site-content";
+import { editablePublicPages, pageEditorId, type PageContentOverride } from "@/lib/site-content";
 import { defaultPublicClubSettings, type PublicBureauMember, type PublicPartner } from "@/services/club.service";
-import { fetchSiteSettings, upsertSiteSetting, type SiteSettingRow } from "@/services/supabase-data.service";
+import { fetchSiteSettings, uploadMediaAsset, upsertSiteSetting, type SiteSettingRow } from "@/services/supabase-data.service";
 
 const defaultClub = {
   name: "CFVV",
@@ -150,6 +151,7 @@ export function AdminParametres() {
 }
 
 function AdminParametresContent() {
+  const { user } = useAuth();
   const [club, setClub] = useState<ClubForm>(defaultClub);
   const [contact, setContact] = useState<ContactForm>(defaultContact);
   const [bureau, setBureau] = useState<BureauForm>(defaultBureau);
@@ -177,6 +179,20 @@ function AdminParametresContent() {
 
   useEffect(() => {
     load();
+  }, []);
+
+  useEffect(() => {
+    function revealTarget() {
+      const id = window.location.hash.slice(1);
+      if (!id) return;
+      const target = document.getElementById(id);
+      if (target instanceof HTMLDetailsElement) target.open = true;
+      window.setTimeout(() => target?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+    }
+
+    revealTarget();
+    window.addEventListener("hashchange", revealTarget);
+    return () => window.removeEventListener("hashchange", revealTarget);
   }, []);
 
   function updateClub(field: keyof ClubForm, value: string) {
@@ -285,6 +301,25 @@ function AdminParametresContent() {
       <AdminFeedback feedback={feedback} className="mb-6" />
 
       <form className="grid gap-6 lg:grid-cols-2" onSubmit={save}>
+        <Card className="border-[#00a8bc]/30 bg-[#eaf9fb] p-5 lg:col-span-2">
+          <h2 className="text-xl font-black text-court-900">Modifier le site en 3 étapes</h2>
+          <ol className="mt-4 grid gap-3 text-sm leading-6 text-ink-600 md:grid-cols-3">
+            <li className="rounded-lg bg-white p-4"><strong className="block text-court-900">1. Ouvre le site</strong>Clique sur « Voir le site à modifier ».</li>
+            <li className="rounded-lg bg-white p-4"><strong className="block text-court-900">2. Clique sur un crayon</strong>Tu arrives directement au bon réglage.</li>
+            <li className="rounded-lg bg-white p-4"><strong className="block text-court-900">3. Enregistre</strong>Les changements apparaissent ensuite sur le site.</li>
+          </ol>
+          <a href="/?edition=1" className="mt-4 inline-flex rounded-lg bg-[#0097a9] px-4 py-3 font-display text-sm font-black text-white hover:bg-[#007f8f]">
+            Voir le site à modifier
+          </a>
+        </Card>
+
+        <div className="sticky top-2 z-30 flex items-center justify-between gap-4 rounded-xl border border-court-200 bg-white/95 p-3 shadow-[0_8px_25px_rgba(3,29,43,0.14)] backdrop-blur lg:col-span-2">
+          <p className="hidden text-sm font-semibold text-ink-600 sm:block">Après une modification, clique ici pour la publier.</p>
+          <Button className="w-full sm:ml-auto sm:w-auto" type="submit" disabled={pending}>
+            {pending ? "Enregistrement..." : "Enregistrer les changements"}
+          </Button>
+        </div>
+
         <Card className="p-5">
           <h2 className="text-xl font-black text-court-900">Identité du club</h2>
           <div className="mt-5 grid gap-4">
@@ -322,12 +357,12 @@ function AdminParametresContent() {
           </div>
         </Card>
 
-        <Card className="p-5 lg:col-span-2">
+        <Card id="header-footer" className="scroll-mt-28 p-5 lg:col-span-2">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 className="text-xl font-black text-court-900">Images du site</h2>
+              <h2 className="text-xl font-black text-court-900">Images du header, du footer et de l'accueil</h2>
               <p className="mt-2 text-sm leading-6 text-ink-500">
-                Téléverse d'abord une image dans la médiathèque, puis colle son URL publique ici. Une valeur vide conserve l'affichage de secours.
+                Choisis simplement une image sur ton ordinateur. Elle sera ajoutée automatiquement à la médiathèque.
               </p>
             </div>
             <a href="/admin/medias" className="font-display text-sm font-bold text-court-600 hover:underline">
@@ -341,6 +376,8 @@ function AdminParametresContent() {
               alt={appearance.headerLogoAlt}
               onUrlChange={(value) => updateAppearance("headerLogoUrl", value)}
               onAltChange={(value) => updateAppearance("headerLogoAlt", value)}
+              uploadedBy={user?.id}
+              usage="header"
             />
             <SettingsImageInput
               label="Image du footer"
@@ -348,6 +385,8 @@ function AdminParametresContent() {
               alt={appearance.footerImageAlt}
               onUrlChange={(value) => updateAppearance("footerImageUrl", value)}
               onAltChange={(value) => updateAppearance("footerImageAlt", value)}
+              uploadedBy={user?.id}
+              usage="footer"
             />
             <SettingsImageInput
               label="Photo de l'accueil"
@@ -356,12 +395,14 @@ function AdminParametresContent() {
               onUrlChange={(value) => updateAppearance("homeHeroImageUrl", value)}
               onAltChange={() => undefined}
               decorative
+              uploadedBy={user?.id}
+              usage="accueil"
             />
           </div>
         </Card>
 
-        <Card className="p-5 lg:col-span-2">
-          <h2 className="text-xl font-black text-court-900">Textes globaux</h2>
+        <Card id="accueil" className="scroll-mt-28 p-5 lg:col-span-2">
+          <h2 className="text-xl font-black text-court-900">Textes du header, du footer et de l'accueil</h2>
           <p className="mt-2 text-sm leading-6 text-ink-500">
             Ces textes apparaissent dans la navigation, l'accueil et le pied de page.
           </p>
@@ -375,7 +416,7 @@ function AdminParametresContent() {
           </div>
         </Card>
 
-        <Card className="p-5 lg:col-span-2">
+        <Card id="pages" className="scroll-mt-28 p-5 lg:col-span-2">
           <h2 className="text-xl font-black text-court-900">Textes et bandeaux des pages</h2>
           <p className="mt-2 text-sm leading-6 text-ink-500">
             Ouvre une page pour remplacer son surtitre, son titre, son introduction ou sa photo de bandeau. Un champ vide conserve le texte prévu dans le site.
@@ -385,7 +426,7 @@ function AdminParametresContent() {
               const pageContent = content.pages[page.key] ?? {};
 
               return (
-                <details key={page.key} className="rounded-lg border border-court-100 bg-court-50 p-4">
+                <details id={pageEditorId(page.key)} key={page.key} className="scroll-mt-28 rounded-lg border border-court-100 bg-court-50 p-4">
                   <summary className="cursor-pointer font-display font-black text-court-900">
                     {page.label} <span className="ml-2 text-xs font-semibold text-ink-500">{page.key}</span>
                   </summary>
@@ -393,8 +434,18 @@ function AdminParametresContent() {
                     <SettingsInput label="Surtitre" required={false} value={pageContent.eyebrow ?? ""} onChange={(value) => updatePageContent(page.key, "eyebrow", value)} />
                     <SettingsInput label="Titre" required={false} value={pageContent.title ?? ""} onChange={(value) => updatePageContent(page.key, "title", value)} />
                     <SettingsTextarea label="Introduction" value={pageContent.intro ?? ""} onChange={(value) => updatePageContent(page.key, "intro", value)} />
-                    <SettingsInput label="URL de l'image de bandeau" required={false} value={pageContent.imageUrl ?? ""} onChange={(value) => updatePageContent(page.key, "imageUrl", value)} />
-                    <SettingsInput label="Texte alternatif de l'image" required={false} value={pageContent.imageAlt ?? ""} onChange={(value) => updatePageContent(page.key, "imageAlt", value)} />
+                    <div className="md:col-span-2">
+                      <SettingsImageInput
+                        label="Photo du bandeau"
+                        url={pageContent.imageUrl ?? ""}
+                        alt={pageContent.imageAlt ?? ""}
+                        onUrlChange={(value) => updatePageContent(page.key, "imageUrl", value)}
+                        onAltChange={(value) => updatePageContent(page.key, "imageAlt", value)}
+                        uploadedBy={user?.id}
+                        usage={`page ${page.key}`}
+                        compact
+                      />
+                    </div>
                     {(!("bodyEditable" in page) || page.bodyEditable) ? (
                       <div className="md:col-span-2">
                         <SettingsTextarea
@@ -414,7 +465,7 @@ function AdminParametresContent() {
           </div>
         </Card>
 
-        <Card className="p-5 lg:col-span-2">
+        <Card id="bureau" className="scroll-mt-28 p-5 lg:col-span-2">
           <h2 className="text-xl font-black text-court-900">Bureau du club</h2>
           <p className="mt-2 text-sm leading-6 text-ink-500">
             Ces informations alimentent la page publique “Bureau et bénévoles”. Les emails et téléphones peuvent rester vides.
@@ -427,8 +478,18 @@ function AdminParametresContent() {
                   <SettingsInput label="Nom affiché" value={member.name} onChange={(value) => updateBureau(index, "name", value)} />
                   <SettingsInput label="Email" type="email" required={false} value={member.email} onChange={(value) => updateBureau(index, "email", value)} />
                   <SettingsInput label="Téléphone" required={false} value={member.phone} onChange={(value) => updateBureau(index, "phone", value)} />
-                  <SettingsInput label="Photo URL" required={false} value={member.photoUrl} onChange={(value) => updateBureau(index, "photoUrl", value)} />
-                  <SettingsInput label="Texte alternatif de la photo" required={false} value={member.photoAlt} onChange={(value) => updateBureau(index, "photoAlt", value)} />
+                  <div className="md:col-span-2">
+                    <SettingsImageInput
+                      label={`Photo de ${member.name || "ce membre"}`}
+                      url={member.photoUrl}
+                      alt={member.photoAlt}
+                      onUrlChange={(value) => updateBureau(index, "photoUrl", value)}
+                      onAltChange={(value) => updateBureau(index, "photoAlt", value)}
+                      uploadedBy={user?.id}
+                      usage={`bureau ${member.name || member.key}`}
+                      compact
+                    />
+                  </div>
                   <SettingsTextarea
                     label="Mission"
                     value={member.mission}
@@ -440,7 +501,7 @@ function AdminParametresContent() {
           </div>
         </Card>
 
-        <Card className="p-5 lg:col-span-2">
+        <Card id="partenaires" className="scroll-mt-28 p-5 lg:col-span-2">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 className="text-xl font-black text-court-900">Partenaires publics</h2>
@@ -474,9 +535,19 @@ function AdminParametresContent() {
                   <div className="mt-4 grid gap-4 md:grid-cols-2">
                     <SettingsInput label="Nom" value={partner.name} onChange={(value) => updatePartner(index, "name", value)} />
                     <SettingsInput label="Niveau" value={partner.level} onChange={(value) => updatePartner(index, "level", value)} />
-                    <SettingsInput label="Logo URL" required={false} value={partner.logoUrl} onChange={(value) => updatePartner(index, "logoUrl", value)} />
+                    <div className="md:col-span-2">
+                      <SettingsImageInput
+                        label={`Logo de ${partner.name || "ce partenaire"}`}
+                        url={partner.logoUrl}
+                        alt={partner.altText}
+                        onUrlChange={(value) => updatePartner(index, "logoUrl", value)}
+                        onAltChange={(value) => updatePartner(index, "altText", value)}
+                        uploadedBy={user?.id}
+                        usage={`partenaire ${partner.name || partner.id}`}
+                        compact
+                      />
+                    </div>
                     <SettingsInput label="Site web" required={false} value={partner.websiteUrl} onChange={(value) => updatePartner(index, "websiteUrl", value)} />
-                    <SettingsInput label="Texte alternatif du logo" required={false} value={partner.altText} onChange={(value) => updatePartner(index, "altText", value)} />
                     <label className="flex items-center gap-3 text-sm font-semibold text-court-900">
                       <input
                         type="checkbox"
@@ -567,7 +638,10 @@ function SettingsImageInput({
   alt,
   onUrlChange,
   onAltChange,
-  decorative = false
+  decorative = false,
+  uploadedBy,
+  usage,
+  compact = false
 }: {
   label: string;
   url: string;
@@ -575,12 +649,45 @@ function SettingsImageInput({
   onUrlChange: (value: string) => void;
   onAltChange: (value: string) => void;
   decorative?: boolean;
+  uploadedBy?: string;
+  usage: string;
+  compact?: boolean;
 }) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadMessage, setUploadMessage] = useState<string | null>(null);
+
+  async function chooseImage(event: React.ChangeEvent<HTMLInputElement>) {
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadMessage("Ajout de l'image en cours...");
+    const result = await uploadMediaAsset({
+      file,
+      title: `${label} - ${file.name}`,
+      description: `Image choisie depuis les paramètres du site pour : ${usage}.`,
+      altText: alt,
+      informative: false,
+      knownUsage: [usage],
+      uploadedBy
+    });
+
+    setUploading(false);
+    if (result.ok && "publicUrl" in result && result.publicUrl) {
+      onUrlChange(result.publicUrl);
+      setUploadMessage("Image prête. Pense à enregistrer les paramètres.");
+    } else {
+      setUploadMessage(result.message);
+    }
+    input.value = "";
+  }
+
   return (
     <div className="rounded-lg border border-court-100 bg-court-50 p-4">
       <p className="font-display text-sm font-black text-court-900">{label}</p>
       {url ? (
-        <div className="mt-3 flex h-32 items-center justify-center overflow-hidden rounded-lg border border-court-100 bg-white p-3">
+        <div className={`mt-3 flex items-center justify-center overflow-hidden rounded-lg border border-court-100 bg-white p-3 ${compact ? "h-40" : "h-32"}`}>
           <img src={url} alt={alt} className="max-h-full max-w-full object-contain" />
         </div>
       ) : (
@@ -589,8 +696,32 @@ function SettingsImageInput({
         </div>
       )}
       <div className="mt-4 grid gap-3">
-        <SettingsInput label="URL publique" required={false} value={url} onChange={onUrlChange} />
-        {!decorative ? <SettingsInput label="Texte alternatif" required={false} value={alt} onChange={onAltChange} /> : null}
+        <label className="grid gap-2 text-sm font-semibold text-court-900">
+          Choisir une image
+          <input
+            type="file"
+            accept="image/jpeg,image/png,image/webp,image/avif,image/svg+xml"
+            disabled={uploading}
+            onChange={chooseImage}
+            className="rounded-lg border border-court-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-[#0097a9] file:px-3 file:py-2 file:font-bold file:text-white"
+          />
+        </label>
+        {uploadMessage ? <p className={`text-xs font-semibold ${uploadMessage.startsWith("Image prête") ? "text-emerald-700" : "text-ink-500"}`}>{uploadMessage}</p> : null}
+        {!decorative ? (
+          <div>
+            <SettingsInput label="Description de l'image (pour l'accessibilité)" required={false} value={alt} onChange={onAltChange} />
+            <p className="mt-1 text-xs text-ink-500">Exemple : « Joueurs du CFVV pendant un entraînement ».</p>
+          </div>
+        ) : null}
+        {url ? (
+          <button type="button" className="justify-self-start text-sm font-bold text-red-700 hover:underline" onClick={() => onUrlChange("")}>Retirer cette image</button>
+        ) : null}
+        <details className="text-xs text-ink-500">
+          <summary className="cursor-pointer font-semibold">Options avancées</summary>
+          <div className="mt-2">
+            <SettingsInput label="Adresse de l'image" required={false} value={url} onChange={onUrlChange} />
+          </div>
+        </details>
       </div>
     </div>
   );

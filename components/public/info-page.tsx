@@ -4,6 +4,8 @@ import { ArrowRight } from "lucide-react";
 import { InteriorHero, type InteriorHeroProps } from "@/components/public/interior-hero";
 import { Card } from "@/components/ui/card";
 import { getPublicClubSettings } from "@/services/club.service";
+import { AdminEditLink } from "@/components/admin/admin-edit-link";
+import { pageEditorId } from "@/lib/site-content";
 
 interface InfoCard {
   title: string;
@@ -39,7 +41,8 @@ export async function InfoPage({ contentKey, eyebrow, title, intro, cards, hero,
   const displayedHero = hero || configuredPhoto ? { ...(hero ?? {}), photo: configuredPhoto ?? hero?.photo } : null;
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div data-admin-editable={contentKey ? true : undefined} className="relative mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      {contentKey ? <AdminEditLink href={`/admin/parametres#${pageEditorId(contentKey)}`} label="cette page" /> : null}
       {displayedHero ? (
         <InteriorHero eyebrow={displayedEyebrow} title={displayedTitle} intro={displayedIntro} {...displayedHero} />
       ) : (

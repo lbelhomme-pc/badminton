@@ -9,6 +9,7 @@ import { ClubLogo } from "@/components/brand/club-logo";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { PublicAppearanceSettings, PublicContentSettings } from "@/services/club.service";
+import { AdminEditLink } from "@/components/admin/admin-edit-link";
 
 const primaryLinks = [
   { href: "/", label: "Accueil" },
@@ -64,7 +65,8 @@ export function SiteHeader({ appearance, content }: { appearance: PublicAppearan
   }, [mobileOpen]);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white shadow-[0_6px_18px_rgba(2,24,35,0.08)]">
+    <header data-admin-editable className="relative sticky top-0 z-40 border-b border-slate-200 bg-white shadow-[0_6px_18px_rgba(2,24,35,0.08)]">
+      <AdminEditLink href="/admin/parametres#header-footer" label="le header" />
       <div className="mx-auto flex min-h-[104px] max-w-[1180px] items-center justify-between gap-5 px-5 lg:px-8">
         <Link href="/" prefetch={false} className="flex min-w-0 items-center gap-3" aria-label="Accueil du CFVV">
           <ClubLogo compact priority src={appearance.headerLogoUrl} alt={appearance.headerLogoAlt} />
