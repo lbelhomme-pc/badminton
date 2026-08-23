@@ -78,7 +78,7 @@ export function SiteHeader() {
               prefetch={false}
               aria-current={isActive(item.href) ? "page" : undefined}
               className={cn(
-                "relative px-1 py-3 font-display text-[13px] font-black text-[#071b27] transition motion-reduce:transition-none",
+                "relative whitespace-nowrap px-1 py-3 font-display text-[13px] font-black text-[#071b27] transition motion-reduce:transition-none",
                 "after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:origin-left after:rounded-full after:bg-[#0097a9] after:transition-transform",
                 isActive(item.href) ? "text-[#0097a9] after:scale-x-100" : "after:scale-x-0 hover:text-[#0097a9] hover:after:scale-x-100"
               )}
