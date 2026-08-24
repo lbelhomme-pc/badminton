@@ -21,7 +21,7 @@ import {
   type CreneauAvailabilityRow
 } from "@/services/supabase-data.service";
 
-type Feedback = { tone: "success" | "error" | "info"; text: string };
+type Feedback = { tone: "success" | "error" | "warning" | "info"; text: string };
 
 function publicReservationMessage(value: string) {
   return value === "Configuration Supabase manquante."
@@ -40,12 +40,18 @@ function formatDateTime(value: string | null | undefined) {
 async function notifyAdmins(creneauId: number, dateReservation: string) {
   const supabase = createSupabaseBrowserClient();
   const session = supabase ? (await supabase.auth.getSession()).data.session : null;
-  if (!session?.access_token) return;
-  await fetch("/api/reservation-notifications", {
+  if (!session?.access_token) return { notified: false, message: "Session adhérent introuvable." };
+
+  const response = await fetch("/api/reservation-notifications", {
     method: "POST",
     headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
     body: JSON.stringify({ creneauId, dateReservation })
   });
+  const payload = (await response.json().catch(() => null)) as { notified?: boolean; message?: string } | null;
+  if (!response.ok || payload?.notified === false) {
+    return { notified: false, message: payload?.message || "Le service de notification a refusé la demande." };
+  }
+  return { notified: true, message: payload?.message || "Administrateurs prévenus par email." };
 }
 
 function stateTone(state: ReservationActionState) {
@@ -122,7 +128,17 @@ function ReservationCreneauContent() {
       const result = await createReservation(user.id, creneau.id, creneau.occurrence_date);
       setMessage({ tone: result.ok ? "success" : "error", text: publicReservationMessage(result.message) });
       if (result.ok && ["mercredi", "vendredi"].includes(creneau.jour.toLowerCase())) {
-        try { await notifyAdmins(creneau.id, creneau.occurrence_date); } catch { /* La réservation reste confirmée même si l'email échoue. */ }
+        try {
+          const notification = await notifyAdmins(creneau.id, creneau.occurrence_date);
+          setMessage({
+            tone: notification.notified ? "success" : "warning",
+            text: notification.notified
+              ? "Réservation confirmée. Les administrateurs ont été prévenus par email."
+              : `Réservation confirmée, mais l'email n'a pas été envoyé : ${notification.message}`
+          });
+        } catch {
+          setMessage({ tone: "warning", text: "Réservation confirmée, mais l'email administrateur n'a pas pu être envoyé." });
+        }
       }
       await loadAvailability(true);
     } finally {
@@ -159,6 +175,8 @@ function ReservationCreneauContent() {
       ? "bg-emerald-50 text-emerald-700"
       : message?.tone === "error"
         ? "bg-red-50 text-red-700"
+        : message?.tone === "warning"
+          ? "bg-amber-50 text-amber-900"
         : "bg-court-100 text-court-900";
 
   return (
