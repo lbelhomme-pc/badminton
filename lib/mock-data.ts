@@ -326,4 +326,4 @@ export const clubStats = [
   { label: "Ville", value: "Vendôme" }
 ];
 
-export const ffbadRegistrationUrl = "https://www.cfvv41.fr/inscription";
+export const ffbadRegistrationUrl = "https://www.myffbad.fr/adherer/CFVV41";

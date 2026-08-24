@@ -477,16 +477,18 @@ export function getFfbadRegistrationUrl() {
 }
 
 export function getRegistrationLinkStatus(settings: PublicClubSettings): RegistrationLinkStatus {
-  const url = settings.club.ffbadUrl || ffbadRegistrationUrl;
+  const configuredUrl = settings.club.ffbadUrl?.trim();
+  const legacyUrl = "https://www.cfvv41.fr/inscription";
+  const url = !configuredUrl || configuredUrl === legacyUrl ? ffbadRegistrationUrl : configuredUrl;
   const isFallback = url === ffbadRegistrationUrl;
 
   return {
     url,
     fallbackUrl: ffbadRegistrationUrl,
     isFallback,
-    sourceLabel: isFallback ? "Lien 2026-2027 en attente de validation" : "Lien FFBaD configuré par le club",
+    sourceLabel: isFallback ? "Inscription officielle MyFFBaD" : "Lien d'inscription configuré par le club",
     confirmationMessage: isFallback
-      ? "Le lien officiel FFBaD / Poona sera affiché dès qu'il aura été validé par le bureau."
+      ? "Connectez-vous ou créez votre compte sur MyFFBaD. Le paiement en ligne n'est pas encore disponible."
       : "Ce lien provient des paramètres publics du site et peut être mis à jour par le club."
   };
 }

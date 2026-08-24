@@ -22,7 +22,7 @@ export async function RegistrationCta({
 }: RegistrationCtaProps) {
   const settings = await getPublicClubSettings();
   const registration = getRegistrationLinkStatus(settings);
-  const officialLinkAvailable = showOfficialLink && !registration.isFallback;
+  const officialLinkAvailable = showOfficialLink;
 
   return (
     <section className={cn("rounded-lg border border-court-200 bg-white p-5 shadow-soft", className)}>

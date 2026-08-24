@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Download, FileCheck2, FileText, HeartPulse, MessageCircle, ShieldCheck, UserPlus } from "lucide-react";
+import { ArrowRight, CalendarDays, Download, ExternalLink, FileCheck2, FileText, HeartPulse, MessageCircle, ShieldCheck, UserPlus } from "lucide-react";
 import { InteriorHero } from "@/components/public/interior-hero";
 import { Card } from "@/components/ui/card";
 import { getPublicClubSettings, getRegistrationLinkStatus } from "@/services/club.service";
@@ -47,12 +47,12 @@ export default async function InscriptionPage() {
           { title: "2. Faire une séance d’essai", text: "Jusqu’à trois séances d’essai sont possibles sur inscription préalable.", href: "/inscriptions/seance-essai", icon: HeartPulse },
           { title: "3. Préparer les documents", text: "Téléchargez ci-dessous le formulaire et les documents santé correspondant au licencié.", href: "#documents", icon: FileText },
           {
-            title: "4. Finaliser l’inscription",
+            title: "4. S’inscrire sur MyFFBaD",
             text: registration.isFallback
-              ? "Le nouveau lien fédéral sera publié ici dès sa validation. Le bureau peut vous accompagner entre-temps."
-              : "Finalisez la licence sur le lien officiel FFBaD / Poona communiqué par le club.",
-            href: registration.isFallback ? "/contact" : registration.url,
-            external: !registration.isFallback,
+              ? "Connectez-vous ou créez un compte sur MyFFBaD. Le paiement en ligne n’est pas encore disponible.":
+              "Finalisez la licence sur le lien officiel communiqué par le club.",
+            href: registration.url,
+            external: true,
             icon: UserPlus
           }
         ].map((item) => {
@@ -63,7 +63,7 @@ export default async function InscriptionPage() {
               <h2 className="mt-4 text-xl font-black text-court-900">{item.title}</h2>
               <p className="mt-2 flex-1 text-sm leading-6 text-ink-500">{item.text}</p>
               <Link href={item.href} target={item.external ? "_blank" : undefined} rel={item.external ? "noreferrer" : undefined} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-court-600 hover:text-court-900">
-                Continuer <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                {item.external ? "Ouvrir MyFFBaD" : "Continuer"} {item.external ? <ExternalLink className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
               </Link>
             </Card>
           );
