@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
+import { escapeEmailHtml, sendAdminNotificationEmail } from "@/lib/server-email";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const requestTypes = new Set(["Séance d'essai", "Inscription", "Créneaux", "Volants", "Interclubs", "Partenariat", "Autre"]);
@@ -29,6 +30,19 @@ interface ContactRequestInsert {
 
 function asText(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function contactEmailHtml(payload: ContactRequestInsert) {
+  return [
+    "<h2>Nouveau message depuis le site CFVV</h2>",
+    "<ul>",
+    `<li><strong>Nom :</strong> ${escapeEmailHtml(payload.nom)}</li>`,
+    `<li><strong>Email :</strong> ${escapeEmailHtml(payload.email)}</li>`,
+    `<li><strong>Téléphone :</strong> ${escapeEmailHtml(payload.telephone || "Non renseigné")}</li>`,
+    `<li><strong>Objet :</strong> ${escapeEmailHtml(payload.type_demande)}</li>`,
+    "</ul>",
+    `<p><strong>Message :</strong></p><p>${escapeEmailHtml(payload.message).replace(/\n/g, "<br>")}</p>`
+  ].join("");
 }
 
 function validateContactRequest(input: ContactRequestInput): { payload?: ContactRequestInsert; error?: string; spam?: boolean } {
@@ -158,8 +172,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, message: supabaseErrorMessage(error.message) }, { status: 500 });
   }
 
+  const notification = await sendAdminNotificationEmail({
+    subject: `Nouveau contact CFVV · ${validation.payload.type_demande}`,
+    html: contactEmailHtml(validation.payload)
+  });
+
   return NextResponse.json({
     ok: true,
-    message: "Demande envoyée. Le club revient vers vous rapidement."
+    message: notification.sent
+      ? "Demande envoyée. Le club revient vers vous rapidement."
+      : `Demande enregistrée. La notification email n'a pas été envoyée : ${notification.message}`
   });
 }
