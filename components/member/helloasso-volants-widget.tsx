@@ -51,15 +51,15 @@ export function HelloAssoVolantsWidget() {
   }
 
   return (
-    <Card className="overflow-hidden border-[#0097a9]/35">
-      <div className="flex flex-col gap-3 border-b border-court-100 bg-[#eaf9fb] px-5 py-5 sm:flex-row sm:items-center sm:justify-between">
+    <Card className="overflow-hidden border-court-200 shadow-[0_18px_55px_rgba(3,37,51,0.08)]">
+      <div className="flex flex-col gap-4 border-b border-court-100 bg-white px-5 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-6">
         <div>
-          <p className="font-display text-sm font-black uppercase text-[#007f8f]">Paiement officiel</p>
-          <h2 className="mt-1 text-2xl font-black text-court-900">Boutique HelloAsso du CFVV</h2>
-          <p className="mt-2 text-sm leading-6 text-ink-600">Choisissez vos volants et réglez sans quitter votre espace adhérent.</p>
+          <p className="font-display text-xs font-black uppercase tracking-wide text-[#007f8f]">Paiement officiel</p>
+          <h2 className="mt-1 text-2xl font-black text-court-900">Boutique HelloAsso</h2>
+          <p className="mt-1 text-sm leading-6 text-ink-600">Toute la commande se fait dans le formulaire ci-dessous.</p>
         </div>
-        <a href={shopUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg border border-court-200 bg-white px-4 font-display text-sm font-black text-court-900 hover:bg-court-50">
-          Ouvrir dans un nouvel onglet <ExternalLink className="h-4 w-4" aria-hidden="true" />
+        <a href={shopUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-full border border-court-200 bg-court-50 px-4 font-display text-sm font-black text-court-900 transition hover:border-court-400 hover:bg-court-100">
+          Ouvrir séparément <ExternalLink className="h-4 w-4" aria-hidden="true" />
         </a>
       </div>
 
