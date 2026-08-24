@@ -28,7 +28,7 @@ export default function CookiesPage() {
         <h2 className="text-2xl font-black text-court-900">État actuel</h2>
         <p className="mt-4 text-ink-600">
           Le site utilise les mécanismes nécessaires à l'authentification, à la sécurité, à l'affichage et à l'installation facultative de l'application
-          mobile. Ces éléments sont nécessaires au service demandé par l'utilisateur.
+          mobile. La boutique HelloAsso intégrée reste bloquée tant que les contenus tiers facultatifs n'ont pas été acceptés.
         </p>
         <p className="mt-5 text-ink-600">
           À ce stade, aucun outil de publicité personnalisée ou de mesure d'audience non exemptée n'est volontairement chargé par le site.

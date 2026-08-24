@@ -38,7 +38,7 @@ function buildContentSecurityPolicy() {
     "img-src": ["'self'", "data:", "blob:", "https:"],
     "font-src": ["'self'", "data:"],
     "connect-src": connectSources,
-    "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com"],
+    "frame-src": ["'self'", "https://www.google.com", "https://maps.google.com", "https://www.helloasso.com"],
     "media-src": ["'self'", "https:"],
     "manifest-src": ["'self'"],
     "worker-src": ["'self'", "blob:"]

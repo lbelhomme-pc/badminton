@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
+import { HelloAssoVolantsWidget } from "@/components/member/helloasso-volants-widget";
 import { buildHelloAssoProductUrl, helloAssoMissingMessage } from "@/lib/helloasso";
 import { shuttleOrderStatusLabel } from "@/lib/status-labels";
 import {
@@ -101,6 +102,15 @@ function CommandeVolantsContent() {
               {message.text}
             </p>
           ) : null}
+
+          <div className="mt-6">
+            <HelloAssoVolantsWidget />
+          </div>
+
+          <div className="mt-10">
+            <p className="font-display text-sm font-black uppercase text-court-600">Produits proposés</p>
+            <h2 className="mt-1 text-2xl font-black text-court-900">Prix, stock et modalités de retrait</h2>
+          </div>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
             {volants.map((volant) => {
