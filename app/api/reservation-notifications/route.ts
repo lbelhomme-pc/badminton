@@ -32,6 +32,10 @@ function envRecipients() {
 }
 
 export async function POST(request: Request) {
+  if (process.env.RESERVATION_EMAIL_NOTIFICATIONS_ENABLED !== "true") {
+    return NextResponse.json({ ok: true, notified: false, message: "Notifications email désactivées par le club." });
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
