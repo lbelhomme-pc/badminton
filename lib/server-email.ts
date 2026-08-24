@@ -5,10 +5,12 @@ interface EmailInput {
   subject: string;
 }
 
-export interface AdminEmailResult {
+export interface EmailResult {
   sent: boolean;
   message: string;
 }
+
+type EmailRecipientInput = string | string[];
 
 function validEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -46,14 +48,14 @@ async function adminRecipients() {
   return [...recipients];
 }
 
-export async function sendAdminNotificationEmail(input: EmailInput): Promise<AdminEmailResult> {
+async function sendResendEmail(input: EmailInput & { to: EmailRecipientInput }): Promise<EmailResult> {
   if (process.env.RESERVATION_EMAIL_NOTIFICATIONS_ENABLED !== "true") {
     return { sent: false, message: "Notifications email désactivées par le club." };
   }
 
   const resendApiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.RESEND_FROM_EMAIL;
-  const recipients = await adminRecipients();
+  const recipients = Array.isArray(input.to) ? input.to : [input.to];
   if (!resendApiKey || !fromEmail || recipients.length === 0) {
     return { sent: false, message: "Configuration email incomplète : clé Resend, expéditeur ou destinataire manquant." };
   }
@@ -73,5 +75,20 @@ export async function sendAdminNotificationEmail(input: EmailInput): Promise<Adm
     }
     return { sent: false, message: `Resend a refusé l'envoi${details}.` };
   }
-  return { sent: true, message: "Administrateurs prévenus par email." };
+  return { sent: true, message: "Email envoyé." };
+}
+
+export async function sendAdminNotificationEmail(input: EmailInput): Promise<EmailResult> {
+  const recipients = await adminRecipients();
+  const result = await sendResendEmail({ ...input, to: recipients });
+  return result.sent ? { sent: true, message: "Administrateurs prévenus par email." } : result;
+}
+
+export async function sendContactConfirmationEmail(input: EmailInput & { to: string }): Promise<EmailResult> {
+  if (!validEmail(input.to)) {
+    return { sent: false, message: "Adresse email du demandeur invalide." };
+  }
+
+  const result = await sendResendEmail(input);
+  return result.sent ? { sent: true, message: "Confirmation envoyée au demandeur." } : result;
 }

@@ -1,6 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
-import { escapeEmailHtml, sendAdminNotificationEmail } from "@/lib/server-email";
+import { escapeEmailHtml, sendAdminNotificationEmail, sendContactConfirmationEmail } from "@/lib/server-email";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const requestTypes = new Set(["Séance d'essai", "Inscription", "Créneaux", "Volants", "Interclubs", "Partenariat", "Autre"]);
@@ -42,6 +42,16 @@ function contactEmailHtml(payload: ContactRequestInsert) {
     `<li><strong>Objet :</strong> ${escapeEmailHtml(payload.type_demande)}</li>`,
     "</ul>",
     `<p><strong>Message :</strong></p><p>${escapeEmailHtml(payload.message).replace(/\n/g, "<br>")}</p>`
+  ].join("");
+}
+
+function contactConfirmationEmailHtml(payload: ContactRequestInsert) {
+  return [
+    `<h2>Bonjour ${escapeEmailHtml(payload.nom)},</h2>`,
+    "<p>Nous avons bien reçu votre message envoyé depuis le site du CFVV.</p>",
+    `<p><strong>Objet :</strong> ${escapeEmailHtml(payload.type_demande)}</p>`,
+    "<p>Le bureau du club reviendra vers vous dès que possible.</p>",
+    "<p>Merci pour votre message,<br>L'équipe du CFVV</p>"
   ].join("");
 }
 
@@ -177,10 +187,21 @@ export async function POST(request: Request) {
     html: contactEmailHtml(validation.payload)
   });
 
+  const confirmation = await sendContactConfirmationEmail({
+    to: validation.payload.email,
+    subject: "Nous avons bien reçu votre message · CFVV",
+    html: contactConfirmationEmailHtml(validation.payload)
+  });
+
+  let message = "Demande enregistrée. Le club revient vers vous rapidement.";
+  if (notification.sent && confirmation.sent) {
+    message = "Demande envoyée. Un email de confirmation vient de vous être adressé.";
+  } else if (confirmation.sent) {
+    message = "Demande enregistrée. Un email de confirmation vient de vous être adressé.";
+  }
+
   return NextResponse.json({
     ok: true,
-    message: notification.sent
-      ? "Demande envoyée. Le club revient vers vous rapidement."
-      : `Demande enregistrée. La notification email n'a pas été envoyée : ${notification.message}`
+    message
   });
 }
