@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { LogOut, Shield, UserRound } from "lucide-react";
+import { LogOut, Shield, ShoppingBag, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { Button } from "@/components/ui/button";
 
@@ -67,6 +67,16 @@ export function UserMenu() {
           <span className="hidden md:inline">Admin</span>
         </Link>
       ) : null}
+      <Link
+        href="/commande-volants"
+        prefetch={false}
+        className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-court-200 bg-white font-display text-sm font-bold text-court-900 transition hover:bg-court-100 xl:w-auto xl:gap-2 xl:px-3"
+        aria-label="Acheter des volants"
+        title="Acheter des volants"
+      >
+        <ShoppingBag className="h-4 w-4" aria-hidden="true" />
+        <span className="hidden xl:inline">Volants</span>
+      </Link>
       <Link
         href="/espace-adherent"
         prefetch={false}

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { CalendarDays, Handshake, Home, Shield, Trophy, UserRound } from "lucide-react";
+import { CalendarDays, Handshake, Home, Shield, ShoppingBag, Trophy, UserRound } from "lucide-react";
 import { useAuth } from "@/components/auth/auth-provider";
 import { cn } from "@/lib/utils";
 
@@ -16,8 +16,11 @@ const memberItems = [
 
 export function MobileBottomNav() {
   const pathname = usePathname();
-  const { isAdmin, isManager } = useAuth();
-  const items = isAdmin || isManager ? [...memberItems, { href: "/admin", label: "Admin", icon: Shield }] : memberItems;
+  const { isAdmin, isAuthenticated, isManager } = useAuth();
+  const publicItems = isAuthenticated
+    ? memberItems.map((item) => item.href === "/partenaires" ? { href: "/commande-volants", label: "Volants", icon: ShoppingBag } : item)
+    : memberItems;
+  const items = isAdmin || isManager ? [...publicItems, { href: "/admin", label: "Admin", icon: Shield }] : publicItems;
 
   return (
     <nav
