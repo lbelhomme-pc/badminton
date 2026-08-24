@@ -6,6 +6,7 @@ const priorities: Record<(typeof publicSitemapPaths)[number], number> = {
   "/creneaux": 0.9,
   "/agenda": 0.8,
   "/tarifs": 0.8,
+  "/inscription": 0.9,
   "/contact": 0.8,
   "/vie-du-club/actualites": 0.7,
   "/vie-du-club/partenaires": 0.6,

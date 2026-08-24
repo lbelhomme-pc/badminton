@@ -22,6 +22,7 @@ export async function RegistrationCta({
 }: RegistrationCtaProps) {
   const settings = await getPublicClubSettings();
   const registration = getRegistrationLinkStatus(settings);
+  const officialLinkAvailable = showOfficialLink && !registration.isFallback;
 
   return (
     <section className={cn("rounded-lg border border-court-200 bg-white p-5 shadow-soft", className)}>
@@ -30,7 +31,7 @@ export async function RegistrationCta({
           <p className="text-sm font-semibold uppercase tracking-wide text-court-600">Inscription</p>
           <h2 className="mt-2 text-2xl font-black text-court-900">{title}</h2>
           <p className="mt-3 text-sm leading-6 text-ink-500 sm:text-base">{intro}</p>
-          {showOfficialLink ? (
+          {officialLinkAvailable ? (
             <p className="mt-3 rounded-lg bg-court-50 px-4 py-3 text-sm font-semibold leading-6 text-court-800">
               {registration.sourceLabel} : {registration.confirmationMessage}
             </p>
@@ -52,14 +53,14 @@ export async function RegistrationCta({
             <CalendarDays className="h-4 w-4" aria-hidden="true" />
             Demander un essai
           </Link>
-          {showOfficialLink ? (
+          {officialLinkAvailable ? (
             <Link
               href={registration.url}
               target="_blank"
               rel="noreferrer"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-50 sm:col-span-2"
             >
-              {registration.isFallback ? "Consulter l'ancienne page" : "Ouvrir l'inscription officielle"}
+              Ouvrir l'inscription officielle
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
             </Link>
           ) : showQuestionLink ? (
@@ -71,7 +72,7 @@ export async function RegistrationCta({
               Poser une question
             </Link>
           ) : null}
-          {!compact && showOfficialLink ? (
+          {!compact && officialLinkAvailable ? (
             <Link
               href="/contact"
               className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-court-200 bg-white px-5 font-semibold text-court-900 transition hover:bg-court-50 sm:col-span-2"

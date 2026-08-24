@@ -4,6 +4,7 @@ import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PwaInstallPrompt } from "@/components/pwa/pwa-install-prompt";
+import { CookieConsent } from "@/components/privacy/cookie-consent";
 import { Providers } from "@/components/providers";
 import { getSiteUrl } from "@/lib/seo";
 import { getPublicClubSettings } from "@/services/club.service";
@@ -74,6 +75,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </main>
           <SiteFooter settings={settings} />
           <PwaInstallPrompt />
+          <CookieConsent />
           <MobileBottomNav />
         </Providers>
       </body>

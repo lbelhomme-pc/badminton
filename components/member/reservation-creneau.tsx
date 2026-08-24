@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { formatFullDate } from "@/lib/club-week";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   getReservationActionState,
   reservationActionLabel,
@@ -34,6 +35,17 @@ function formatDateTime(value: string | null | undefined) {
     dateStyle: "short",
     timeStyle: "short"
   }).format(new Date(value));
+}
+
+async function notifyAdmins(creneauId: number, dateReservation: string) {
+  const supabase = createSupabaseBrowserClient();
+  const session = supabase ? (await supabase.auth.getSession()).data.session : null;
+  if (!session?.access_token) return;
+  await fetch("/api/reservation-notifications", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ creneauId, dateReservation })
+  });
 }
 
 function stateTone(state: ReservationActionState) {
@@ -109,6 +121,9 @@ function ReservationCreneauContent() {
     try {
       const result = await createReservation(user.id, creneau.id, creneau.occurrence_date);
       setMessage({ tone: result.ok ? "success" : "error", text: publicReservationMessage(result.message) });
+      if (result.ok && ["mercredi", "vendredi"].includes(creneau.jour.toLowerCase())) {
+        try { await notifyAdmins(creneau.id, creneau.occurrence_date); } catch { /* La réservation reste confirmée même si l'email échoue. */ }
+      }
       await loadAvailability(true);
     } finally {
       setPendingActionKey(null);

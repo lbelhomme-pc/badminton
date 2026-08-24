@@ -28,8 +28,7 @@ export const siteNavigation = [
       { label: "Tarifs", href: "/tarifs" },
       { label: "Séance d'essai", href: "/inscriptions/seance-essai" },
       { label: "Licence FFBaD", href: "/inscriptions/licence-ffbad" },
-      { label: "Documents utiles", href: "/inscriptions/documents-utiles" },
-      { label: "Règlement intérieur", href: "/inscriptions/documents-utiles" }
+      { label: "Documents 2026-2027", href: "/inscription#documents" }
     ]
   },
   {

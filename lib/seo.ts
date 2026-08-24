@@ -5,6 +5,7 @@ export const publicSitemapPaths = [
   "/creneaux",
   "/agenda",
   "/tarifs",
+  "/inscription",
   "/contact",
   "/vie-du-club/actualites",
   "/vie-du-club/partenaires",

@@ -32,7 +32,7 @@ export default function JeunesPage() {
               Voir les créneaux jeunes
             </Link>
             <Link
-              href="/inscriptions/documents-utiles"
+              href="/inscription#documents"
               className="inline-flex h-11 items-center justify-center rounded-lg border border-court-200 bg-white px-4 text-sm font-semibold text-court-900 transition hover:bg-court-50"
             >
               Documents utiles

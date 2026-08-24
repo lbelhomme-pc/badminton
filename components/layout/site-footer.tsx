@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ExternalLink, Instagram, Mail, MapPin, Phone, UserRound } from "lucide-react";
 import type { PublicClubSettings } from "@/services/club.service";
 import { InlineLayoutEditor } from "@/components/admin/inline-layout-editor";
@@ -11,18 +12,7 @@ const footerSections = [
       { label: "Tarifs", href: "/tarifs" },
       { label: "Lieux et accès", href: "/lieux-acces" },
       { label: "Séance d'essai", href: "/inscriptions/seance-essai" },
-      { label: "Inscriptions 2026-2027", href: "/inscription" },
-      { label: "Documents 2026-2027", href: "/inscriptions/documents-utiles" }
-    ]
-  },
-  {
-    title: "Catégories",
-    links: [
-      { label: "Jeunes", href: "/jouer-au-club/jeunes" },
-      { label: "Adultes débutants", href: "/jouer-au-club/adultes-debutants" },
-      { label: "Loisirs", href: "/jouer-au-club/loisirs" },
-      { label: "Compétition", href: "/jouer-au-club/competition" },
-      { label: "Classements", href: "/classements" }
+      { label: "Inscriptions et documents 2026-2027", href: "/inscription" }
     ]
   },
   {
@@ -119,6 +109,13 @@ export function SiteFooter({ settings }: { settings: PublicClubSettings }) {
               </div>
             </div>
           ))}
+          <div>
+            <p className="font-display text-lg font-black uppercase text-white">Affiliation FFBaD</p>
+            <a href="https://www.ffbad.org/" target="_blank" rel="noopener noreferrer" className="mt-4 flex items-center gap-3 rounded-lg bg-[#202e78] p-3 transition hover:bg-[#283994]" aria-label="Ouvrir le site de la FFBaD">
+              <Image src="/images/labels/efb-saison-2026-2027.jpg" alt="École française de badminton, saison 2026-2027" width={148} height={200} className="h-24 w-auto object-contain" />
+              <Image src="/images/labels/ffbad-efb-saison-2026-2027.jpg" alt="FFBaD et École française de badminton, saison 2026-2027" width={310} height={200} className="h-24 min-w-0 flex-1 object-contain" />
+            </a>
+          </div>
         </div>
       </div>
 

@@ -45,7 +45,7 @@ export const editablePublicPages = [
   { key: "/devenir-partenaire", label: "Devenir partenaire" },
   { key: "/faq", label: "Questions fréquentes" },
   { key: "/inscriptions/tarifs", label: "Tarifs" },
-  { key: "/inscriptions/documents-utiles", label: "Documents utiles" },
+  { key: "/inscription", label: "Inscriptions et documents 2026-2027", bodyEditable: false },
   { key: "/inscriptions/seance-essai", label: "Séance d'essai" },
   { key: "/inscriptions/licence-ffbad", label: "Licence FFBaD" },
   { key: "/jouer-au-club", label: "Jouer au club" },

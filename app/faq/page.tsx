@@ -50,7 +50,7 @@ const faqItems = [
   {
     question: "Comment inscrire un mineur ?",
     answer: "Un responsable légal doit suivre la procédure d'inscription et fournir les documents demandés par le club et la FFBaD.",
-    href: "/inscriptions/documents-utiles",
+    href: "/inscription#documents",
     cta: "Documents utiles"
   },
   {

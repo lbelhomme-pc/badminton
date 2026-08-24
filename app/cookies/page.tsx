@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { canonical } from "@/lib/seo";
+import { CookieSettingsButton } from "@/components/privacy/cookie-consent";
 
 export const metadata: Metadata = {
   title: "Cookies - CFVV",
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 const rules = [
-  "Aucun bandeau n'est affiché pour les éléments strictement nécessaires au fonctionnement du site.",
+  "Un bandeau permet d'accepter ou de refuser les services facultatifs lors de la première visite.",
   "Les traceurs non essentiels doivent être bloqués avant consentement.",
   "Le refus doit être aussi simple que l'acceptation.",
   "Le choix doit pouvoir être retiré ou modifié facilement.",
@@ -49,9 +50,9 @@ export default function CookiesPage() {
       <Card className="mt-6 p-5">
         <h2 className="text-xl font-black text-court-900">Préférences</h2>
         <p className="mt-3 text-sm leading-6 text-ink-600">
-          Aucune préférence de traceur non essentiel n'est actuellement nécessaire. Si le club ajoute des statistiques, cartes intégrées ou vidéos, un
-          panneau de préférences permanent devra être ajouté ici.
+          Le site n'active actuellement aucun outil publicitaire. Votre choix est néanmoins mémorisé afin que les futurs services facultatifs restent bloqués en cas de refus.
         </p>
+        <div className="mt-5"><CookieSettingsButton /></div>
         <p className="mt-5 text-sm leading-6 text-ink-600">
           Pour toute question, utilisez la page{" "}
           <Link href="/contact" className="font-bold text-court-900 underline">
