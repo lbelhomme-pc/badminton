@@ -3,7 +3,7 @@ export const siteNavigation = [
     label: "Le club",
     href: "/club",
     items: [
-      { label: "Présentation", href: "/club/presentation" },
+      { label: "Valeurs et histoire", href: "/club#valeurs-histoire" },
       { label: "Bureau et bénévoles", href: "/club/bureau-benevoles" },
       { label: "Encadrants", href: "/club/encadrants" },
       { label: "Gymnases et accès", href: "/club/gymnases-acces" },

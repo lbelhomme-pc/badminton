@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BadgeCheck, HeartHandshake, History, Shirt, Sparkles, UsersRound } from "lucide-react";
-import { ClubPhoto } from "@/components/public/club-photo";
 import { InfoPage } from "@/components/public/info-page";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { clubPhotoSlots, hasClubPhoto } from "@/lib/club-photos";
+import { clubPhotoSlots } from "@/lib/club-photos";
 
 export const metadata: Metadata = {
   title: "Le Club - CFVV",
@@ -46,7 +44,8 @@ const sections = [
 ];
 
 export default function ClubPage() {
-  const clubLifePhoto = clubPhotoSlots.clubLife;
+  const highlightedSections = sections.slice(0, 2);
+  const practicalSections = sections.slice(2);
 
   return (
     <InfoPage
@@ -70,37 +69,41 @@ export default function ClubPage() {
         ]
       }}
     >
-      <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <div>
-          {hasClubPhoto(clubLifePhoto) ? (
-            <ClubPhoto slot={clubLifePhoto} className="h-72 w-full md:h-96" />
-          ) : (
-            <img
-              src="/logos/cfvv-illustration.png"
-              alt="Illustration du CFVV avec volant de badminton et monument de Vendôme"
-              className="h-72 w-full rounded-lg border border-court-200 bg-white object-contain p-5 md:h-96"
-            />
-          )}
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <Link href="/creneaux">
-              <Button className="w-full sm:w-auto">Voir les créneaux</Button>
-            </Link>
-            <Link href="/inscriptions/seance-essai">
-              <Button variant="outline" className="w-full sm:w-auto">Demander un essai</Button>
-            </Link>
-          </div>
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {sections.map((item) => {
-            const Icon = item.icon;
-            return (
-              <Card key={item.title} className="p-5">
-                <Icon className="h-6 w-6 text-court-500" aria-hidden="true" />
-                <h2 className="mt-4 text-xl font-black text-court-900">{item.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-ink-600">{item.text}</p>
-              </Card>
-            );
-          })}
+      <div id="valeurs-histoire" className="grid scroll-mt-28 gap-5 md:grid-cols-2" aria-label="Valeurs et histoire du club">
+        {highlightedSections.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Card key={item.title} className="border-court-300 bg-court-50 p-6 shadow-[0_12px_28px_rgba(3,29,43,0.08)]">
+              <div className="flex items-center gap-3">
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-court-900 text-white">
+                  <Icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <h2 className="text-2xl font-black text-court-900">{item.title}</h2>
+              </div>
+              <p className="mt-4 text-base leading-7 text-ink-700">{item.text}</p>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="La vie du club">
+        {practicalSections.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Card key={item.title} className="p-5">
+              <Icon className="h-6 w-6 text-court-500" aria-hidden="true" />
+              <h2 className="mt-4 text-lg font-black text-court-900">{item.title}</h2>
+              <p className="mt-2 text-sm leading-6 text-ink-600">{item.text}</p>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="mt-7 flex flex-col gap-3 rounded-lg border border-court-200 bg-white p-5 shadow-soft sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm leading-6 text-ink-600">Envie de découvrir l’ambiance du CFVV ? Consultez les créneaux ou demandez une séance d’essai.</p>
+        <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+          <Link href="/creneaux" className="inline-flex min-h-11 items-center justify-center rounded-lg bg-court-500 px-4 font-display text-sm font-black text-white hover:bg-court-600">Voir les créneaux</Link>
+          <Link href="/inscriptions/seance-essai" className="inline-flex min-h-11 items-center justify-center rounded-lg border border-court-200 px-4 font-display text-sm font-black text-court-900 hover:bg-court-50">Demander un essai</Link>
         </div>
       </div>
     </InfoPage>
