@@ -17,6 +17,7 @@ const primaryLinks = [
   { href: "/club/bureau-benevoles", label: "Le Bureau" },
   { href: "/agenda", label: "Agenda" },
   { href: "/club", label: "Le Club" },
+  { href: "/jouer-au-club/competition", label: "Compétition" },
   { href: "/inscription", label: "Inscriptions 2026-2027" },
   { href: "/contact", label: "Contact" }
 ];
@@ -72,7 +73,7 @@ export function SiteHeader({ appearance, content }: { appearance: PublicAppearan
           <ClubLogo compact priority src={appearance.headerLogoUrl} alt={appearance.headerLogoAlt} />
         </Link>
 
-        <nav className="hidden items-center gap-5 xl:gap-7 lg:flex" aria-label="Navigation principale">
+        <nav className="hidden items-center gap-5 2xl:gap-7 xl:flex" aria-label="Navigation principale">
           {primaryLinks.map((item) => (
             <Link
               key={item.href}
@@ -98,7 +99,7 @@ export function SiteHeader({ appearance, content }: { appearance: PublicAppearan
             ref={menuButtonRef}
             variant="ghost"
             size="icon"
-            className="lg:hidden"
+            className="xl:hidden"
             aria-label={mobileOpen ? "Fermer le menu" : "Ouvrir le menu"}
             aria-expanded={mobileOpen}
             aria-controls="mobile-main-menu"
@@ -113,7 +114,7 @@ export function SiteHeader({ appearance, content }: { appearance: PublicAppearan
         <nav
           id="mobile-main-menu"
           aria-label="Navigation principale mobile"
-          className="max-h-[calc(100vh-6.5rem)] overflow-y-auto border-t border-slate-200 bg-white px-5 py-4 shadow-soft lg:hidden"
+          className="max-h-[calc(100vh-6.5rem)] overflow-y-auto border-t border-slate-200 bg-white px-5 py-4 shadow-soft xl:hidden"
         >
           <div className="grid gap-2">
             {mobileLinks.map((item, index) => (

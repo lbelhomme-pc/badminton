@@ -53,7 +53,7 @@ export const siteNavigation = [
 ];
 
 export const utilityNavigation = [
-  { label: "Classements", href: "/classements" },
+  { label: "Classements", href: "/jouer-au-club/competition#niveaux-joueurs" },
   { label: "FAQ", href: "/faq" },
   { label: "Contact", href: "/contact" },
   { label: "Lieux et accès", href: "/lieux-acces" },
