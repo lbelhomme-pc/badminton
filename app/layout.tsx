@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PwaInstallPrompt } from "@/components/pwa/pwa-install-prompt";
 import { CookieConsent } from "@/components/privacy/cookie-consent";
+import { GoogleAnalytics } from "@/components/analytics/google-analytics";
 import { Providers } from "@/components/providers";
 import { getSiteUrl } from "@/lib/seo";
 import { getPublicClubSettings } from "@/services/club.service";
@@ -76,6 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <SiteFooter settings={settings} />
           <PwaInstallPrompt />
           <CookieConsent />
+          <GoogleAnalytics />
           <MobileBottomNav />
         </Providers>
       </body>

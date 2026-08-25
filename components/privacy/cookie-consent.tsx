@@ -45,7 +45,7 @@ export function CookieConsent() {
           <div>
             <h2 id="cookie-consent-title" className="font-display text-xl font-black">Votre choix concernant les cookies</h2>
             <p className="mt-2 text-sm leading-6 text-slate-200">
-              Le site utilise les éléments indispensables à son fonctionnement. Vous pouvez accepter ou refuser les contenus tiers facultatifs, notamment la boutique intégrée HelloAsso.
+              Le site utilise les éléments indispensables à son fonctionnement. Vous pouvez accepter ou refuser les contenus tiers facultatifs, notamment la mesure d'audience Google Analytics et la boutique intégrée HelloAsso.
             </p>
             <Link href="/cookies" className="mt-2 inline-flex text-sm font-bold text-[#4dd6e6] underline underline-offset-2">En savoir plus et gérer mes préférences</Link>
           </div>

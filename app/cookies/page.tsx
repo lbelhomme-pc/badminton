@@ -28,10 +28,10 @@ export default function CookiesPage() {
         <h2 className="text-2xl font-black text-court-900">État actuel</h2>
         <p className="mt-4 text-ink-600">
           Le site utilise les mécanismes nécessaires à l'authentification, à la sécurité, à l'affichage et à l'installation facultative de l'application
-          mobile. La boutique HelloAsso intégrée reste bloquée tant que les contenus tiers facultatifs n'ont pas été acceptés.
+          mobile. Google Analytics et la boutique HelloAsso restent bloqués tant que les contenus tiers facultatifs n'ont pas été acceptés.
         </p>
         <p className="mt-5 text-ink-600">
-          À ce stade, aucun outil de publicité personnalisée ou de mesure d'audience non exemptée n'est volontairement chargé par le site.
+          La mesure d'audience Google Analytics est activée uniquement après acceptation des cookies facultatifs. Aucun outil de publicité personnalisée n'est utilisé.
         </p>
       </section>
 
@@ -50,7 +50,7 @@ export default function CookiesPage() {
       <Card className="mt-6 p-5">
         <h2 className="text-xl font-black text-court-900">Préférences</h2>
         <p className="mt-3 text-sm leading-6 text-ink-600">
-          Le site n'active actuellement aucun outil publicitaire. Votre choix est néanmoins mémorisé afin que les futurs services facultatifs restent bloqués en cas de refus.
+          Votre choix est mémorisé afin que Google Analytics et les autres services facultatifs restent bloqués en cas de refus. Vous pouvez modifier ce choix à tout moment.
         </p>
         <div className="mt-5"><CookieSettingsButton /></div>
         <p className="mt-5 text-sm leading-6 text-ink-600">
