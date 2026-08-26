@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Download, ExternalLink, FileCheck2, FileText, HeartPulse, MessageCircle, ShieldCheck, UserPlus } from "lucide-react";
+import { ArrowRight, CalendarDays, Download, FileCheck2, FileText, HeartPulse, MessageCircle, ShieldCheck, UserPlus } from "lucide-react";
+import { HelloAssoRegistrationWidget } from "@/components/public/helloasso-registration-widget";
 import { InteriorHero } from "@/components/public/interior-hero";
 import { Card } from "@/components/ui/card";
-import { getPublicClubSettings, getRegistrationLinkStatus } from "@/services/club.service";
+import { getPublicClubSettings } from "@/services/club.service";
 
 export const metadata: Metadata = {
   title: "Inscriptions et documents 2026-2027 - CFVV",
@@ -20,7 +21,6 @@ const registrationDocuments = [
 
 export default async function InscriptionPage() {
   const settings = await getPublicClubSettings();
-  const registration = getRegistrationLinkStatus(settings);
   const heroPhoto = settings.appearance.homeHeroImageUrl
     ? { id: "homeHero" as const, src: settings.appearance.homeHeroImageUrl, alt: "Joueurs du CFVV sur un terrain de badminton", width: 1400, height: 900 }
     : undefined;
@@ -37,6 +37,7 @@ export default async function InscriptionPage() {
         visualLabel="Rejoindre le CFVV"
         actions={[
           { href: "/creneaux", label: "Voir les créneaux", icon: <CalendarDays className="h-5 w-5" aria-hidden="true" /> },
+          { href: "#adhesion", label: "Adhérer en ligne", icon: <UserPlus className="h-5 w-5" aria-hidden="true" /> },
           { href: "#documents", label: "Télécharger les documents", variant: "secondary", icon: <Download className="h-5 w-5" aria-hidden="true" /> }
         ]}
       />
@@ -47,12 +48,9 @@ export default async function InscriptionPage() {
           { title: "2. Faire une séance d’essai", text: "Jusqu’à trois séances d’essai sont possibles sur inscription préalable.", href: "/inscriptions/seance-essai", icon: HeartPulse },
           { title: "3. Préparer les documents", text: "Téléchargez ci-dessous le formulaire et les documents santé correspondant au licencié.", href: "#documents", icon: FileText },
           {
-            title: "4. S’inscrire sur MyFFBaD",
-            text: registration.isFallback
-              ? "Connectez-vous ou créez un compte sur MyFFBaD. Le paiement en ligne n’est pas encore disponible.":
-              "Finalisez la licence sur le lien officiel communiqué par le club.",
-            href: registration.url,
-            external: true,
+            title: "4. Finaliser l’adhésion",
+            text: "Remplissez le formulaire d’adhésion et réglez en ligne de façon sécurisée avec HelloAsso.",
+            href: "#adhesion",
             icon: UserPlus
           }
         ].map((item) => {
@@ -62,12 +60,23 @@ export default async function InscriptionPage() {
               <Icon className="h-6 w-6 text-court-500" aria-hidden="true" />
               <h2 className="mt-4 text-xl font-black text-court-900">{item.title}</h2>
               <p className="mt-2 flex-1 text-sm leading-6 text-ink-500">{item.text}</p>
-              <Link href={item.href} target={item.external ? "_blank" : undefined} rel={item.external ? "noreferrer" : undefined} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-court-600 hover:text-court-900">
-                {item.external ? "Ouvrir MyFFBaD" : "Continuer"} {item.external ? <ExternalLink className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
+              <Link href={item.href} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-court-600 hover:text-court-900">
+                Continuer <ArrowRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </Card>
           );
         })}
+      </section>
+
+      <section id="adhesion" className="mt-12 scroll-mt-28" aria-labelledby="adhesion-title">
+        <div className="mb-6 flex items-center gap-3">
+          <UserPlus className="h-7 w-7 text-court-500" aria-hidden="true" />
+          <div>
+            <p className="text-sm font-bold uppercase tracking-wide text-court-600">Saison 2026-2027</p>
+            <h2 id="adhesion-title" className="text-3xl font-black text-court-900">Adhésion en ligne</h2>
+          </div>
+        </div>
+        <HelloAssoRegistrationWidget />
       </section>
 
       <section id="documents" className="mt-12 scroll-mt-28" aria-labelledby="documents-title">
