@@ -70,7 +70,7 @@ export function SiteHeader({ appearance, content }: { appearance: PublicAppearan
       <InlineLayoutEditor section="header" appearance={appearance} content={content} />
       <div className="mx-auto flex min-h-[104px] max-w-[1180px] items-center justify-between gap-5 px-5 lg:px-8">
         <Link href="/" prefetch={false} className="flex min-w-0 items-center gap-3" aria-label="Accueil du CFVV">
-          <ClubLogo compact priority src={appearance.headerLogoUrl} alt={appearance.headerLogoAlt} />
+          <ClubLogo priority src={appearance.headerLogoUrl} alt={appearance.headerLogoAlt} />
         </Link>
 
         <nav className="hidden items-center gap-5 2xl:gap-7 xl:flex" aria-label="Navigation principale">

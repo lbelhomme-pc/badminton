@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, CalendarDays, Download, FileCheck2, FileText, HeartPulse, MessageCircle, ShieldCheck, UserPlus } from "lucide-react";
+import { HashAnchorScroller } from "@/components/public/hash-anchor-scroller";
 import { HelloAssoRegistrationWidget } from "@/components/public/helloasso-registration-widget";
 import { InteriorHero } from "@/components/public/interior-hero";
 import { Card } from "@/components/ui/card";
@@ -27,6 +28,7 @@ export default async function InscriptionPage() {
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      <HashAnchorScroller />
       <InteriorHero
         contentKey="/inscription"
         eyebrow="Saison 2026-2027"
