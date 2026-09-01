@@ -119,7 +119,7 @@ export const defaultPublicClubSettings: PublicClubSettings = {
   contact: {
     email: "cfvv41@gmail.com",
     phone: "06 60 93 51 85",
-    genericContacts: ["Clovis Bellan", "Didier Remule", "Julie Remule"],
+    genericContacts: [],
     facebookUrl: "https://www.facebook.com/CFVVBadminton/",
     instagramUrl: "https://www.instagram.com/cfvv.41/"
   },
@@ -184,6 +184,36 @@ export const defaultPublicClubSettings: PublicClubSettings = {
       photoAlt: "Portrait de Ludovic Belhomme"
     },
     {
+      key: "membre-sebastien",
+      role: "Membre du bureau",
+      name: "Sébastien",
+      mission: "Participation à la vie du club, à l'accueil des joueurs et aux actions du bureau.",
+      email: "",
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Portrait de Sébastien"
+    },
+    {
+      key: "membre-geoffray",
+      role: "Membre du bureau",
+      name: "Geoffray Erny",
+      mission: "Participation à la vie du club, à l'accueil des joueurs et aux actions du bureau.",
+      email: "",
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Portrait de Geoffray Erny"
+    },
+    {
+      key: "membre-emilie",
+      role: "Membre du bureau",
+      name: "Emilie Gauvry",
+      mission: "Participation à la vie du club, à l'accueil des joueurs et aux actions du bureau.",
+      email: "",
+      phone: "",
+      photoUrl: "",
+      photoAlt: "Portrait d'Emilie Gauvry"
+    },
+    {
       key: "creneaux",
       role: "Responsables créneaux",
       name: "Julie Remule / Didier Remule",
@@ -206,12 +236,12 @@ export const defaultPublicClubSettings: PublicClubSettings = {
     {
       key: "contact",
       role: "Contacts génériques",
-      name: "Clovis Bellan / Didier Remule / Julie Remule",
+      name: "Bureau du CFVV",
       mission: "Référents publics pour orienter les demandes d'essai, d'inscription, de créneaux, de volants et de partenariat.",
       email: "cfvv41@gmail.com",
       phone: "06 60 93 51 85",
       photoUrl: "",
-      photoAlt: "Référents contact du CFVV"
+      photoAlt: "Contacts du bureau du CFVV"
     },
     {
       key: "benevoles",
@@ -304,8 +334,7 @@ function cleanInlineTextOverrides(value: unknown): InlineTextOverrides {
 
 function cleanStringList(value: unknown, fallback: string[]) {
   if (Array.isArray(value)) {
-    const cleaned = value.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((item) => item.trim());
-    return cleaned.length > 0 ? cleaned : fallback;
+    return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((item) => item.trim());
   }
 
   if (typeof value === "string" && value.trim().length > 0) {

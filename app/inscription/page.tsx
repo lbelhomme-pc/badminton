@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, Download, FileCheck2, FileText, HeartPulse, MessageCircle, ShieldCheck, UserPlus } from "lucide-react";
+import { ArrowRight, CalendarDays, Download, ExternalLink, FileCheck2, FileText, HeartPulse, MessageCircle, ShieldCheck, UserPlus } from "lucide-react";
 import { HashAnchorScroller } from "@/components/public/hash-anchor-scroller";
 import { HelloAssoRegistrationWidget } from "@/components/public/helloasso-registration-widget";
 import { InteriorHero } from "@/components/public/interior-hero";
 import { Card } from "@/components/ui/card";
-import { getPublicClubSettings } from "@/services/club.service";
+import { getPublicClubSettings, getRegistrationLinkStatus } from "@/services/club.service";
 
 export const metadata: Metadata = {
   title: "Inscriptions et documents 2026-2027 - CFVV",
@@ -22,6 +22,7 @@ const registrationDocuments = [
 
 export default async function InscriptionPage() {
   const settings = await getPublicClubSettings();
+  const registration = getRegistrationLinkStatus(settings);
   const heroPhoto = settings.appearance.homeHeroImageUrl
     ? { id: "homeHero" as const, src: settings.appearance.homeHeroImageUrl, alt: "Joueurs du CFVV sur un terrain de badminton", width: 1400, height: 900 }
     : undefined;
@@ -39,7 +40,7 @@ export default async function InscriptionPage() {
         visualLabel="Rejoindre le CFVV"
         actions={[
           { href: "/creneaux", label: "Voir les créneaux", icon: <CalendarDays className="h-5 w-5" aria-hidden="true" /> },
-          { href: "#adhesion", label: "Adhérer en ligne", icon: <UserPlus className="h-5 w-5" aria-hidden="true" /> },
+          { href: registration.url, label: "S'inscrire sur MyFFBaD", external: true, icon: <UserPlus className="h-5 w-5" aria-hidden="true" /> },
           { href: "#documents", label: "Télécharger les documents", variant: "secondary", icon: <Download className="h-5 w-5" aria-hidden="true" /> }
         ]}
       />
@@ -50,9 +51,10 @@ export default async function InscriptionPage() {
           { title: "2. Faire une séance d’essai", text: "Jusqu’à trois séances d’essai sont possibles sur inscription préalable.", href: "/inscriptions/seance-essai", icon: HeartPulse },
           { title: "3. Préparer les documents", text: "Téléchargez ci-dessous le formulaire et les documents santé correspondant au licencié.", href: "#documents", icon: FileText },
           {
-            title: "4. Finaliser l’adhésion",
-            text: "Remplissez le formulaire d’adhésion et réglez en ligne de façon sécurisée avec HelloAsso.",
-            href: "#adhesion",
+            title: "4. Ouvrir le parcours officiel",
+            text: "Suivez les étapes d’adhésion, choisissez votre mode de règlement puis transmettez les justificatifs demandés.",
+            href: registration.url,
+            external: true,
             icon: UserPlus
           }
         ].map((item) => {
@@ -62,12 +64,52 @@ export default async function InscriptionPage() {
               <Icon className="h-6 w-6 text-court-500" aria-hidden="true" />
               <h2 className="mt-4 text-xl font-black text-court-900">{item.title}</h2>
               <p className="mt-2 flex-1 text-sm leading-6 text-ink-500">{item.text}</p>
-              <Link href={item.href} className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-court-600 hover:text-court-900">
-                Continuer <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              <Link
+                href={item.href}
+                target={item.external ? "_blank" : undefined}
+                rel={item.external ? "noopener noreferrer" : undefined}
+                className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-court-600 hover:text-court-900"
+              >
+                Continuer {item.external ? <ExternalLink className="h-4 w-4" aria-hidden="true" /> : <ArrowRight className="h-4 w-4" aria-hidden="true" />}
               </Link>
             </Card>
           );
         })}
+      </section>
+
+      <section className="mt-10" aria-labelledby="adhesion-steps-title">
+        <Card className="border-court-200 bg-court-50 p-6 sm:p-8">
+          <p className="text-sm font-bold uppercase tracking-wide text-court-600">Mode d'emploi</p>
+          <h2 id="adhesion-steps-title" className="mt-2 text-3xl font-black text-court-900">Les 4 étapes pour adhérer</h2>
+          <ol className="mt-6 grid gap-4 md:grid-cols-2">
+            <li className="rounded-lg border border-court-100 bg-white p-5">
+              <p className="font-display text-sm font-black uppercase text-court-600">Étape 1</p>
+              <h3 className="mt-2 text-xl font-black text-court-900">S'inscrire sur MyFFBaD</h3>
+              <p className="mt-2 text-sm leading-6 text-ink-600">Ouvrez le parcours officiel du CFVV et complétez les informations du licencié.</p>
+              <a href={registration.url} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-court-600 hover:text-court-900">
+                Ouvrir MyFFBaD <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              </a>
+            </li>
+            <li className="rounded-lg border border-court-100 bg-white p-5">
+              <p className="font-display text-sm font-black uppercase text-court-600">Étape 2</p>
+              <h3 className="mt-2 text-xl font-black text-court-900">Choisir le paiement par virement</h3>
+              <p className="mt-2 text-sm leading-6 text-ink-600">Dans le parcours fédéral, sélectionnez le règlement par virement bancaire.</p>
+            </li>
+            <li className="rounded-lg border border-court-100 bg-white p-5">
+              <p className="font-display text-sm font-black uppercase text-court-600">Étape 3</p>
+              <h3 className="mt-2 text-xl font-black text-court-900">Effectuer le paiement par HelloAsso</h3>
+              <p className="mt-2 text-sm leading-6 text-ink-600">Utilisez le formulaire sécurisé HelloAsso intégré ci-dessous pour régler votre adhésion.</p>
+              <a href="#adhesion" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-court-600 hover:text-court-900">
+                Accéder au paiement <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </a>
+            </li>
+            <li className="rounded-lg border border-court-100 bg-white p-5">
+              <p className="font-display text-sm font-black uppercase text-court-600">Étape 4</p>
+              <h3 className="mt-2 text-xl font-black text-court-900">Le club valide votre inscription</h3>
+              <p className="mt-2 text-sm leading-6 text-ink-600">Après vérification des informations et du règlement, le bureau revient vers vous pour confirmer votre inscription.</p>
+            </li>
+          </ol>
+        </Card>
       </section>
 
       <section id="adhesion" className="mt-12 scroll-mt-28" aria-labelledby="adhesion-title">

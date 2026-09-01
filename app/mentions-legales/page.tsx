@@ -22,7 +22,7 @@ const sections = [
       "Siège social confirmé : 10 Imp. de la Devallerie, 41100 Naveil.",
       "Lieu de pratique confirmé : Gymnase des Aigremonts, 554 Rue de la Chappe, 41100 Vendôme.",
       "Contact public : cfvv41@gmail.com - 06 60 93 51 85.",
-      "Référents contact : Clovis Bellan, Didier Remule et Julie Remule.",
+      "Référents contact : le bureau du CFVV, via le formulaire et l'adresse officielle du club.",
       "Responsable de publication : bureau du CFVV, à confirmer formellement."
     ]
   },

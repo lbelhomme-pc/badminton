@@ -32,7 +32,7 @@ const defaultClub = {
 const defaultContact = {
   email: "cfvv41@gmail.com",
   phone: "06 60 93 51 85",
-  generic_contacts: "Clovis Bellan / Didier Remule / Julie Remule",
+  generic_contacts: "",
   facebook_url: "https://www.facebook.com/CFVVBadminton/",
   instagram_url: "https://www.instagram.com/cfvv.41/"
 };
@@ -430,7 +430,7 @@ function AdminParametresContent() {
             <SettingsInput label="Email du club" type="email" required={false} value={contact.email} onChange={(value) => updateContact("email", value)} />
             <SettingsInput label="Téléphone" required={false} value={contact.phone} onChange={(value) => updateContact("phone", value)} />
             <SettingsInput
-              label="Référents contact"
+              label="Référents contact (facultatif)"
               required={false}
               value={contact.generic_contacts}
               onChange={(value) => updateContact("generic_contacts", value)}
